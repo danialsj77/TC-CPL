@@ -1,0 +1,338 @@
+{
+  "history": [
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.0026404319796711206,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 8192
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.003548725275322795,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 16384
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.0036962958984076977,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 24576
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.002660806756466627,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 32768
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.0003560429031495005,
+      "backtracks": 5,
+      "Jc": 0.0,
+      "timesteps": 40960
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.0030691991560161114,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 49152
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.0040887692011892796,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 57344
+    },
+    {
+      "status": "cpo",
+      "accepted": false,
+      "c": 0.0,
+      "kl": 0.0,
+      "backtracks": 9,
+      "Jc": 0.0,
+      "timesteps": 65536
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.003917692229151726,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 73728
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.004152706824243069,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 81920
+    },
+    {
+      "status": "cpo",
+      "accepted": false,
+      "c": 0.0,
+      "kl": 0.0,
+      "backtracks": 9,
+      "Jc": 0.0,
+      "timesteps": 90112
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.004195409826934338,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 98304
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.00402484368532896,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 106496
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.005086245946586132,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 114688
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.004958387464284897,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 122880
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.004413058049976826,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 131072
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.0019101648358628154,
+      "backtracks": 2,
+      "Jc": 0.0,
+      "timesteps": 139264
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.005114494822919369,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 147456
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.005286423955112696,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 155648
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.0021456643007695675,
+      "backtracks": 2,
+      "Jc": 0.0,
+      "timesteps": 163840
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.005095718894153833,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 172032
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.005284149199724197,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 180224
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.004253604914993048,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 188416
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.005448933690786362,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 196608
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.005289221182465553,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 204800
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.005343985743820667,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 212992
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.004988252185285091,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 221184
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.0008296545129269361,
+      "backtracks": 4,
+      "Jc": 0.0,
+      "timesteps": 229376
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.005520939826965332,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 237568
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.00533460034057498,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 245760
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.005627412348985672,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 253952
+    },
+    {
+      "status": "cpo",
+      "accepted": false,
+      "c": 0.0,
+      "kl": 0.0,
+      "backtracks": 9,
+      "Jc": 0.0,
+      "timesteps": 262144
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.005306323058903217,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 270336
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.006315598264336586,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 278528
+    },
+    {
+      "status": "cpo",
+      "accepted": false,
+      "c": 0.0,
+      "kl": 0.0,
+      "backtracks": 9,
+      "Jc": 0.0,
+      "timesteps": 286720
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.00563282473012805,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 294912
+    },
+    {
+      "status": "cpo",
+      "accepted": true,
+      "c": 0.0,
+      "kl": 0.006422494072467089,
+      "backtracks": 0,
+      "Jc": 0.0,
+      "timesteps": 303104
+    }
+  ],
+  "seed": 42
+}

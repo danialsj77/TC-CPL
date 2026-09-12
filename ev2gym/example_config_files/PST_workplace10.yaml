@@ -1,0 +1,128 @@
+# SafeDPO / PST-paper experimental configuration
+# Faithful to: Yılmaz, Orfanoudakis & Vergara, "Reinforcement Learning for
+# Optimized EV Charging Through Power Setpoint Tracking" (IEEE, 2024), Sec. IV:
+#   - workplace parking lot with 10 EV chargers
+#   - charging sessions 6:00-18:00 (12 h), 15-minute intervals -> 48 steps
+#   - power setpoints with a 5% flexibility (surplus) margin, price-weighted
+#   - EV behaviour from ElaadNL, day-ahead prices from entso-e (NL),
+#     EV specs from RVO NL registrations (all bundled in ev2gym/data/)
+
+##############################################################################
+# Simulation Parameters
+##############################################################################
+timescale: 15           # minutes per step (paper: 15-minute intervals)
+simulation_length: 48   # 12 h x 4 steps/h  (paper: 6 am - 6 pm)
+
+##############################################################################
+# Date and Time
+##############################################################################
+year: 2022
+month: 1
+day: 17
+random_day: True        # a random (week)day per episode -> random price/arrival scenario
+random_hour: False
+hour: 6                 # simulation starts at 6:00 (paper: office hours)
+minute: 0
+simulation_days: weekdays
+
+# EV Spawn Behavior
+scenario: workplace     # ElaadNL workplace arrival/stay/demand distributions
+spawn_multiplier: 25
+
+##############################################################################
+# Prices
+##############################################################################
+discharge_price_factor: 1
+
+##############################################################################
+# Distribution Network Settings
+##############################################################################
+v2g_enabled: False              # paper: charging only
+number_of_charging_stations: 10 # paper: 10 chargers
+number_of_transformers: 1       # one parking-lot transformer (paper Eq. 4)
+number_of_ports_per_cs: 1
+charging_network_topology: None
+
+simulate_grid: False            # paper has no power-flow simulation (much faster!)
+network_info:
+  vm_pu: 1.0
+  s_base: 1000
+  load_multiplier: 1
+  pv_scale: 80
+  bus_info_file: './ev2gym/data/network_data/node_34/Nodes_34.csv'
+  branch_info_file: './ev2gym/data/network_data/node_34/Lines_34.csv'
+
+pf_solver: 'Laurent'
+
+##############################################################################
+# Power Setpoints Settings
+##############################################################################
+power_setpoint_enabled: True
+power_setpoint_flexiblity: 5    # paper: "5% flexibility margin"
+
+##############################################################################
+# Inflexible Loads, Solar Generation, and Demand Response
+##############################################################################
+tr_seed: -1
+
+inflexible_loads:               # paper: none (dedicated parking-lot transformer)
+  include: False
+  inflexible_loads_capacity_multiplier_mean: 1
+  forecast_mean: 30
+  forecast_std: 5
+
+solar_power:
+  include: False
+  solar_power_capacity_multiplier_mean: 1
+  forecast_mean: 20
+  forecast_std: 5
+
+demand_response:
+  include: False
+  events_per_day: 1
+  event_capacity_percentage_mean: 35
+  event_capacity_percentage_std: 5
+  event_length_minutes_min: 60
+  event_length_minutes_max: 60
+  event_start_hour_mean: 12
+  event_start_hour_std: 2
+  notification_of_event_minutes: 60
+
+##############################################################################
+# EV Specifications
+##############################################################################
+heterogeneous_ev_specs: True    # sampled by RVO NL registration shares
+ev_specs_file: ./ev2gym/data/ev_specs_ev_plus_phev.json
+
+##############################################################################
+# Default Model values
+##############################################################################
+transformer:
+  max_power: 30                 # kW — the transformer power limit of paper Eq. (4);
+                                # binding: uncontrolled charging (CAFAP) exceeds it
+
+charging_station:
+  min_charge_current: 0
+  max_charge_current: 16        # 16 A x 400 V x sqrt(3) ~ 11 kW per charger
+  min_discharge_current: 0
+  max_discharge_current: 0
+  voltage: 400
+  phases: 3
+
+ev:
+  battery_capacity: 50
+  max_ac_charge_power: 11
+  min_ac_charge_power: 0
+  max_dc_charge_power: 50
+  max_discharge_power: -11
+  min_discharge_power: 0
+  ev_phases: 3
+  charge_efficiency: 1
+  discharge_efficiency: 1
+  transition_soc: 1
+
+  min_battery_capacity: 5
+  min_time_of_stay: 60
+  min_emergency_battery_capacity: 25
+  desired_capacity: 1
+  transition_soc_multiplier: 5

@@ -1,0 +1,30 @@
+# Rating mix of Dutch MV/LV secondary (distribution) substations - URBAN.
+#
+# Source for the shape of the distribution:
+#   JRC Science for Policy Report EUR 27927 EN, "Distribution System Operators
+#   Observatory" (2016), https://publications.jrc.ec.europa.eu/repository/bitstream/JRC101680/ldna27927enn.pdf
+#   -> For the Netherlands it reports that the MEDIAN transformation capacity of
+#      MV/LV substations in URBAN areas is 630 kVA, with a MINIMUM of 400 kVA and
+#      a MAXIMUM of 1000 kVA. (In RURAL areas the most typical value is 400 kVA,
+#      followed by 250 kVA and 100 kVA - see the rural block at the bottom.)
+#
+# HONESTY NOTE: the median/min/max above are published; the per-rating SHARES
+# below are NOT published. They are a reconstruction chosen to be consistent with
+# the published order statistics (cumulative share crosses 0.50 inside the 630 kVA
+# bin, support is exactly [400, 1000] kVA) and with the IEC 60076 standard rating
+# ladder. Replace the `share` column with your DSO's real asset register when you
+# have it - the loader only requires the two columns below.
+#
+# rating_kva : nameplate apparent power of the MV/LV transformer, kVA
+# share      : probability of drawing this rating (renormalised by the loader)
+rating_kva,share
+400,0.30
+630,0.45
+800,0.15
+1000,0.10
+#
+# Rural variant (uncomment and comment out the urban block above to use it):
+# 100,0.15
+# 250,0.25
+# 400,0.45
+# 630,0.15

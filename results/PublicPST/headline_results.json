@@ -1,0 +1,330 @@
+{
+  "scenario_id": "PublicPST \u00b7 1 substations \u00b7 20 stations (20 ports) \u00b7 identical for all controllers",
+  "scenario": {
+    "config_file": "ev2gym/example_config_files/PublicPST.yaml",
+    "n_transformers": 1,
+    "n_charging_stations": 20,
+    "n_ports": 20,
+    "ports_per_station": [
+      1
+    ],
+    "simulation_length": 112,
+    "timescale": 15,
+    "simulate_grid": false,
+    "total_nameplate_kW": 100.0,
+    "median_nameplate_kW": 100.0,
+    "action_dim": 20
+  },
+  "n_episodes": 100,
+  "n_episodes_optimal": 100,
+  "seeds_evaluated": {
+    "Fixed-Penalty SAC": [
+      42
+    ],
+    "TC-CPL (M1+M2+M3)": [
+      42
+    ],
+    "DDPG-PST": [
+      42
+    ],
+    "PPO-PST": [
+      42
+    ],
+    "CPO": [
+      42
+    ]
+  },
+  "reference": "TC-CPL (M1+M2+M3)",
+  "unmet_demand_pct": {
+    "DDPG-PST": 3.5477058386751446,
+    "PPO-PST": 20.403287647171673,
+    "CPO": 17.727133378980223,
+    "Fixed-Penalty SAC": 0.17540507547459655,
+    "TC-CPL (M1+M2+M3)": 0.20441043009590984,
+    "Optimal": 0.32507216053397003
+  },
+  "delivered_kWh": {
+    "DDPG-PST": 156.60845475846207,
+    "PPO-PST": 62.64328486823148,
+    "CPO": 77.85849210954999,
+    "Fixed-Penalty SAC": 171.03678831299055,
+    "TC-CPL (M1+M2+M3)": 170.79112358848636,
+    "Optimal": 169.35714557421414
+  },
+  "overload_mean_kWh": {
+    "DDPG-PST": 0.0,
+    "PPO-PST": 0.0,
+    "CPO": 0.0,
+    "Fixed-Penalty SAC": 0.0,
+    "TC-CPL (M1+M2+M3)": 0.0,
+    "Optimal": 0.0
+  },
+  "overload_median_kWh": {
+    "DDPG-PST": 0.0,
+    "PPO-PST": 0.0,
+    "CPO": 0.0,
+    "Fixed-Penalty SAC": 0.0,
+    "TC-CPL (M1+M2+M3)": 0.0,
+    "Optimal": 0.0
+  },
+  "overload_per_MWh": {
+    "DDPG-PST": 0.0,
+    "PPO-PST": 0.0,
+    "CPO": 0.0,
+    "Fixed-Penalty SAC": 0.0,
+    "TC-CPL (M1+M2+M3)": 0.0,
+    "Optimal": 0.0
+  },
+  "clean_day_pct": {
+    "DDPG-PST": 100.0,
+    "PPO-PST": 100.0,
+    "CPO": 100.0,
+    "Fixed-Penalty SAC": 100.0,
+    "TC-CPL (M1+M2+M3)": 100.0,
+    "Optimal": 100.0
+  },
+  "average_user_satisfaction": {
+    "DDPG-PST": 0.9629932771975376,
+    "PPO-PST": 0.7948627911443501,
+    "CPO": 0.8214565578529214,
+    "Fixed-Penalty SAC": 0.996506550995438,
+    "TC-CPL (M1+M2+M3)": 0.9962199823753134,
+    "Optimal": 0.9949860399766071
+  },
+  "significance": {
+    "Fixed-Penalty SAC": {
+      "overload_occurrence": {
+        "violating_days_a": 0,
+        "violating_days_b": 0,
+        "discordant_a_only": 0,
+        "discordant_b_only": 0,
+        "n_discordant": 0,
+        "p_mcnemar_exact": 1.0,
+        "p_holm": 1.0
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0,
+        "p_holm": 1.0
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 53,
+        "W": 210.0,
+        "p_wilcoxon": 7.638538311699748e-06,
+        "rank_biserial": 0.7064989517819706,
+        "hodges_lehmann": 0.01753305458784382,
+        "median_diff": 0.0,
+        "p_holm": 7.638538311699748e-06
+      }
+    },
+    "CPO": {
+      "overload_occurrence": {
+        "violating_days_a": 0,
+        "violating_days_b": 0,
+        "discordant_a_only": 0,
+        "discordant_b_only": 0,
+        "n_discordant": 0,
+        "p_mcnemar_exact": 1.0,
+        "p_holm": 1.0
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0,
+        "p_holm": 1.0
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 0.0,
+        "p_wilcoxon": 3.89655984509591e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -17.234066958031203,
+        "median_diff": -16.84685163677368,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "DDPG-PST": {
+      "overload_occurrence": {
+        "violating_days_a": 0,
+        "violating_days_b": 0,
+        "discordant_a_only": 0,
+        "discordant_b_only": 0,
+        "n_discordant": 0,
+        "p_mcnemar_exact": 1.0,
+        "p_holm": 1.0
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0,
+        "p_holm": 1.0
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 4.0,
+        "p_wilcoxon": 4.397113554181895e-18,
+        "rank_biserial": -0.9984158415841584,
+        "hodges_lehmann": -2.945587767677594,
+        "median_diff": -2.572891282670618,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "PPO-PST": {
+      "overload_occurrence": {
+        "violating_days_a": 0,
+        "violating_days_b": 0,
+        "discordant_a_only": 0,
+        "discordant_b_only": 0,
+        "n_discordant": 0,
+        "p_mcnemar_exact": 1.0,
+        "p_holm": 1.0
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0,
+        "p_holm": 1.0
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 0.0,
+        "p_wilcoxon": 3.89655984509591e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -20.053986970753087,
+        "median_diff": -19.931590273438545,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "Round-Robin": {
+      "overload_occurrence": {
+        "violating_days_a": 0,
+        "violating_days_b": 0,
+        "discordant_a_only": 0,
+        "discordant_b_only": 0,
+        "n_discordant": 0,
+        "p_mcnemar_exact": 1.0,
+        "p_holm": 1.0
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0,
+        "p_holm": 1.0
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 99,
+        "W": 0.0,
+        "p_wilcoxon": 5.697220948724935e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -2.408357973975967,
+        "median_diff": -2.244338191694723,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "CAFAP": {
+      "overload_occurrence": {
+        "violating_days_a": 0,
+        "violating_days_b": 0,
+        "discordant_a_only": 0,
+        "discordant_b_only": 0,
+        "n_discordant": 0,
+        "p_mcnemar_exact": 1.0,
+        "p_holm": 1.0
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0,
+        "p_holm": 1.0
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 93,
+        "W": 0.0,
+        "p_wilcoxon": 5.560344547985707e-17,
+        "rank_biserial": 1.0,
+        "hodges_lehmann": 0.10410438066149652,
+        "median_diff": 0.020191428350003093,
+        "p_holm": 1.1120689095971413e-16
+      }
+    }
+  },
+  "targets": {
+    "target_overload": 0.0,
+    "target_sat": 0.95,
+    "train_sat_floor": 0.98,
+    "ov_margin": 0.05
+  }
+}

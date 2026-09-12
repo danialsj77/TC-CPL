@@ -1,0 +1,144 @@
+# cityPST.yaml — Real-World City Public Charging Hub
+# ============================================================
+# Designed to challenge safe DRL contributions by modelling
+# a busy urban charging station with:
+#   • High EV density (public hub near city centre)
+#   • Strict grid capacity (urban transformer, limited headroom)
+#   • Variable renewable generation (rooftop PV)
+#   • Frequent demand response events (grid operator interventions)
+#   • Day-to-day variability (weekdays + weekends, random dates)
+# ============================================================
+
+##############################################################################
+# Simulation Parameters
+##############################################################################
+timescale: 15          # 15 minutes per step
+simulation_length: 96  # 96 steps = 24-hour cycle
+
+##############################################################################
+# Date and Time
+##############################################################################
+year: 2022
+month: 1
+day: 17
+random_day: True       # ← changed: True — varies day each reset (realistic)
+random_hour: False     # start always at 05:00 for consistent daily cycle
+
+hour: 5
+minute: 0
+
+simulation_days: both  # ← changed: both — weekdays AND weekends (real city)
+
+##############################################################################
+# EV Spawn Behavior
+##############################################################################
+scenario: public
+spawn_multiplier: 15   # ← changed: 15 (was 10) — busy city hub, high turnover
+
+##############################################################################
+# Prices
+##############################################################################
+discharge_price_factor: 1
+
+##############################################################################
+# Distribution Network Settings
+##############################################################################
+v2g_enabled: False
+number_of_charging_stations: 20
+number_of_transformers: 2
+number_of_ports_per_cs: 1
+charging_network_topology: None
+
+simulate_grid: True    # full power flow simulation
+network_info:
+  vm_pu: 1.0
+  s_base: 1000
+  load_multiplier: 1
+  pv_scale: 80
+  bus_info_file: './ev2gym/data/network_data/node_34/Nodes_34.csv'
+  branch_info_file: './ev2gym/data/network_data/node_34/Lines_34.csv'
+
+pf_solver: 'Laurent'
+
+##############################################################################
+# Power Setpoint Settings
+# CHALLENGE: tighter flexibility → harder tracking constraint
+# Standard EV2Gym paper uses 80% flexibility (easy).
+# City hub operates under grid operator contracts with tight tolerances.
+##############################################################################
+power_setpoint_enabled: True
+power_setpoint_flexiblity: 40   # ← changed: 40 (was 70) — stricter setpoint
+                                 # The model MUST stay close to the contracted
+                                 # power — large deviations incur grid penalties
+
+##############################################################################
+# Inflexible Loads, Solar Generation, and Demand Response
+# CHALLENGE: heavier city loads + more aggressive DR events
+##############################################################################
+tr_seed: -1  # random transformer load seed each episode
+
+inflexible_loads:
+  include: True
+  inflexible_loads_capacity_multiplier_mean: 1.5  # ← changed: 1.5 (was 1)
+                                                   # Heavier city baseline loads
+                                                   # (offices, retail, apartments)
+  forecast_mean: 30
+  forecast_std: 8    # ← changed: 8 (was 5) — noisier urban load forecasts
+
+solar_power:
+  include: True
+  solar_power_capacity_multiplier_mean: 1.5  # ← changed: 1.5 (was 1)
+                                              # More rooftop PV in city
+  forecast_mean: 20
+  forecast_std: 8    # ← changed: 8 (was 5) — cloudier / variable urban solar
+
+demand_response:
+  include: True
+  events_per_day: 2                      # ← changed: 2 (was 1) — more grid events
+                                          # City grids face more congestion events
+  event_capacity_percentage_mean: 45     # ← changed: 45 (was 35) — stronger cuts
+                                          # Grid operator demands 45% reduction
+  event_capacity_percentage_std: 8       # ← changed: 8 (was 5) — more variable
+  event_length_minutes_min: 60
+  event_length_minutes_max: 90           # ← changed: 90 (was 60) — longer events
+  event_start_hour_mean: 12
+  event_start_hour_std: 3               # ← changed: 3 (was 2) — less predictable
+  notification_of_event_minutes: 30     # ← changed: 30 (was 60) — less warning
+
+##############################################################################
+# EV Specifications
+##############################################################################
+heterogeneous_ev_specs: True
+ev_specs_file: ./ev2gym/data/ev_specs_ev_plus_phev.json  # PHEVs + BEVs mix
+
+##############################################################################
+# Default Model Values
+##############################################################################
+transformer:
+  max_power: 100   # kW — unchanged; stricter setpoint makes this binding
+
+charging_station:
+  min_charge_current: 0
+  max_charge_current: 16
+  min_discharge_current: 0
+  max_discharge_current: 0
+  voltage: 400
+  phases: 3
+
+ev:
+  battery_capacity: 50
+  max_ac_charge_power: 11
+  min_ac_charge_power: 0
+  max_dc_charge_power: 50
+  max_discharge_power: -11
+  min_discharge_power: 0
+  ev_phases: 3
+  charge_efficiency: 1
+  discharge_efficiency: 1
+  transition_soc: 1
+
+  min_battery_capacity: 5
+  min_time_of_stay: 60
+  min_emergency_battery_capacity: 25
+  desired_capacity: 1
+  transition_soc_multiplier: 5

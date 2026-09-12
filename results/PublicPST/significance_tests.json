@@ -1,0 +1,236 @@
+{
+  "reference": "TC-CPL (M1+M2+M3)",
+  "scenario_id": "PublicPST \u00b7 1 substations \u00b7 20 stations (20 ports) \u00b7 identical for all controllers",
+  "n_episodes": 100,
+  "zero_tolerance": 1e-09,
+  "tests": {
+    "Fixed-Penalty SAC": {
+      "overload_occurrence": {
+        "violating_days_a": 0,
+        "violating_days_b": 0,
+        "discordant_a_only": 0,
+        "discordant_b_only": 0,
+        "n_discordant": 0,
+        "p_mcnemar_exact": 1.0,
+        "p_holm": 1.0
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0,
+        "p_holm": 1.0
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 53,
+        "W": 210.0,
+        "p_wilcoxon": 7.638538311699748e-06,
+        "rank_biserial": 0.7064989517819706,
+        "hodges_lehmann": 0.01753305458784382,
+        "median_diff": 0.0,
+        "p_holm": 7.638538311699748e-06
+      }
+    },
+    "CPO": {
+      "overload_occurrence": {
+        "violating_days_a": 0,
+        "violating_days_b": 0,
+        "discordant_a_only": 0,
+        "discordant_b_only": 0,
+        "n_discordant": 0,
+        "p_mcnemar_exact": 1.0,
+        "p_holm": 1.0
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0,
+        "p_holm": 1.0
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 0.0,
+        "p_wilcoxon": 3.89655984509591e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -17.234066958031203,
+        "median_diff": -16.84685163677368,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "DDPG-PST": {
+      "overload_occurrence": {
+        "violating_days_a": 0,
+        "violating_days_b": 0,
+        "discordant_a_only": 0,
+        "discordant_b_only": 0,
+        "n_discordant": 0,
+        "p_mcnemar_exact": 1.0,
+        "p_holm": 1.0
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0,
+        "p_holm": 1.0
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 4.0,
+        "p_wilcoxon": 4.397113554181895e-18,
+        "rank_biserial": -0.9984158415841584,
+        "hodges_lehmann": -2.945587767677594,
+        "median_diff": -2.572891282670618,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "PPO-PST": {
+      "overload_occurrence": {
+        "violating_days_a": 0,
+        "violating_days_b": 0,
+        "discordant_a_only": 0,
+        "discordant_b_only": 0,
+        "n_discordant": 0,
+        "p_mcnemar_exact": 1.0,
+        "p_holm": 1.0
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0,
+        "p_holm": 1.0
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 0.0,
+        "p_wilcoxon": 3.89655984509591e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -20.053986970753087,
+        "median_diff": -19.931590273438545,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "Round-Robin": {
+      "overload_occurrence": {
+        "violating_days_a": 0,
+        "violating_days_b": 0,
+        "discordant_a_only": 0,
+        "discordant_b_only": 0,
+        "n_discordant": 0,
+        "p_mcnemar_exact": 1.0,
+        "p_holm": 1.0
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0,
+        "p_holm": 1.0
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 99,
+        "W": 0.0,
+        "p_wilcoxon": 5.697220948724935e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -2.408357973975967,
+        "median_diff": -2.244338191694723,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "CAFAP": {
+      "overload_occurrence": {
+        "violating_days_a": 0,
+        "violating_days_b": 0,
+        "discordant_a_only": 0,
+        "discordant_b_only": 0,
+        "n_discordant": 0,
+        "p_mcnemar_exact": 1.0,
+        "p_holm": 1.0
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 0,
+        "p_wilcoxon": 1.0,
+        "rank_biserial": 0.0,
+        "hodges_lehmann": 0.0,
+        "median_diff": 0.0,
+        "p_holm": 1.0
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 93,
+        "W": 0.0,
+        "p_wilcoxon": 5.560344547985707e-17,
+        "rank_biserial": 1.0,
+        "hodges_lehmann": 0.10410438066149652,
+        "median_diff": 0.020191428350003093,
+        "p_holm": 1.1120689095971413e-16
+      }
+    }
+  }
+}

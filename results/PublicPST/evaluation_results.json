@@ -1,0 +1,424 @@
+{
+  "scenario_id": "PublicPST \u00b7 1 substations \u00b7 20 stations (20 ports) \u00b7 identical for all controllers",
+  "scenario": {
+    "config_file": "ev2gym/example_config_files/PublicPST.yaml",
+    "n_transformers": 1,
+    "n_charging_stations": 20,
+    "n_ports": 20,
+    "ports_per_station": [
+      1
+    ],
+    "simulation_length": 112,
+    "timescale": 15,
+    "simulate_grid": false,
+    "total_nameplate_kW": 100.0,
+    "median_nameplate_kW": 100.0,
+    "action_dim": 20
+  },
+  "n_eval_episodes": 100,
+  "n_optimal_episodes": 100,
+  "eval_seed_offset": 500,
+  "reference": "TC-CPL (M1+M2+M3)",
+  "metrics": {
+    "cafap": {
+      "total_reward": [
+        -4770.729183516563,
+        2380.3220122942603
+      ],
+      "tracking_error": [
+        11664.787590285072,
+        6031.333103768484
+      ],
+      "energy_tracking_error": [
+        202.46746490734643,
+        52.4142281896862
+      ],
+      "power_tracker_violation": [
+        158.69168156697717,
+        61.80828138198912
+      ],
+      "average_user_satisfaction": [
+        0.9980807950396604,
+        0.005114230007761499
+      ],
+      "total_transformer_overload": [
+        0.0,
+        0.0
+      ],
+      "overload_intensity": [
+        0.0,
+        0.0
+      ],
+      "unmet_demand_pct": [
+        0.004238431735014387,
+        0.030037389194444784
+      ],
+      "voltage_violation": [
+        0.0,
+        0.0
+      ],
+      "total_energy_charged": [
+        172.43182932649788,
+        40.556353661388655
+      ],
+      "total_profits": [
+        -33.38457071760942,
+        19.31515441851648
+      ],
+      "battery_degradation": [
+        0.0005257865763488591,
+        0.00011083681766504964
+      ]
+    },
+    "round_robin": {
+      "total_reward": [
+        -5527.464083562305,
+        2520.2623035664114
+      ],
+      "tracking_error": [
+        6279.225263119749,
+        2781.937218877026
+      ],
+      "energy_tracking_error": [
+        134.95977486122177,
+        32.56775371221366
+      ],
+      "power_tracker_violation": [
+        0.0,
+        0.0
+      ],
+      "average_user_satisfaction": [
+        0.9706216497805954,
+        0.024129495807491616
+      ],
+      "total_transformer_overload": [
+        0.0,
+        0.0
+      ],
+      "overload_intensity": [
+        0.0,
+        0.0
+      ],
+      "unmet_demand_pct": [
+        2.799563158026516,
+        2.292886632346732
+      ],
+      "voltage_violation": [
+        0.0,
+        0.0
+      ],
+      "total_energy_charged": [
+        160.26434005199985,
+        39.882285770916894
+      ],
+      "total_profits": [
+        -29.359065366261945,
+        17.889992730800998
+      ],
+      "battery_degradation": [
+        0.00047914400134648996,
+        0.00010265638819972871
+      ]
+    },
+    "ddpg_pst_paper": {
+      "total_reward": [
+        -6546.506038096207,
+        2852.7674763927457
+      ],
+      "tracking_error": [
+        9758.751027732069,
+        4525.515304223346
+      ],
+      "energy_tracking_error": [
+        183.22284026543585,
+        41.48839881619736
+      ],
+      "power_tracker_violation": [
+        88.85566061594578,
+        40.20374382438498
+      ],
+      "average_user_satisfaction": [
+        0.9629932771975376,
+        0.03026147100500286
+      ],
+      "total_transformer_overload": [
+        0.0,
+        0.0
+      ],
+      "overload_intensity": [
+        0.0,
+        0.0
+      ],
+      "unmet_demand_pct": [
+        3.5477058386751446,
+        3.0224631486113833
+      ],
+      "voltage_violation": [
+        0.0,
+        0.0
+      ],
+      "total_energy_charged": [
+        156.60845475846207,
+        40.649043042966404
+      ],
+      "total_profits": [
+        -29.332626516271137,
+        17.816549956832418
+      ],
+      "battery_degradation": [
+        0.00048437679512927233,
+        0.00010865930401991508
+      ]
+    },
+    "ppo_pst": {
+      "total_reward": [
+        -15389.380539412161,
+        7525.299292357994
+      ],
+      "tracking_error": [
+        15435.99524954096,
+        7561.973203014187
+      ],
+      "energy_tracking_error": [
+        234.25509754911505,
+        56.881447621621184
+      ],
+      "power_tracker_violation": [
+        3.223745020409436,
+        3.8092431953548473
+      ],
+      "average_user_satisfaction": [
+        0.7948627911443501,
+        0.05367655529271086
+      ],
+      "total_transformer_overload": [
+        0.0,
+        0.0
+      ],
+      "overload_intensity": [
+        0.0,
+        0.0
+      ],
+      "unmet_demand_pct": [
+        20.403287647171673,
+        5.322129858867693
+      ],
+      "voltage_violation": [
+        0.0,
+        0.0
+      ],
+      "total_energy_charged": [
+        62.64328486823148,
+        22.270862897843116
+      ],
+      "total_profits": [
+        -11.364662153903886,
+        7.093994074931215
+      ],
+      "battery_degradation": [
+        0.000312406516476356,
+        7.811501630550867e-05
+      ]
+    },
+    "cpo_achiam2017": {
+      "total_reward": [
+        -12047.061062112934,
+        4507.358450067096
+      ],
+      "tracking_error": [
+        12156.794774458436,
+        4589.349847035886
+      ],
+      "energy_tracking_error": [
+        218.0104086712502,
+        46.669420152378926
+      ],
+      "power_tracker_violation": [
+        1.163790813243065,
+        2.7322827169210337
+      ],
+      "average_user_satisfaction": [
+        0.8214565578529214,
+        0.06541199650597423
+      ],
+      "total_transformer_overload": [
+        0.0,
+        0.0
+      ],
+      "overload_intensity": [
+        0.0,
+        0.0
+      ],
+      "unmet_demand_pct": [
+        17.727133378980223,
+        6.502586152493637
+      ],
+      "voltage_violation": [
+        0.0,
+        0.0
+      ],
+      "total_energy_charged": [
+        77.85849210954999,
+        36.476071151539365
+      ],
+      "total_profits": [
+        -13.428464787191828,
+        9.595117699185625
+      ],
+      "battery_degradation": [
+        0.0003308505225168233,
+        9.782430142184571e-05
+      ]
+    },
+    "fixed_penalty_sac": {
+      "total_reward": [
+        -3613.6591865312093,
+        1966.06575645049
+      ],
+      "tracking_error": [
+        7834.420879578013,
+        3695.199236294495
+      ],
+      "energy_tracking_error": [
+        156.65885500031285,
+        35.72641319118537
+      ],
+      "power_tracker_violation": [
+        64.94305680016356,
+        25.467540170739234
+      ],
+      "average_user_satisfaction": [
+        0.996506550995438,
+        0.006736835880222178
+      ],
+      "total_transformer_overload": [
+        0.0,
+        0.0
+      ],
+      "overload_intensity": [
+        0.0,
+        0.0
+      ],
+      "unmet_demand_pct": [
+        0.17540507547459655,
+        0.3521370489506466
+      ],
+      "voltage_violation": [
+        0.0,
+        0.0
+      ],
+      "total_energy_charged": [
+        171.03678831299055,
+        40.42212052793896
+      ],
+      "total_profits": [
+        -32.0666634665709,
+        18.879438767170683
+      ],
+      "battery_degradation": [
+        0.0005169021897624728,
+        0.00010881986949703399
+      ]
+    },
+    "tc_cpl_m1_m2_m3": {
+      "total_reward": [
+        -3477.874766032242,
+        1966.6417466887267
+      ],
+      "tracking_error": [
+        7413.303958828375,
+        3576.1214562893197
+      ],
+      "energy_tracking_error": [
+        148.10962512197477,
+        34.30355868529588
+      ],
+      "power_tracker_violation": [
+        47.35326759447913,
+        20.730559977530362
+      ],
+      "average_user_satisfaction": [
+        0.9962199823753134,
+        0.007082925781026826
+      ],
+      "total_transformer_overload": [
+        0.0,
+        0.0
+      ],
+      "overload_intensity": [
+        0.0,
+        0.0
+      ],
+      "unmet_demand_pct": [
+        0.20441043009590984,
+        0.39448304119686034
+      ],
+      "voltage_violation": [
+        0.0,
+        0.0
+      ],
+      "total_energy_charged": [
+        170.79112358848636,
+        40.47047299925225
+      ],
+      "total_profits": [
+        -31.879346114724353,
+        18.76984874393436
+      ],
+      "battery_degradation": [
+        0.0005161250747172959,
+        0.000108845904552463
+      ]
+    },
+    "optimal_offline": {
+      "total_reward": [
+        -3489.3177900278283,
+        1772.017645376058
+      ],
+      "tracking_error": [
+        3536.5469313170115,
+        1790.9447606627216
+      ],
+      "energy_tracking_error": [
+        125.87201588805655,
+        32.47358938941377
+      ],
+      "power_tracker_violation": [
+        3.7753937506490585e-07,
+        3.6514574824498984e-06
+      ],
+      "average_user_satisfaction": [
+        0.9949860399766071,
+        0.005816821858467653
+      ],
+      "total_transformer_overload": [
+        0.0,
+        0.0
+      ],
+      "overload_intensity": [
+        0.0,
+        0.0
+      ],
+      "unmet_demand_pct": [
+        0.32507216053397003,
+        0.17844891428895726
+      ],
+      "voltage_violation": [
+        0.0,
+        0.0
+      ],
+      "total_energy_charged": [
+        169.35714557421414,
+        39.94346084207252
+      ],
+      "total_profits": [
+        -30.44410092143751,
+        18.556272541618362
+      ],
+      "battery_degradation": [
+        0.0004836055757021306,
+        0.0001018885092367093
+      ]
+    }
+  }
+}

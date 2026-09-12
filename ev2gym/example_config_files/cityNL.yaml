@@ -1,0 +1,346 @@
+# cityNL.yaml - Dutch city district on a real MV feeder
+# =============================================================================
+# Derived from PST_workplace10.yaml by scaling the single parking-lot
+# transformer up to a whole distribution district. Every number below either
+# comes from a cited source or is a stated modelling choice - see PROVENANCE
+# tags. Nothing here is a round number picked for looking nice.
+#
+# WHAT THIS REPRESENTS
+#   One 10 kV MV feeder and the 122 MV/LV secondary substations hanging off it,
+#   carrying ~32 MW of peak non-EV load behind 65.5 MW of installed nameplate
+#   capacity (~49% average loading, which is where Dutch DSOs plan them),
+#   serving on the order of 30,000 residents, with 300 public dual-socket
+#   charging stations (600 charge points) unevenly spread across those
+#   substations - MEASURED at tr_seed 42: 93 of the 122 substations host at
+#   least one station, 29 host none, and the busiest carries 28 charge points.
+#
+# WHY THOSE NUMBERS
+#   * 122 substations: the bundled node_123 feeder has 123 buses; EV2Gym makes
+#     one transformer per non-slack bus, so the feeder itself fixes the count.
+#     Its per-node peak load (mean 260 kW, max 387 kW) is exactly secondary
+#     substation scale, so the feeder is being used as intended.
+#   * ~30,000 residents: Stedin operates ~20,000 secondary substations for
+#     ~2.3M connections => ~115 connections per substation. 122 x 115 ~ 14,000
+#     connections ~ 30,000 residents once household size and the non-residential
+#     share are accounted for.
+#   * 600 charge points: Dutch on-street "laadpalen" carry two sockets behind
+#     one grid connection, so 300 stations x 2 ports = 600 points, i.e. 20.0
+#     points per 1,000 inhabitants.
+#     PROVENANCE: URBAN density, not the national average. The Netherlands
+#     averages 10.04 points per 1,000 inhabitants (Roland Berger EV Charging
+#     Index 2025), the highest in Europe, which would give 300 points behind
+#     150 stations; Amsterdam already runs ~16,000 points for ~930,000
+#     inhabitants (17.2 per 1,000). 20.0 sits just above Amsterdam today.
+#     WHY NOT THE NATIONAL AVERAGE: at 150 stations the transformer constraint
+#     is real but too sparse to measure a controller against - see the dial
+#     below. Report this as a dense-urban district, not as "the Netherlands".
+#
+# ALL BUNDLED DATA IS ALREADY DUTCH - nothing needs downloading:
+#   ElaadNL arrival/connection-time/energy-demand distributions, entso-e NL
+#   day-ahead prices 2015-2024, pv_netherlands.csv, RVO NL registration shares
+#   for the EV fleet mix. This config keeps every one of them.
+#
+# THE ONE THING THAT IS *NOT* REAL DUTCH DATA - read this before citing it:
+#   The feeder itself. node_123 comes from RL-ADN (Hou et al., Energy and AI
+#   2025), not from a Dutch DSO asset register. Its PD column has only SIX
+#   distinct values and 52% of the buses sit at exactly 387.1 kW, so it is a
+#   stylised test feeder, not a survey of a real Utrecht neighbourhood. Its
+#   SCALE is right (mean 260 kW, max 387 kW per node is genuine secondary
+#   substation scale) but its DIVERSITY is not.
+#   To make this fully real, swap in Nodes/Lines csv files built from an actual
+#   network - Liander publishes electricity network geometry as open data on
+#   PDOK (data.overheid.nl/dataset/liander-liggingsgegevens-elektriciteitsnetten)
+#   - and set cs_transformer_mapping to a real cs_id,transformer_id csv built by
+#   joining Open Charge Map / the Nationaal Laadpalen Register against it.
+#   Everything else in this file already survives that swap unchanged.
+# =============================================================================
+
+# =============================================================================
+# SCENARIO DIAL - read this if the transformer constraint feels too easy
+# =============================================================================
+# The density sets how often the transformer constraint actually binds, which
+# decides whether a safe-RL agent ever sees it. At 150 stations (the Dutch
+# NATIONAL average) it is REAL but SPARSE: only ~3% of the substations that host
+# a charger can be pushed over their limit even at full charging rate. That is an
+# accurate picture of the country as a whole - congestion there is localised -
+# but it leaves too little constraint activity to compare controllers on.
+#
+# Measured on this config (3 seeds), varying only number_of_charging_stations:
+#
+#   stations  points  points/1000 res  substations hosting  can bind  %
+#      150      300        10.0               75              2       3%   <- NL national average
+#      300      600        20.0               95             11      11%   <- CONFIGURED HERE (~Amsterdam)
+#      450      900        30.0              107             19      18%
+#      600     1200        40.0              112             25      22%
+#
+# Episode overload at the configured 300 stations (10 seeds, measured), against
+# the eps_ov_max = 0 threshold of the constrained problem:
+#
+#   policy        mean kWh   max kWh   episodes with any overload   peak % of cap
+#   CAFAP           2.99      9.97            6/10                     111.2
+#   Round-Robin     3.06      8.14            9/10                     108.6
+#   ALAP            5.96     18.54           10/10                     115.7
+#
+# Overload depends on WHEN energy is placed, not only how much: CAFAP charges
+# early and off-peak, ALAP defers into the evening inflexible-load peak. So the
+# maximal-power policy is NOT an upper bound on overload.
+#
+# Amsterdam already runs 17.2 points per 1,000 inhabitants, so the 300-station
+# row is not a future scenario - it is a Dutch city that exists now. The NAL
+# (Nationale Agenda Laadinfrastructuur) roll-out puts the 450-600 rows within
+# range for 2030.
+#
+# Three levers, in order of how much they move the constraint:
+#   1. number_of_charging_stations  - see the table above
+#   2. transformer.target_peak_loading + inflexible_loads multiplier (raise BOTH
+#      together, see the note at each) - shrinks headroom on every substation
+#   3. cs_clustering_alpha - lower concentrates chargers on fewer substations
+# =============================================================================
+
+##############################################################################
+# Simulation Parameters
+##############################################################################
+timescale: 15           # REQUIRED: grid.py asserts 15 when simulate_grid is on
+simulation_length: 96   # 96 x 15 min = a full 24 h day (public charging is 24/7)
+
+##############################################################################
+# Date and Time
+##############################################################################
+year: 2022
+month: 1
+day: 17
+random_day: True        # new day per episode -> new price + arrival scenario
+random_hour: False
+hour: 0                 # midnight to midnight
+minute: 0
+simulation_days: both   # a real city charges on weekends too
+
+# EV Spawn Behavior
+scenario: public        # ElaadNL PUBLIC distributions (not workplace)
+spawn_multiplier: 36    # PROVENANCE: calibrated, not chosen. See the tuning
+                        # note at the bottom of this file. Yields 1.71 sessions
+                        # per charge point per day, i.e. urban-district
+                        # utilisation for Dutch public AC charging.
+
+##############################################################################
+# Prices
+##############################################################################
+discharge_price_factor: 1
+
+##############################################################################
+# Distribution Network Settings
+##############################################################################
+v2g_enabled: False              # charge-only, consistent with the PST setup
+number_of_charging_stations: 300
+number_of_ports_per_cs: 2       # Dutch laadpaal: 2 sockets sharing one 11 kW
+                                # connection. EV_Charger.max_charge_current is
+                                # the TOTAL across ports and actions are
+                                # normalised to sum to 1, so the two sockets
+                                # load-balance exactly like the real thing.
+
+number_of_transformers: 122     # !! IGNORED when simulate_grid is True !!
+                                # loaders.load_grid overwrites this with
+                                # grid.node_num - 1 = 122. Kept in sync on
+                                # purpose so the file does not lie.
+
+charging_network_topology: None # !! MUST stay None: loaders.load_grid asserts
+                                # topology is None under grid simulation. Use
+                                # cs_transformer_mapping below instead.
+
+simulate_grid: True             # full power flow -> real voltages per node
+network_info:
+  vm_pu: 1.0
+  s_base: 1000
+  load_multiplier: 1
+  pv_scale: 45                  # node PV as % of node peak load. PROVENANCE:
+                                # a NL secondary substation with ~115
+                                # connections at ~30% rooftop PV adoption and
+                                # ~4 kWp per system carries ~140 kWp against a
+                                # ~260 kW node peak. Repo default was 80.
+  bus_info_file: './ev2gym/data/network_data/node_123/Nodes_123.csv'
+  branch_info_file: './ev2gym/data/network_data/node_123/Lines_123.csv'
+
+pf_solver: 'Laurent'
+
+# --- How charging stations are attached to substations -----------------------
+# 'round_robin' spreads stations perfectly evenly, which no real city does.
+# 'clustered' draws a Gamma(alpha) attractiveness weight per substation, so a
+# few busy streets host several chargers and most substations host none.
+# Replace with a path to a csv of cs_id,transformer_id once a real charger
+# register (e.g. Open Charge Map / Nationaal Laadpalen Register) has been joined
+# against a real substation register (Liander publishes station locations as
+# open data on PDOK).
+cs_transformer_mapping: clustered
+cs_clustering_alpha: 1.5
+    # smaller = more clustered; large -> round robin. The table below was
+    # measured over 8 seeds at 150 stations on 122 substations (mean 1.23 per
+    # substation) and is kept for the shape of the trend:
+    #
+    #   alpha           : 0.5   0.7   1.0   1.5   2.0   3.0
+    #   substations w/ 0 :  66    61    56    50    48    44
+    #   busiest (points) :  26    21    18    15    15    15
+    #
+    # At the 300 stations configured here, alpha 1.5 / tr_seed 42 measures:
+    # 29 of 122 substations host no public charger (24%), the busiest street
+    # cluster carries 28 charge points. Both are plausible for a dense Dutch
+    # district. Below ~1.0 the tail gets unrealistic.
+
+##############################################################################
+# Power Setpoints Settings
+##############################################################################
+power_setpoint_enabled: True
+power_setpoint_flexiblity: 10   # surplus margin on the aggregate setpoint.
+                                # Higher = easier to track. The PST paper used
+                                # 5 for one parking lot; 10 reflects the looser
+                                # tolerance an aggregator gets on a whole
+                                # district. MODELLING CHOICE.
+
+##############################################################################
+# Inflexible Loads, Solar Generation, and Demand Response
+##############################################################################
+tr_seed: 42
+    # FIXED, not -1. The city's wiring is infrastructure: which charger hangs off
+    # which substation (cs_transformer_mapping: clustered), the per-substation
+    # inflexible-load shapes, the solar, and the DR events must be IDENTICAL
+    # across every controller and every episode. With tr_seed: -1 each env
+    # instance seeds tr_rng from a random value drawn at construction, so every
+    # algorithm's train/eval env would draw a DIFFERENT random network and the
+    # comparison would not be on the same grid. A fixed tr_seed pins the network;
+    # EV arrivals still vary per episode through the main run seed. This matters
+    # only once simulate_grid / clustered mapping / inflexible loads are on (it
+    # was inert for the single-transformer workplace scenario).
+
+inflexible_loads:
+  include: True
+  inflexible_loads_capacity_multiplier_mean: 0.55
+      # Non-EV load peaks at 55% of transformer nameplate (+-0.1 std across
+      # substations). PROVENANCE: Dutch DSOs plan secondary substations around
+      # 50-70% peak loading; this leaves genuine headroom that EV charging can
+      # eat into, which is the whole point of the experiment. Setting this to
+      # 1.0+ makes the transformer sit AT its limit and the problem degenerate.
+  forecast_mean: 30
+  forecast_std: 8
+  decorrelate_transformers: True
+      # NEW KNOB. Without it every substation draws the SAME 10 household
+      # profiles, giving one perfectly correlated load shape city-wide. Fine
+      # for a single parking lot, wrong for 122 substations.
+
+solar_power:
+  include: True
+  solar_power_capacity_multiplier_mean: 0.25
+      # Rooftop PV peaks at 25% of transformer nameplate. PROVENANCE: same
+      # ~140 kWp per substation as pv_scale above, against a 630 kVA median
+      # nameplate. The Netherlands has the highest PV-per-capita in the EU, so
+      # reverse flow at midday is a real phenomenon here, not a curiosity.
+  forecast_mean: 20
+  forecast_std: 8
+
+demand_response:
+  include: True
+  events_per_day: 1               # PROVENANCE: models Dutch congestion
+  event_capacity_percentage_mean: 30   # management (capaciteitsbeperkings-
+  event_capacity_percentage_std: 8     # contract / GOPACS), where the DSO buys
+  event_length_minutes_min: 60         # a temporary capacity reduction.
+  event_length_minutes_max: 90         # MODELLING CHOICE for the magnitudes.
+  event_start_hour_mean: 18            # evening peak, when NL congestion bites
+  event_start_hour_std: 2
+  notification_of_event_minutes: 60    # keep at 60: GridAwareSafetyState in the
+                                       # notebook reads this horizon.
+
+##############################################################################
+# EV Specifications
+##############################################################################
+heterogeneous_ev_specs: True    # sampled by RVO NL registration shares
+ev_specs_file: ./ev2gym/data/ev_specs_ev_plus_phev.json
+
+##############################################################################
+# Default Model values
+##############################################################################
+transformer:
+  size_from_feeder: True
+      # NEW KNOB, and the important one. Each substation is sized from the peak
+      # load of ITS OWN bus in Nodes_123.csv - node peak / target_peak_loading,
+      # rounded up to the next rating you can actually buy - which is how a DSO
+      # sizes a substation. Without this the transformer model and the power
+      # flow model describe two different physical systems: the transformer
+      # would get a nameplate uncorrelated with the load sitting on its node.
+  target_peak_loading: 0.55
+      # PROVENANCE: Dutch DSOs plan secondary substations around 50-70% peak
+      # loading. This value has to match inflexible_loads_capacity_multiplier_
+      # mean above, because Transformer.normalize_inflexible_loads scales the
+      # non-EV load to (multiplier x nameplate) - with both at 0.55 the modelled
+      # non-EV peak lands back on the feeder's own node peak. Change them together.
+  rating_ladder: [100, 160, 250, 400, 630, 800, 1000, 1250, 1600]
+      # IEC 60076 standard distribution transformer ratings, kVA.
+  kw_per_kva: 0.95
+      # nameplate kVA -> usable kW budget, i.e. the power factor of the mixed
+      # load. MODELLING CHOICE.
+
+  # --- Fallbacks, only used if size_from_feeder is False -----------------------
+  # ratings_file: ./ev2gym/data/nl_secondary_substation_ratings.csv
+  #     Draws a nameplate per substation from the real Dutch URBAN mix
+  #     (400/630/800/1000 kVA, median 630). Use this when you are NOT running a
+  #     power flow, so there are no node loads to size from.
+  max_power: 630
+      # Used only if both options above are off. 630 kVA is the published MEDIAN
+      # for Dutch URBAN MV/LV substations (JRC EUR 27927 EN).
+
+charging_station:
+  min_charge_current: 0
+  max_charge_current: 16        # 3 x 16 A at 400 V = 11 kW, the standard Dutch
+                                # public laadpaal rating. REAL NUMBER.
+  min_discharge_current: 0
+  max_discharge_current: 0
+  voltage: 400
+  phases: 3
+
+ev:
+  battery_capacity: 50
+  max_ac_charge_power: 11
+  min_ac_charge_power: 0
+  max_dc_charge_power: 50
+  max_discharge_power: -11
+  min_discharge_power: 0
+  ev_phases: 3
+  charge_efficiency: 1
+  discharge_efficiency: 1
+  transition_soc: 1
+
+  min_battery_capacity: 5
+  min_time_of_stay: 60
+  min_emergency_battery_capacity: 25
+  desired_capacity: 1
+  transition_soc_multiplier: 5
+
+##############################################################################
+# TUNING NOTE - spawn_multiplier
+##############################################################################
+# spawn_multiplier scales the ElaadNL arrival probability. It is NOT a physical
+# quantity, so it has to be calibrated against one that is: sessions per charge
+# point per day. Dutch public AC charging runs ~1.5-2 sessions/point/day in
+# dense urban districts (well above the national average, which is dragged down
+# by low-use rural points).
+#
+# Measured sweep on this config, 5 seeds each, at 300 charge points:
+#
+#   spawn_multiplier :  12    16    20    24    28    36    48    64
+#   sessions/pt/day  : 1.04  1.23  1.36  1.47  1.56  1.71  1.87  2.01
+#   mean stay (h)    :  --    --    --    --   5.2   5.3   5.4   5.5
+#
+# The calibration SURVIVES the move to 600 charge points: arrivals are drawn per
+# port, so doubling the ports roughly doubles the sessions and leaves the ratio
+# put. Re-measured at 600 points, 5 seeds: 1.72 sessions/point/day (was 1.71).
+#
+# Note the SATURATION: it is strongly sublinear because an occupied port cannot
+# accept a new arrival, so do not expect doubling the multiplier to double the
+# sessions. 36 was picked to sit mid-range.
+#
+# Mean stay (~5.3 h) and the energy per session are NOT tunable here - they come
+# straight from the ElaadNL public distributions, which are real measured data.
+#
+# To re-calibrate after changing the station/port counts:
+#
+#   env = EV2Gym(config_file='ev2gym/example_config_files/cityNL.yaml')
+#   sessions_per_point_per_day = len(env.EVs_profiles) / env.number_of_ports
+#
+# Average over several seeds - the seed-to-seed spread is about +-0.06.

@@ -1,0 +1,342 @@
+{
+  "scenario_id": "cityNL \u00b7 122 substations \u00b7 300 stations (600 ports) \u00b7 identical for all controllers",
+  "scenario": {
+    "config_file": "ev2gym/example_config_files/cityNL.yaml",
+    "n_transformers": 122,
+    "n_charging_stations": 300,
+    "n_ports": 600,
+    "ports_per_station": [
+      2
+    ],
+    "simulation_length": 96,
+    "timescale": 15,
+    "simulate_grid": true,
+    "total_nameplate_kW": 65455.0,
+    "median_nameplate_kW": 760.0,
+    "action_dim": 600
+  },
+  "n_episodes": 100,
+  "n_episodes_optimal": 100,
+  "seeds_evaluated": {
+    "Fixed-Penalty SAC": [
+      42
+    ],
+    "TC-CPL (M1+M2+M3)": [
+      42
+    ],
+    "DDPG-PST": [
+      42
+    ],
+    "PPO-PST": [
+      42
+    ],
+    "CPO": [
+      42
+    ]
+  },
+  "reference": "TC-CPL (M1+M2+M3)",
+  "unmet_demand_pct": {
+    "DDPG-PST": 11.802720343810476,
+    "PPO-PST": 21.783855237209195,
+    "CPO": 31.38644899378848,
+    "Fixed-Penalty SAC": 4.819317230015999,
+    "TC-CPL (M1+M2+M3)": 2.31224422318497,
+    "Optimal": 0.41323297695342004
+  },
+  "delivered_kWh": {
+    "DDPG-PST": 8131.79466314091,
+    "PPO-PST": 3740.256225000663,
+    "CPO": 1252.0556508444888,
+    "Fixed-Penalty SAC": 9306.903503998816,
+    "TC-CPL (M1+M2+M3)": 10700.468983224644,
+    "Optimal": 11739.719664607357
+  },
+  "overload_mean_kWh": {
+    "DDPG-PST": 2.093504948513441,
+    "PPO-PST": 0.3601073558851967,
+    "CPO": 0.033913241908905364,
+    "Fixed-Penalty SAC": 1.2782296983117836,
+    "TC-CPL (M1+M2+M3)": 1.0234998786532363,
+    "Optimal": 3.46127771209126e-07
+  },
+  "overload_median_kWh": {
+    "DDPG-PST": 1.1368970729067982,
+    "PPO-PST": 0.0,
+    "CPO": 0.0,
+    "Fixed-Penalty SAC": 0.8024673925669994,
+    "TC-CPL (M1+M2+M3)": 0.538257248085543,
+    "Optimal": 0.0
+  },
+  "overload_per_MWh": {
+    "DDPG-PST": 0.25641469005193945,
+    "PPO-PST": 0.0957563324380973,
+    "CPO": 0.027294447686074617,
+    "Fixed-Penalty SAC": 0.13836433312346816,
+    "TC-CPL (M1+M2+M3)": 0.09572431612035316,
+    "Optimal": 3.0322230699645574e-08
+  },
+  "clean_day_pct": {
+    "DDPG-PST": 31.0,
+    "PPO-PST": 54.0,
+    "CPO": 71.0,
+    "Fixed-Penalty SAC": 32.0,
+    "TC-CPL (M1+M2+M3)": 37.0,
+    "Optimal": 96.0
+  },
+  "average_user_satisfaction": {
+    "DDPG-PST": 0.8807279355951182,
+    "PPO-PST": 0.7811731587362181,
+    "CPO": 0.6852870801796189,
+    "Fixed-Penalty SAC": 0.9505073013791615,
+    "TC-CPL (M1+M2+M3)": 0.9754812078203113,
+    "Optimal": 0.9942729281922513
+  },
+  "significance": {
+    "Fixed-Penalty SAC": {
+      "overload_occurrence": {
+        "violating_days_a": 63,
+        "violating_days_b": 68,
+        "discordant_a_only": 2,
+        "discordant_b_only": 7,
+        "n_discordant": 9,
+        "p_mcnemar_exact": 0.1796875,
+        "p_holm": 0.359375
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 70,
+        "W": 722.0,
+        "p_wilcoxon": 0.002318607481050875,
+        "rank_biserial": -0.4189134808853119,
+        "hodges_lehmann": -0.30824718721631683,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 70,
+        "W": 487.0,
+        "p_wilcoxon": 9.809796293356168e-06,
+        "rank_biserial": -0.6080482897384306,
+        "hodges_lehmann": -0.049989625637247556,
+        "median_diff": -0.003626558110067804,
+        "p_holm": 1.9619592586712335e-05
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 0.0,
+        "p_wilcoxon": 3.89655984509591e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -2.5260544841935655,
+        "median_diff": -2.5839138255042613,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "CPO": {
+      "overload_occurrence": {
+        "violating_days_a": 63,
+        "violating_days_b": 29,
+        "discordant_a_only": 36,
+        "discordant_b_only": 2,
+        "n_discordant": 38,
+        "p_mcnemar_exact": 5.398760549724102e-09,
+        "p_holm": 3.239256329834461e-08
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 65,
+        "W": 9.0,
+        "p_wilcoxon": 3.655342266569547e-12,
+        "rank_biserial": 0.9916083916083916,
+        "hodges_lehmann": 1.3852874991940993,
+        "median_diff": 0.5123094474728376
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 65,
+        "W": 126.0,
+        "p_wilcoxon": 6.197789188499916e-10,
+        "rank_biserial": 0.8825174825174825,
+        "hodges_lehmann": 0.0986847940048676,
+        "median_diff": 0.021001859316867093,
+        "p_holm": 2.4791156753999665e-09
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 0.0,
+        "p_wilcoxon": 3.89655984509591e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -29.04876720234679,
+        "median_diff": -28.99837288426749,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "DDPG-PST": {
+      "overload_occurrence": {
+        "violating_days_a": 63,
+        "violating_days_b": 69,
+        "discordant_a_only": 5,
+        "discordant_b_only": 11,
+        "n_discordant": 16,
+        "p_mcnemar_exact": 0.210113525390625,
+        "p_holm": 0.359375
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 74,
+        "W": 676.0,
+        "p_wilcoxon": 0.00012658050216545982,
+        "rank_biserial": -0.5127927927927928,
+        "hodges_lehmann": -1.1106378418069123,
+        "median_diff": -0.18133449879611163
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 74,
+        "W": 437.0,
+        "p_wilcoxon": 3.0461715843515746e-07,
+        "rank_biserial": -0.685045045045045,
+        "hodges_lehmann": -0.16824101814741177,
+        "median_diff": -0.03943032933989009,
+        "p_holm": 9.138514753054724e-07
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 0.0,
+        "p_wilcoxon": 3.89655984509591e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -9.502138238897114,
+        "median_diff": -9.519020458287912,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "PPO-PST": {
+      "overload_occurrence": {
+        "violating_days_a": 63,
+        "violating_days_b": 46,
+        "discordant_a_only": 22,
+        "discordant_b_only": 5,
+        "n_discordant": 27,
+        "p_mcnemar_exact": 0.0015137195587158203,
+        "p_holm": 0.006054878234863281
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 68,
+        "W": 280.0,
+        "p_wilcoxon": 4.854864516466086e-08,
+        "rank_biserial": 0.7612958226768969,
+        "hodges_lehmann": 0.8955581568422986,
+        "median_diff": 0.10895189032101982
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 68,
+        "W": 1001.0,
+        "p_wilcoxon": 0.2932674077596452,
+        "rank_biserial": 0.1466325660699062,
+        "hodges_lehmann": 0.021900711891511104,
+        "median_diff": 0.0,
+        "p_holm": 0.2932674077596452
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 0.0,
+        "p_wilcoxon": 3.89655984509591e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -19.47109201186026,
+        "median_diff": -19.52580272925656,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "Round-Robin": {
+      "overload_occurrence": {
+        "violating_days_a": 63,
+        "violating_days_b": 77,
+        "discordant_a_only": 0,
+        "discordant_b_only": 14,
+        "n_discordant": 14,
+        "p_mcnemar_exact": 0.0001220703125,
+        "p_holm": 0.0006103515625
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 77,
+        "W": 36.0,
+        "p_wilcoxon": 9.990487173829295e-14,
+        "rank_biserial": -0.9760239760239761,
+        "hodges_lehmann": -2.961608081811704,
+        "median_diff": -1.6078039340710535
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 77,
+        "W": 26.0,
+        "p_wilcoxon": 6.793408087985214e-14,
+        "rank_biserial": -0.9826839826839827,
+        "hodges_lehmann": -0.3076196063493941,
+        "median_diff": -0.17892341771030995,
+        "p_holm": 4.076044852791128e-13
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 0.0,
+        "p_wilcoxon": 3.89655984509591e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -1.6446227378576346,
+        "median_diff": -1.6539526820351327,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "CAFAP": {
+      "overload_occurrence": {
+        "violating_days_a": 63,
+        "violating_days_b": 76,
+        "discordant_a_only": 2,
+        "discordant_b_only": 15,
+        "n_discordant": 17,
+        "p_mcnemar_exact": 0.002349853515625,
+        "p_holm": 0.007049560546875
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 78,
+        "W": 138.0,
+        "p_wilcoxon": 2.838328359214951e-12,
+        "rank_biserial": -0.9104186952288218,
+        "hodges_lehmann": -3.4021759057595187,
+        "median_diff": -1.3621296554604356
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 78,
+        "W": 153.0,
+        "p_wilcoxon": 4.819489270806733e-12,
+        "rank_biserial": -0.9006815968841285,
+        "hodges_lehmann": -0.2744857041626724,
+        "median_diff": -0.11321738062341058,
+        "p_holm": 2.4097446354033666e-11
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 0.0,
+        "p_wilcoxon": 3.89655984509591e-18,
+        "rank_biserial": 1.0,
+        "hodges_lehmann": 2.160824004822725,
+        "median_diff": 2.12904800878065,
+        "p_holm": 2.337935907057546e-17
+      }
+    }
+  },
+  "targets": {
+    "target_overload": 0.0,
+    "target_sat": 0.95,
+    "train_sat_floor": 0.98,
+    "ov_margin": 0.05
+  }
+}

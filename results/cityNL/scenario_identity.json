@@ -1,0 +1,20 @@
+{
+  "scenario": {
+    "config_file": "ev2gym/example_config_files/cityNL.yaml",
+    "n_transformers": 122,
+    "n_charging_stations": 300,
+    "n_ports": 600,
+    "ports_per_station": [
+      2
+    ],
+    "simulation_length": 96,
+    "timescale": 15,
+    "simulate_grid": true,
+    "total_nameplate_kW": 65455.0,
+    "median_nameplate_kW": 760.0,
+    "action_dim": 600
+  },
+  "obs_dim_publicpst": 1803,
+  "obs_dim_gridaware": 2292,
+  "scenario_id": "cityNL \u00b7 122 substations \u00b7 300 stations (600 ports) \u00b7 identical for all controllers"
+}
