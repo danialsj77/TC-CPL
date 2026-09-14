@@ -1,4 +1,4 @@
-﻿"""Train ONE controller at ONE seed on ONE scenario, as a standalone process.
+"""Train ONE controller at ONE seed on ONE scenario, as a standalone process.
 
     python train_one.py --algo tccpl --seed 42 --scenario cityNL
 
@@ -68,6 +68,11 @@ def main():
     # Read by the notebook's CONFIG cell, so both must be set before the import.
     os.environ["TCCPL_SEED"] = str(args.seed)
     os.environ["TCCPL_SCENARIO"] = args.scenario
+    if args.timesteps is not None:
+        # A smoke budget must also shrink the budget-derived knobs (PPO/CPO
+        # rollout length, training-time eval episodes, DDPG buffer), which the
+        # CONFIG cell derives from this variable at import time.
+        os.environ["TCCPL_TOTAL_TIMESTEPS"] = str(args.timesteps)
 
     t0 = time.perf_counter()
     print(f"=== {args.algo} | {args.scenario} | seed {args.seed} | "

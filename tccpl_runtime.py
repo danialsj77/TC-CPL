@@ -307,6 +307,7 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 #    it for smaller local runs; run_sweep.py treats a model trained at any
 #    other budget as NOT finished, so old 300k checkpoints are retrained.
 _BUDGET = int(os.environ.get("TCCPL_TOTAL_TIMESTEPS", 1_000_000))
+_NUM_ENVS = 32
 _SEEDS = [int(s) for s in os.environ.get("TCCPL_SEEDS", "42,43,44,45,46").split(",")]
 assert _SEEDS[0] == 42, ("42 must stay the FIRST seed: its artefacts carry no "
                           "suffix (models/<scenario>/<name>_sac.zip), every other "
@@ -335,7 +336,7 @@ CONFIG = {
 
     # ── Vectorized envs — in-process, so all workers share ONE TCCPLCosts
     #    object and M1's dual update reaches every env by mutating it ─────────
-    "num_envs":          32,
+    "num_envs":          _NUM_ENVS,
 
     # ── Training budgets: _BUDGET (1,000,000 by default) for every learner ──
     "total_timesteps_fixed": _BUDGET,   # SAC (fixed λ) — frozen-multiplier ablation
@@ -343,6 +344,9 @@ CONFIG = {
     "total_timesteps_ddpg":  _BUDGET,   # DDPG-PST literature baseline
     "total_timesteps_ppo":   _BUDGET,   # PPO-PST on-policy baseline
     "total_timesteps_cpo":   _BUDGET,   # CPO (Achiam 2017) constrained baseline
+    # Training-time EvalCallback episodes (the protocol value is 5). A smoke
+    # budget evaluates at almost every vector step, so it uses one episode.
+    "eval_episodes_train":   5 if _BUDGET >= 10_000 else 1,
 
     # ── TC-CPL learner (paper Sec. III-D) ────────────────────────────────────
     "gamma":          1.0,     # FINITE-HORIZON return with the terminal mask
@@ -425,12 +429,16 @@ CONFIG = {
     # ── PPO-PST on-policy baseline (standard SB3 PPO on the paper's MDP) ─────
     "ppo_gamma":          0.99,
     "ppo_lr":             3e-4,
-    "ppo_n_steps":        1024,
+    "ppo_n_steps":        min(1024, max(8, _BUDGET // _NUM_ENVS)),  # 1024 at the protocol;
+    #                     capped so a smoke budget is not one full 32k-step rollout
     "ppo_batch_size":     256,
     "ppo_n_epochs":       10,
     "ppo_gae_lambda":     0.95,
     "ppo_clip_range":     0.2,
     "ppo_arch":           [128, 128],
+
+    # ── CPO rollout per env (256 at the protocol; capped like ppo_n_steps) ──
+    "cpo_n_steps":        min(256, max(8, _BUDGET // _NUM_ENVS)),
 }
 
 # ── Seed of THIS run, and the per-seed artefact naming ───────────────────────
@@ -798,7 +806,7 @@ def train_fixedpenalty():
         best_model_save_path = P["dir"],
         log_path             = P["log"],
         eval_freq            = eval_every(CONFIG["total_timesteps_fixed"]),
-        n_eval_episodes      = 5,
+        n_eval_episodes      = CONFIG["eval_episodes_train"],
         deterministic        = True,
         verbose              = 0,
     )
@@ -868,7 +876,7 @@ def train_tccpl():
         best_model_save_path = P["dir"],
         log_path             = P["log"],
         eval_freq            = eval_every(CONFIG["total_timesteps_tccpl"]),
-        n_eval_episodes      = 5,
+        n_eval_episodes      = CONFIG["eval_episodes_train"],
         deterministic        = True,
         verbose              = 0,
     )
@@ -919,7 +927,7 @@ def train_ddpg():
         best_model_save_path = P["dir"],
         log_path             = P["log"],
         eval_freq            = eval_every(CONFIG["total_timesteps_ddpg"]),   # vec-steps, not timesteps
-        n_eval_episodes      = 5,
+        n_eval_episodes      = CONFIG["eval_episodes_train"],
         deterministic        = True,
         verbose              = 0,
     )
@@ -979,7 +987,7 @@ def train_ppo():
         best_model_save_path = P["dir"],
         log_path             = P["log"],
         eval_freq            = eval_every(CONFIG["total_timesteps_ppo"]),   # vec-steps, not timesteps
-        n_eval_episodes      = 5,
+        n_eval_episodes      = CONFIG["eval_episodes_train"],
         deterministic        = True,
         verbose              = 0,
     )
@@ -1044,7 +1052,7 @@ def train_cpo():
         cpo_make_extractor,
         cost_limit = CONFIG["target_overload"],       # ε_ov_max = 0
         cost_fn    = lambda i: float(i.get("g1", 0.0)) * E_REF,   # per-step kWh
-        n_steps    = 256,                             # per env
+        n_steps    = CONFIG["cpo_n_steps"],           # per env (256 at the protocol)
         gamma      = 0.99,
         delta      = 0.01,                            # KL trust region
         device     = CONFIG["device"],
