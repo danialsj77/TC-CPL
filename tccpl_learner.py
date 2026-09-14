@@ -601,12 +601,23 @@ def collect_demonstrations(make_env, n_transitions: int, seed: int,
               f"mean c_ov {out['c_ov'].mean():.2e}   "
               f"episodes with overload cost: "
               f"{(out['c_ov'] > 0).mean() * 100:.1f}% of steps")
+    # Atomic write: TC-CPL and its fixed-λ ablation share one cache key per
+    # seed and start at the same time under run_sweep.py / slurm_sweep.sh, so
+    # a reader must never see a half-written file — write beside it, then
+    # rename (os.replace is atomic on POSIX and NTFS).
+    tmp = f"{cache}.tmp.{os.getpid()}"
     try:
-        np.savez_compressed(cache, **out)
+        with open(tmp, "wb") as fh:
+            np.savez_compressed(fh, **out)
+        os.replace(tmp, cache)
         if verbose:
             print(f"  Cached demonstrations → {cache}")
     except OSError as e:
         print(f"  ! could not cache demonstrations: {e}")
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
     return out
 
 

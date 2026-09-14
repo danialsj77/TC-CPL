@@ -22,9 +22,11 @@
 # FULL budget are skipped, so an interrupted batch resumes where it stopped.
 # Ctrl-C stops every job. caffeinate keeps the Mac awake while training runs.
 #
-# Full protocol = 3 seeds per scenario:
-#   ./runall.sh cityNL 42 && ./runall.sh cityNL 43 && ./runall.sh cityNL 44
+# Full protocol = 5 seeds x 1,000,000 steps per scenario (run_sweep.py or
+# slurm_sweep.sh on a cluster; here one seed at a time):
+#   for s in 42 43 44 45 46; do ./runall.sh cityNL $s; done
 # then the same for PublicPST, then run notebook §7 once per scenario.
+# TCCPL_TOTAL_TIMESTEPS=300000 ./runall.sh ...   # smaller local budget
 # ─────────────────────────────────────────────────────────────────────────────
 set -u
 cd "$(dirname "$0")"
@@ -55,16 +57,19 @@ if [[ "${SMOKE:-0}" == "1" ]]; then
   echo ">> run — the completion check ignores smoke artefacts)"
 fi
 
-# ── Skip finished full-budget runs (mirrors run_sweep.is_complete) ───────────
+# ── Skip finished full-budget runs (mirrors run_sweep.is_complete): the
+#    sidecar must record the CURRENT budget, not just "not a smoke run" ──────
 is_done() {
   "$PYTHON" - "$1" "$SEED" "$SCENARIO" <<'PYEOF'
 import json, os, sys
 algo, seed, scen = sys.argv[1:4]
 name = {"ddpg": "ddpg_pst", "ppo": "ppo_pst", "cpo": "cpo_pst"}.get(algo, algo)
 suf = "" if seed == "42" else f"_s{seed}"
+budget = int(os.environ.get("TCCPL_TOTAL_TIMESTEPS", 1_000_000))
 try:
     info = json.load(open(os.path.join("models", scen, f"{name}_sac{suf}.runmeta.json")))
-    sys.exit(0 if not info.get("smoke_test") else 1)
+    ok = (not info.get("smoke_test")) and int(info.get("timesteps", -1)) == budget
+    sys.exit(0 if ok else 1)
 except Exception:
     sys.exit(1)
 PYEOF
@@ -117,7 +122,7 @@ done
 echo
 if [ "$FAIL" -eq 0 ]; then
   echo "All jobs finished. Models → models/${SCENARIO}/   Next:"
-  echo "  - remaining seeds:  ./runall.sh $SCENARIO 43   and   ./runall.sh $SCENARIO 44"
+  echo "  - remaining seeds:  for s in 43 44 45 46; do ./runall.sh $SCENARIO \$s; done"
   echo "  - then evaluate:    open TC-CPL.ipynb with TCCPL_SCENARIO=$SCENARIO and run §7"
 else
   echo "Some jobs FAILED — check the logs above, then re-run ./runall.sh $SCENARIO $SEED"

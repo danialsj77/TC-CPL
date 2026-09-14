@@ -204,7 +204,8 @@ SCENARIO_CATALOGUE = {   # name → (what it is, what it costs)
     "PublicPST": ("single-transformer public facility of the PST paper [8]",
                   "fast — minutes per learner at smoke budgets; the small-scale study"),
     "cityNL":    ("city-scale Dutch MV feeder: 122 substations, full AC power flow",
-                  "slow — about 28 h for all five learners on an M5 Pro; the headline study"),
+                  "slow — about 28 h per seed for all five learners at 300k steps on an "
+                  "M5 Pro, ~3x at the 1M-step protocol; the headline study"),
 }
 SCENARIO_DEFAULT = "cityNL"
 
@@ -300,6 +301,17 @@ os.environ["TCCPL_SCENARIO"] = SCENARIO_NAME    # shell cells / subprocesses agr
 RESULTS_DIR = f"results/{SCENARIO_NAME}"
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
+# ── Training budget: ONE number for every learner (protocol parity). The
+#    reported protocol is 1,000,000 environment steps × 5 seeds, run on a
+#    cluster (run_sweep.py / slurm_sweep.sh). TCCPL_TOTAL_TIMESTEPS overrides
+#    it for smaller local runs; run_sweep.py treats a model trained at any
+#    other budget as NOT finished, so old 300k checkpoints are retrained.
+_BUDGET = int(os.environ.get("TCCPL_TOTAL_TIMESTEPS", 1_000_000))
+_SEEDS = [int(s) for s in os.environ.get("TCCPL_SEEDS", "42,43,44,45,46").split(",")]
+assert _SEEDS[0] == 42, ("42 must stay the FIRST seed: its artefacts carry no "
+                          "suffix (models/<scenario>/<name>_sac.zip), every other "
+                          "seed is suffixed _s<seed>")
+
 CONFIG = {
     "scenario":            SCENARIO_NAME,
     "config_file":         f"ev2gym/example_config_files/{SCENARIO_NAME}.yaml",
@@ -308,9 +320,11 @@ CONFIG = {
     "state_function_safe": grid_aware_obs,              # M3 observation (constrained models)
 
     # ── Reproducibility protocol ─────────────────────────────────────────────
-    # Train once per seed (TCCPL_SEED=42/43/44, or run_sweep.py); §7 aggregates
-    # over every seed it finds on disk.
-    "seeds":            [42, 43, 44],
+    # Five training seeds. Train once per seed (TCCPL_SEED=42…46, or
+    # run_sweep.py / slurm_sweep.sh); §7 aggregates over every seed it finds
+    # on disk (§7.3 learning curves and §7.8 λ trajectories show the mean and
+    # the min–max band across seeds; §7.4 averages the per-episode metrics).
+    "seeds":            _SEEDS,
     "run_seed":         int(os.environ.get("TCCPL_SEED", 42)),
 
     # ── Training device. SB3's "auto" NEVER selects Apple-silicon GPUs, so
@@ -323,12 +337,12 @@ CONFIG = {
     #    object and M1's dual update reaches every env by mutating it ─────────
     "num_envs":          32,
 
-    # ── Training budgets ─────────────────────────────────────────────────────
-    "total_timesteps_fixed": 300_000,   # SAC (fixed λ) — frozen-multiplier ablation
-    "total_timesteps_tccpl": 300_000,   # TC-CPL (M1+M2+M3)
-    "total_timesteps_ddpg":  300_000,   # DDPG-PST literature baseline
-    "total_timesteps_ppo":   300_000,   # PPO-PST on-policy baseline
-    "total_timesteps_cpo":   300_000,   # CPO (Achiam 2017) constrained baseline
+    # ── Training budgets: _BUDGET (1,000,000 by default) for every learner ──
+    "total_timesteps_fixed": _BUDGET,   # SAC (fixed λ) — frozen-multiplier ablation
+    "total_timesteps_tccpl": _BUDGET,   # TC-CPL (M1+M2+M3)
+    "total_timesteps_ddpg":  _BUDGET,   # DDPG-PST literature baseline
+    "total_timesteps_ppo":   _BUDGET,   # PPO-PST on-policy baseline
+    "total_timesteps_cpo":   _BUDGET,   # CPO (Achiam 2017) constrained baseline
 
     # ── TC-CPL learner (paper Sec. III-D) ────────────────────────────────────
     "gamma":          1.0,     # FINITE-HORIZON return with the terminal mask
@@ -387,18 +401,23 @@ CONFIG = {
     "per_beta0":          0.4,    # β annealed from here to 1 over training
 
     # ── M2: incumbent warm start (zero-residual demonstrations) ──────────────
-    "offline_transitions": 100_000,
+    "offline_transitions": int(os.environ.get("TCCPL_OFFLINE_TRANSITIONS", 100_000)),
+    #                      (env override exists for smoke tests only)
 
     # ── DDPG-PST literature baseline (Yılmaz, Orfanoudakis & Vergara, 2024) ──
     "ddpg_gamma":         0.99,
     "ddpg_tau":           5e-4,
     "ddpg_lr":            1e-3,
     "ddpg_batch_size":    64,
-    "ddpg_buffer_size":   300_000,  # [8] uses 1e6, but at obs_dim ≈ 2291 that
-    #                                 is ~19 GB of float32 observations and
-    #                                 swaps to disk. A 300k-step budget never
-    #                                 stores more than 300k transitions, so a
-    #                                 300k buffer is behaviour-identical.
+    "ddpg_buffer_size":   int(os.environ.get("TCCPL_DDPG_BUFFER",
+                                             min(1_000_000, _BUDGET))),
+    #                     [8] uses 1e6. A buffer at least as large as the budget
+    #                     never discards a transition, so this is behaviour-
+    #                     identical to [8] for any budget ≤ 1e6 — at a RAM cost:
+    #                     obs + next_obs at cityNL's obs_dim ≈ 2291 take ~18 GB
+    #                     float32 for 1e6 transitions (fine on a cluster node).
+    #                     On a laptop set TCCPL_DDPG_BUFFER=300000 (a sliding
+    #                     window of the last 300k transitions, ~5.5 GB).
     "ddpg_ou_sigma":      0.2,
     "ddpg_actor_arch":    [128, 128],   # paper: two FC layers of 128
     "ddpg_critic_arch":   [64, 64],     # paper: critic width 64
@@ -448,6 +467,9 @@ print(f"Requirements: overload = 0 kWh, ε_usr ≥ {CONFIG['target_sat']}   |   
       f"ε_usr ≥ {CONFIG['train_sat_floor']}")
 print(f"Run seed: {SEED}  (protocol seeds: {CONFIG['seeds']})   "
       f"artefact suffix: '{SUF or '(none)'}'   results → {RESULTS_DIR}/")
+print(f"Budget: {_BUDGET:,} environment steps per learner   "
+      f"(dual update every {CONFIG['lambda_update_freq']:,} steps → "
+      f"{_BUDGET // CONFIG['lambda_update_freq']} multiplier updates)")
 
 
 # ====================================================================

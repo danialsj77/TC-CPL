@@ -42,9 +42,11 @@ def main():
     ap.add_argument("--seed", type=int, required=True)
     ap.add_argument("--scenario", default="cityNL",
                     choices=["cityNL", "PublicPST"])
-    ap.add_argument("--threads", type=int, default=4,
-                    help="BLAS/torch threads for THIS process. Keep the product "
-                         "over concurrent runs at or below the 16 physical cores.")
+    ap.add_argument("--threads", type=int,
+                    default=int(os.environ.get("SLURM_CPUS_PER_TASK", 4)),
+                    help="BLAS/torch threads for THIS process (default: "
+                         "SLURM_CPUS_PER_TASK, else 4). Keep the product over "
+                         "concurrent runs at or below the physical cores.")
     ap.add_argument("--timesteps", type=int, default=None,
                     help="override the training budget (all total_timesteps_* "
                          "keys). For smoke tests; omit for the real run.")
@@ -114,6 +116,8 @@ def main():
                 "target_sat": rt.CONFIG["target_sat"],
                 "train_sat_floor": rt.CONFIG.get("train_sat_floor"),
                 "ov_margin": rt.CONFIG.get("ov_margin"),
+                "device": rt.CONFIG.get("device"),
+                "threads": args.threads,
                 "minutes": round(dt / 60, 2),
                 "finished": time.strftime("%Y-%m-%d %H:%M:%S"),
             }, f, indent=2)

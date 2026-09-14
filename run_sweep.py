@@ -5,9 +5,17 @@
     python run_sweep.py --algos tccpl fixedpenalty --seeds 42
     python run_sweep.py --dry-run
 
+Protocol: 5 algorithms x 5 seeds (42-46) x 2 scenarios = 50 jobs of 1,000,000
+environment steps each. The budget and the seed list are read from the same
+environment variables the notebook's CONFIG cell uses (TCCPL_TOTAL_TIMESTEPS,
+TCCPL_SEEDS), so a run is "finished" only when its runmeta sidecar records the
+CURRENT budget -- a 300k-step checkpoint from an earlier protocol is retrained.
+On a SLURM cluster use slurm_sweep.sh (one array task per job) instead of the
+in-process concurrency here.
+
 Each job is a separate `train_one.py` process. Finished jobs are skipped, so an
 interrupted sweep resumes where it stopped (use --force to retrain regardless).
-Per-job output goes to logs/sweep/<algo>_s<seed>.log.
+Per-job output goes to logs/sweep/<scenario>_<algo>_s<seed>.log.
 
 Concurrency is bounded by RAM, not by cores: each run holds its own replay buffer
 (~3.6 GB at 200k transitions x 2291 dims in float32 -- it was 7.3 GB before the
@@ -21,9 +29,10 @@ import sys
 import time
 
 ALGOS = ["fixedpenalty", "tccpl", "ddpg", "ppo", "cpo"]
-SEEDS = [42, 43, 44]
+SEEDS = [int(s) for s in os.environ.get("TCCPL_SEEDS", "42,43,44,45,46").split(",")]
 SCENARIOS = ["cityNL", "PublicPST"]
-FIRST_SEED = SEEDS[0]
+FIRST_SEED = 42                     # its artefacts carry no _s<seed> suffix
+BUDGET = int(os.environ.get("TCCPL_TOTAL_TIMESTEPS", 1_000_000))
 
 
 def artefact(algo, seed, scenario):
@@ -53,6 +62,9 @@ def is_complete(algo, seed, scenario):
         return False, f"unreadable sidecar ({e})"
     if info.get("smoke_test"):
         return False, f"smoke run ({info.get('timesteps')} steps)"
+    if int(info.get("timesteps", -1)) != BUDGET:
+        return False, (f"budget mismatch ({info.get('timesteps')} steps on disk, "
+                       f"protocol is {BUDGET})")
     return True, f"{info.get('timesteps')} steps, {info.get('minutes')} min"
 
 
@@ -65,7 +77,7 @@ def main():
     ap.add_argument("--seeds", nargs="+", type=int, default=SEEDS)
     ap.add_argument("--scenarios", nargs="+", default=SCENARIOS, choices=SCENARIOS)
     ap.add_argument("--threads", type=int, default=None,
-                    help="threads per process (default: 16 physical cores // jobs)")
+                    help="threads per process (default: available cores // jobs)")
     ap.add_argument("--force", action="store_true",
                     help="retrain even if the artefact already exists")
     ap.add_argument("--dry-run", action="store_true")
@@ -75,7 +87,11 @@ def main():
     os.chdir(here)
     os.makedirs(os.path.join("logs", "sweep"), exist_ok=True)
 
-    threads = args.threads or max(1, 16 // max(args.jobs, 1))
+    try:                                   # cgroup/SLURM-aware where available
+        n_cores = len(os.sched_getaffinity(0))
+    except AttributeError:
+        n_cores = os.cpu_count() or 16
+    threads = args.threads or max(1, n_cores // max(args.jobs, 1))
 
     queue = []
     skipped = []
@@ -89,7 +105,8 @@ def main():
                     queue.append((algo, seed, scenario))
 
     print(f"{len(queue)} job(s) to run, {len(skipped)} already done, "
-          f"{args.jobs} at a time, {threads} threads each")
+          f"{args.jobs} at a time, {threads} threads each, "
+          f"budget {BUDGET:,} steps, seeds {args.seeds}")
     for algo, seed, scenario, why in skipped:
         print(f"  skip  {algo:<13} {scenario:<10} seed {seed}  ({why})")
     for algo, seed, scenario in queue:
