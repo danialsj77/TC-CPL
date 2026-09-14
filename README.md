@@ -57,8 +57,22 @@ qsub -g <your-group> tsubame_sweep.sh   # Grid Engine cluster (TSUBAME)
 python run_sweep.py --jobs 4            # one machine (Linux, Mac or Windows), 4 jobs at a time
 ```
 
-On a cluster, first open the script and edit the lines at the top (queue or
-resource type, GPU, time limit, and the line that activates `.venv`).
+What the cluster lines mean:
+
+- `sbatch` (SLURM) and `qsub` (Grid Engine) hand the script to the cluster's
+  scheduler, which runs it on compute nodes when resources are free, instead
+  of on the login machine you are typing on.
+- `-g <your-group>` is required on TSUBAME: it names the group (lab or project
+  account, e.g. `tga-xxxx`) whose computing budget pays for the jobs. Replace
+  the placeholder with your own group name; `t4-user-info group list` shows
+  it. Without `-g` the job runs in trial mode, which is limited to 10 minutes.
+- The script itself is an *array job*: it asks the scheduler for 50 tasks and
+  each task runs one `train_one.py` job.
+
+Before submitting, open the script once and check the lines at the top:
+the resource type (`gpu_1` = one GPU; a CPU-only type works, just slower),
+the run-time limit per job (`h_rt` on TSUBAME, `--time` on SLURM) and the
+line that activates `.venv`.
 
 If some jobs fail or run out of time, **run the same line again**: finished
 jobs are skipped and only the missing ones run. To see what is finished:
