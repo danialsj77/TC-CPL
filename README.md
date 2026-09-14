@@ -2,10 +2,15 @@
 
 Code and experiments for the manuscript **"Power Setpoint Tracking for
 Large-Scale EV Charging: Transformer-Constrained Charging Policy Learning with
-Self-Tuning Constraint Prices"** (D. Sajedi-Hosseini, X. Shen et al., Tokyo
-University of Agriculture and Technology; for IEEE Transactions on
-Transportation Electrification), built on the
+Self-Tuning Constraint Prices"**, submitted to IEEE Transactions on
+Transportation Electrification, built on the
 [EV2Gym](https://github.com/StavrosOrf/EV2Gym) simulator.
+
+**Authors:** Daniyal Sajedi-Hosseini and Xun Shen (Tokyo University of
+Agriculture and Technology), Xianbang Chen (Cornell University), Shubham Singh,
+Lei Zhou and Katsuki Fujisawa (Institute of Science Tokyo), Sebastien Gros
+(Norwegian University of Science and Technology), and Zhengmao Li (Aalto
+University).
 
 The code implements the manuscript's Sec. III **exactly**: the grid-aware
 observation with fixed physical feature scaling, residual anchoring at the
