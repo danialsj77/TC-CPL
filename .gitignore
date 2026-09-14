@@ -170,7 +170,7 @@ vscode/
 runs/
 saved_models/
 trajectories/
-logs/
+/logs/
 eval_logs/
 models_RL/
 plots/
@@ -187,8 +187,10 @@ MPC EVCS V2G - v2/
 
 # Large binaries the code regenerates: M2 demonstration buffers (~440 MB) and
 # trained checkpoints (~88 MB, shipped as a GitHub Release instead).
-cache/
-models/
+# Anchored to the repository root: an unanchored 'models/' also hid the
+# simulator package ev2gym/models/ from git.
+/cache/
+/models/
 .backup_*/
 __pycache__/
 .ipynb_checkpoints/

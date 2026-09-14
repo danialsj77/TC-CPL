@@ -16,10 +16,13 @@ University).
 
 ## How to run it
 
-You need **Python 3.10 or 3.11**, about 10 GB of disk, and optionally a GPU.
-Every command below is run from the repository folder.
+You need **Python 3.10 or 3.11** (3.12 and newer do not work with the pinned
+libraries), about 10 GB of disk, and optionally a GPU. Every command below is
+run from the repository folder.
 
 ### Step 1 — Install (5 minutes)
+
+Linux / Mac:
 
 ```bash
 git clone https://github.com/danialsj77/TC-CPL.git
@@ -29,6 +32,20 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Windows (PowerShell or Command Prompt):
+
+```bat
+git clone https://github.com/danialsj77/TC-CPL.git
+cd TC-CPL
+py -3.11 -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+If `python3.11` / `py -3.11` is not found, install Python 3.11 from
+python.org (Mac: `brew install python@3.11`). To check that everything is in
+place, run `python tccpl_learner.py`; it must print `self-test OK`.
+
 ### Step 2 — Run all 50 jobs
 
 The study is 50 jobs: one job trains one algorithm, with one seed, on one
@@ -37,7 +54,7 @@ scenario, for 1,000,000 steps. Pick one line, depending on the machine:
 ```bash
 sbatch slurm_sweep.sh                   # SLURM cluster
 qsub -g <your-group> tsubame_sweep.sh   # Grid Engine cluster (TSUBAME)
-python run_sweep.py --jobs 4            # one big machine, 4 jobs at a time
+python run_sweep.py --jobs 4            # one machine (Linux, Mac or Windows), 4 jobs at a time
 ```
 
 On a cluster, first open the script and edit the lines at the top (queue or

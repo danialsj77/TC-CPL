@@ -1,0 +1,216 @@
+'''
+This file is part of the ev2gym package. It is used to save the simulation data in a pickle file.
+'''
+
+import os
+import numpy as np
+import math
+from ev2gym.utilities.utils import get_statistics
+
+class EvCityReplay():
+    '''
+    This class is used to save the simulation data in a pickle file.
+    The pickle file can be used to create a math model of the simulation.    
+    '''
+
+    def __init__(self, env):
+
+        # Create replay folder if it does not exist
+        if not os.path.exists('replay'):
+            os.makedirs('replay')
+
+        self.stats = env.stats
+
+        self.replay_path = env.replay_path + 'replay_' + env.sim_name + '.pkl'
+        self.sim_name = env.sim_name + '_replay'
+        self.sim_length = env.simulation_length
+        self.n_cs = env.cs
+        self.n_transformers = env.number_of_transformers
+        self.timescale = env.timescale
+        self.sim_date = env.sim_starting_date
+        self.cs_transformers = env.cs_transformers
+        self.power_setpoints = env.power_setpoints
+        self.scenario = env.scenario
+        self.heterogeneous_specs = env.heterogeneous_specs
+        self.ev_load_potential = env.current_power_usage
+        self.simulate_grid = env.simulate_grid
+
+        self.transformers = env.transformers
+        self.charging_stations = env.charging_stations
+        self.EVs = env.EVs_profiles
+        self.grid = env.grid
+        if env.simulate_grid:
+            self.load_data = env.grid.load_data
+            self.pv_data = env.grid.pv_data
+            self.K = env.grid.net._K_
+            self.L = env.grid.net._L_
+            self.s_base = env.grid.net.s_base
+            self.active_power = env.node_active_power
+            self.reactive_power = env.node_reactive_power
+        
+        self.unstirred_EVs = None
+        self.unstirred_stats = None
+        self.optimal_EVs = None
+        self.optimal_stats = None
+        
+        if env.eval_mode =="optimal":
+            self.optimal_EVs = env.EVs
+            self.optimal_stats = self.stats
+
+        self.charge_prices = env.charge_prices
+        self.discharge_prices = env.discharge_prices
+
+        self.tra_max_amps = np.ones([self.n_transformers, self.sim_length])
+        self.tra_min_amps = np.ones([self.n_transformers, self.sim_length])
+
+        for i, tra in enumerate(env.transformers):
+            current_from_inflexible = env.tr_inflexible_loads[i,:] * 1000 / tra.voltage
+            current_from_solar = env.tr_solar_power[i,:] * 1000 / tra.voltage
+            
+            # Headroom left for charging is the rating minus the NET non-EV
+            # loading, and both terms are signed: solar_power is stored negative
+            # (generation), and inflexible_load is negative whenever a
+            # substation's households export more than they draw.
+            #
+            # The previous form used abs() on both, which is right only while the
+            # inflexible load stays positive. On a net-exporting substation it
+            # SUBTRACTS the export instead of adding it, understating headroom by
+            # twice the export and producing negative "headroom" (-26 kW on
+            # transformer 91 of cityNL) -- which makes the offline-optimal QP
+            # infeasible, since charging power cannot be negative.
+            self.tra_max_amps[i] = tra.max_current - current_from_inflexible - current_from_solar
+            self.tra_min_amps[i] = tra.min_current - current_from_inflexible - current_from_solar
+
+        self.port_max_charge_current = np.ones([self.n_cs])
+        self.port_min_charge_current = np.ones([self.n_cs])
+        self.port_max_discharge_current = np.ones([self.n_cs])
+        self.port_min_discharge_current = np.ones([self.n_cs])
+        self.voltages = np.ones([self.n_cs])
+        self.phases = np.ones([self.n_cs])        
+
+        self.cs_ch_efficiency = np.ones([self.n_cs, self.sim_length])
+        self.cs_dis_efficiency = np.ones([self.n_cs, self.sim_length])
+        self.cs_transformer = np.ones([self.n_cs])
+
+        self.max_n_ports = 0
+
+        for i, cs in enumerate(env.charging_stations):
+            self.port_max_charge_current[i] = cs.max_charge_current
+            self.port_min_charge_current[i] = cs.min_charge_current
+            self.port_max_discharge_current[i] = cs.max_discharge_current
+            self.port_min_discharge_current[i] = cs.min_discharge_current
+            self.voltages[i] = cs.voltage * math.sqrt(cs.phases)            
+
+            #consider usecases with variable number of ports per cs
+            if cs.n_ports > self.max_n_ports:
+                self.max_n_ports = cs.n_ports
+
+            self.cs_transformer[i] = cs.connected_transformer
+
+        self.ev_max_energy = np.zeros([self.max_n_ports,
+                                      self.n_cs,
+                                      self.sim_length])  # ev max battery capacity, 0 if no ev is there
+        self.ev_min_energy = np.zeros([self.max_n_ports,
+                                       self.n_cs,
+                                       self.sim_length])  # ev min battery capacity, 0 if no ev is there
+        self.ev_max_ch_power = np.zeros([self.max_n_ports,
+                                         self.n_cs,
+                                         self.sim_length])  # ev max charging power, 0 if no ev is there
+        # self.ev_min_ch_power = np.zeros([self.max_n_ports,
+        #                                  self.n_cs,
+        #                                  self.sim_length])  # ev min charging power, 0 if no ev is there
+        self.ev_max_dis_power = np.zeros([self.max_n_ports,
+                                          self.n_cs,
+                                          self.sim_length])  # ev max discharging power, 0 if no ev is there
+        # self.ev_min_dis_power = np.zeros([self.max_n_ports,
+        #                                   self.n_cs,
+        #                                   self.sim_length])  # ev min discharging power, 0 if no ev is there
+        self.u = np.zeros([self.max_n_ports,
+                           self.n_cs,
+                           self.sim_length])  # u is 0 if port is empty and 1 if port is occupied
+        # Charge efficiency of the EV occupying each (port, cs, step), 1 if free.
+        # EV.step credits the battery with eta * requested power, and EV2Gym
+        # counts that battery-side figure in current_power_usage -- so an offline
+        # scheduler that ignores eta plans power it can never deliver.
+        self.ev_ch_efficiency = np.ones([self.max_n_ports,
+                                         self.n_cs,
+                                         self.sim_length])
+        self.energy_at_arrival = np.zeros([self.max_n_ports,
+                                           self.n_cs,
+                                           self.sim_length])  # x when ev arrives at the port
+        self.ev_arrival = np.zeros([self.max_n_ports,
+                                    self.n_cs,
+                                    self.sim_length])  # 1 when an ev arrives-> power = 0 and energy = x
+        self.t_dep = np.zeros([self.max_n_ports,
+                               self.n_cs,
+                               self.sim_length])  # time of departure of the ev, 0 if port is empty
+        self.ev_des_energy = np.zeros([self.max_n_ports,
+                                       self.n_cs,
+                                       self.sim_length])  # desired energy of the ev, 0 if port is empty
+        self.max_energy_at_departure = np.zeros([self.max_n_ports,
+                                                self.n_cs,
+                                                self.sim_length])  # max energy of ev when only charging
+
+        for i, ev in enumerate(env.EVs):
+            port = ev.id
+            cs_id = ev.location
+            t_arr = ev.time_of_arrival
+            original_t_dep = ev.time_of_departure
+            # print(f'EV {i} is at port {port} of CS {cs_id} from {t_arr} to {original_t_dep}')            
+
+            if t_arr >= self.sim_length:
+                continue
+            if original_t_dep >= self.sim_length:
+                t_dep = self.sim_length
+            else:
+                t_dep = original_t_dep                            
+
+            self.ev_max_energy[port, cs_id, t_arr:t_dep] = ev.battery_capacity
+            # self.ev_min_energy[port, cs_id, t_arr:t_dep] = ev.battery_capacity * ev.min_soc
+            self.ev_max_ch_power[port, cs_id,
+                                 t_arr:t_dep] = ev.max_ac_charge_power
+            # self.ev_min_ch_power[port, cs_id,
+            #                      t_arr:t_dep] = 0
+            self.ev_max_dis_power[port, cs_id,
+                                  t_arr:t_dep] = ev.max_discharge_power
+            # self.ev_min_dis_power[port, cs_id,
+            #                       t_arr:t_dep] = 0
+            self.u[port, cs_id, t_arr:t_dep] = 1
+            _ce = ev.charge_efficiency
+            if isinstance(_ce, dict):
+                _vals = [v for v in _ce.values() if v > 0]
+                _eff = (sum(_vals) / len(_vals)) / 100.0 if _vals else 1.0
+            else:
+                _eff = float(_ce)
+            self.ev_ch_efficiency[port, cs_id, t_arr:t_dep] = max(_eff, 1e-3)
+            self.energy_at_arrival[port, cs_id,
+                                   t_arr] = ev.battery_capacity_at_arrival
+            self.ev_arrival[port, cs_id, t_arr] = 1
+            if original_t_dep < self.sim_length:
+                self.t_dep[port, cs_id, t_dep] = 1            
+                if ev.prev_capacity < ev.battery_capacity:
+                    self.max_energy_at_departure[port, cs_id, t_dep] = ev.prev_capacity #-5
+                else:
+                    self.max_energy_at_departure[port, cs_id, t_dep] = ev.battery_capacity
+            else:
+                self.t_dep[port, cs_id, t_dep-1] = 1                            
+                self.max_energy_at_departure[port, cs_id, t_dep-1] = ev.prev_capacity
+            
+            self.ev_des_energy[port, cs_id, t_dep] = ev.desired_capacity
+
+        # Per-station charge efficiency, averaged over the occupied ports.
+        # baselines/gurobi_models/*.py read this field; it was allocated as ones
+        # and never written, so those models silently assumed lossless charging.
+        _occ = self.u.sum(axis=0)                                   # (n_cs, T)
+        _eff = (self.ev_ch_efficiency * self.u).sum(axis=0)          # (n_cs, T)
+        self.cs_ch_efficiency = np.where(_occ > 0,
+                                         _eff / np.maximum(_occ, 1.0), 1.0)
+        self.cs_dis_efficiency = self.cs_ch_efficiency.copy()
+
+        # print(f'u: {self.u}')
+        # print(f'ev_arrival: {self.ev_arrival}')
+        # print(f't_dep: {self.t_dep}')
+        # print(f'ev_des_energy: {self.ev_des_energy}')
+        # print(f'ev_max_energy: {self.ev_max_energy}')
+        # print(f'ev_max_ch_power: {self.ev_max_ch_power}')
+        # print(f'ev_max_dis_power: {self.ev_max_dis_power}')
