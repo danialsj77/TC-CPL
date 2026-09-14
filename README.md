@@ -29,30 +29,10 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Step 2 — Test that it works (5 minutes)
+### Step 2 — Run all 50 jobs
 
-```bash
-python tccpl_learner.py          # prints "self-test OK"
-SMOKE=1 ./runall.sh PublicPST    # trains all five learners for 300 steps, ~3 min
-rm -rf models logs results       # delete the test output
-```
-
-### Step 3 — Measure one job (optional, but do it on a cluster)
-
-The study is 50 jobs. One job trains one algorithm, with one seed, on one
-scenario, for 1,000,000 steps. Run one job by hand to see how long it takes:
-
-```bash
-python train_one.py --algo tccpl --seed 42 --scenario cityNL
-```
-
-Its log prints `fps`. Hours per job = 1,000,000 / fps / 3600. A job cannot be
-paused and resumed, so the cluster's time limit per job must be longer than
-that. If it is not, stop here and tell Daniyal.
-
-### Step 4 — Run all 50 jobs
-
-Pick one line, depending on the machine:
+The study is 50 jobs: one job trains one algorithm, with one seed, on one
+scenario, for 1,000,000 steps. Pick one line, depending on the machine:
 
 ```bash
 sbatch slurm_sweep.sh                   # SLURM cluster
@@ -71,8 +51,9 @@ python run_sweep.py --dry-run
 ```
 
 Memory: about 8 GB per job, except DDPG on cityNL, which needs about 18 GB.
+A job cannot be paused and resumed, so give each job a long enough time limit.
 
-### Step 5 — Send the results back
+### Step 3 — Send the results back
 
 ```bash
 tar czf tccpl_results.tgz models logs results
@@ -80,7 +61,7 @@ tar czf tccpl_results.tgz models logs results
 
 The archive is about 0.5–1 GB.
 
-### Step 6 — Evaluate (Daniyal's side)
+### Step 4 — Evaluate (Daniyal's side)
 
 Unpack the archive into the repository, open `TC-CPL.ipynb` in Jupyter, type
 `cityNL` or `PublicPST` when asked, and run **Section 7** only. It evaluates
