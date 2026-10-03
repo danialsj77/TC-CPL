@@ -17,11 +17,13 @@ Constraint Prices"**, submitted to *IEEE Transactions on Transportation
 Electrification*. Built on the [EV2Gym](https://github.com/StavrosOrf/EV2Gym)
 simulator.
 
-**Authors:** Daniyal Sajedi-Hosseini and Xun Shen (Tokyo University of
-Agriculture and Technology), Xianbang Chen (Cornell University), Shubham Singh,
-Lei Zhou and Katsuki Fujisawa (Institute of Science Tokyo), Sebastien Gros
-(Norwegian University of Science and Technology), and Zhengmao Li (Aalto
-University).
+**Authors:** Daniyal Sajedi-Hosseini, Yoshihiko Fujisawa, Shubham Singh, Lei
+Zhou, Katsuki Fujisawa, Sebastien Gros, Mazaher Karimi, and Xun Shen.
+
+**Affiliations:** Daniyal Sajedi-Hosseini and Xun Shen, Tokyo University of
+Agriculture and Technology; Yoshihiko Fujisawa, Shubham Singh, Lei Zhou and
+Katsuki Fujisawa, Institute of Science Tokyo; Sebastien Gros, Norwegian
+University of Science and Technology; Mazaher Karimi, University of Vaasa.
 
 ---
 
