@@ -1,14 +1,14 @@
 # TC-CPL — Transformer-Constrained Charging Policy Learning
 
 <p align="center">
-  <video src="figs/policy_simulation.mp4" controls muted loop playsinline width="100%">
-    Your browser cannot play embedded video:
-    <a href="figs/policy_simulation.mp4">download the simulation (MP4, 9 MB)</a>.
-  </video>
+  <img src="figs/policy_simulation_preview.gif" width="100%"
+       alt="Nine charging controllers following the same power setpoint over one simulated day on the cityNL scenario">
   <br>
   <em>One simulated day on the cityNL scenario (122 substations, 300 stations,
   600 charge points): nine charging controllers, TC-CPL among them, follow the
   same power setpoint side by side.</em>
+  <br>
+  <a href="https://github.com/danialsj77/TC-CPL/raw/main/figs/policy_simulation.mp4">Download the full-quality video (MP4, 9 MB)</a>
 </p>
 
 Code for the manuscript **"Power Setpoint Tracking for Large-Scale EV
