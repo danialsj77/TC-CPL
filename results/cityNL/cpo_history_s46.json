@@ -1,0 +1,1112 @@
+{
+  "history": [
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.2657133464235812,
+      "kl": 0.00611997302621603,
+      "backtracks": 0,
+      "Jc": 2.2657133464235812,
+      "timesteps": 8192
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.413844842095083,
+      "kl": 0.005198691040277481,
+      "backtracks": 0,
+      "Jc": 2.413844842095083,
+      "timesteps": 16384
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.8225898241071263,
+      "kl": 0.00535165797919035,
+      "backtracks": 0,
+      "Jc": 2.8225898241071263,
+      "timesteps": 24576
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.854823260640842,
+      "kl": 0.005040190648287535,
+      "backtracks": 0,
+      "Jc": 1.854823260640842,
+      "timesteps": 32768
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.1357109471622002,
+      "kl": 0.005063949152827263,
+      "backtracks": 0,
+      "Jc": 2.1357109471622002,
+      "timesteps": 40960
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.213670802700411,
+      "kl": 0.00539350975304842,
+      "backtracks": 0,
+      "Jc": 2.213670802700411,
+      "timesteps": 49152
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.358406548595667,
+      "kl": 0.005210228729993105,
+      "backtracks": 0,
+      "Jc": 2.358406548595667,
+      "timesteps": 57344
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.2482443528181952,
+      "kl": 0.005066258367151022,
+      "backtracks": 0,
+      "Jc": 2.2482443528181952,
+      "timesteps": 65536
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.9290346277666686,
+      "kl": 0.005257673095911741,
+      "backtracks": 0,
+      "Jc": 2.9290346277666686,
+      "timesteps": 73728
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.8471204364795994,
+      "kl": 0.0053217909298837185,
+      "backtracks": 0,
+      "Jc": 1.8471204364795994,
+      "timesteps": 81920
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.327576943062013,
+      "kl": 0.0049285804852843285,
+      "backtracks": 0,
+      "Jc": 2.327576943062013,
+      "timesteps": 90112
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.170068210152143,
+      "kl": 0.005391601473093033,
+      "backtracks": 0,
+      "Jc": 2.170068210152143,
+      "timesteps": 98304
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.5703386495588347,
+      "kl": 0.00542379729449749,
+      "backtracks": 0,
+      "Jc": 2.5703386495588347,
+      "timesteps": 106496
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.911112648774482,
+      "kl": 0.005173776298761368,
+      "backtracks": 0,
+      "Jc": 2.911112648774482,
+      "timesteps": 114688
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.1531637306325138,
+      "kl": 0.00562970619648695,
+      "backtracks": 0,
+      "Jc": 2.1531637306325138,
+      "timesteps": 122880
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.8642184589843964,
+      "kl": 0.005370152182877064,
+      "backtracks": 0,
+      "Jc": 2.8642184589843964,
+      "timesteps": 131072
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.7660711498389596,
+      "kl": 0.0052990238182246685,
+      "backtracks": 0,
+      "Jc": 2.7660711498389596,
+      "timesteps": 139264
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.629635005510257,
+      "kl": 0.005755886435508728,
+      "backtracks": 0,
+      "Jc": 2.629635005510257,
+      "timesteps": 147456
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.7137965958900168,
+      "kl": 0.005441746674478054,
+      "backtracks": 0,
+      "Jc": 1.7137965958900168,
+      "timesteps": 155648
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.582345636532409,
+      "kl": 0.005314745008945465,
+      "backtracks": 0,
+      "Jc": 2.582345636532409,
+      "timesteps": 163840
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.5517174802953377,
+      "kl": 0.005421529058367014,
+      "backtracks": 0,
+      "Jc": 2.5517174802953377,
+      "timesteps": 172032
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.552301672003523,
+      "kl": 0.0055155279114842415,
+      "backtracks": 0,
+      "Jc": 2.552301672003523,
+      "timesteps": 180224
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.9628584462043364,
+      "kl": 0.005175005178898573,
+      "backtracks": 0,
+      "Jc": 1.9628584462043364,
+      "timesteps": 188416
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.4295937085116748,
+      "kl": 0.005566468462347984,
+      "backtracks": 0,
+      "Jc": 2.4295937085116748,
+      "timesteps": 196608
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.9535581382806413,
+      "kl": 0.005331489257514477,
+      "backtracks": 0,
+      "Jc": 2.9535581382806413,
+      "timesteps": 204800
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.458540336073687,
+      "kl": 0.005265326239168644,
+      "backtracks": 0,
+      "Jc": 2.458540336073687,
+      "timesteps": 212992
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.467014168651076,
+      "kl": 0.005476947408169508,
+      "backtracks": 0,
+      "Jc": 2.467014168651076,
+      "timesteps": 221184
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.776483084593565,
+      "kl": 0.005487969145178795,
+      "backtracks": 0,
+      "Jc": 2.776483084593565,
+      "timesteps": 229376
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.6783279277927554,
+      "kl": 0.00515898410230875,
+      "backtracks": 0,
+      "Jc": 2.6783279277927554,
+      "timesteps": 237568
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.7624628201786738,
+      "kl": 0.005567842163145542,
+      "backtracks": 0,
+      "Jc": 1.7624628201786738,
+      "timesteps": 245760
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.3601106587884715,
+      "kl": 0.005565136205404997,
+      "backtracks": 0,
+      "Jc": 2.3601106587884715,
+      "timesteps": 253952
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.2458403410564642,
+      "kl": 0.005342160351574421,
+      "backtracks": 0,
+      "Jc": 2.2458403410564642,
+      "timesteps": 262144
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.301980748338489,
+      "kl": 0.0055333347991108894,
+      "backtracks": 0,
+      "Jc": 2.301980748338489,
+      "timesteps": 270336
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.9118600537985913,
+      "kl": 0.005556951276957989,
+      "backtracks": 0,
+      "Jc": 1.9118600537985913,
+      "timesteps": 278528
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.3292230885320655,
+      "kl": 0.005291566718369722,
+      "backtracks": 0,
+      "Jc": 2.3292230885320655,
+      "timesteps": 286720
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.410279415315017,
+      "kl": 0.005645938217639923,
+      "backtracks": 0,
+      "Jc": 2.410279415315017,
+      "timesteps": 294912
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.5104440270079067,
+      "kl": 0.005532670766115189,
+      "backtracks": 0,
+      "Jc": 2.5104440270079067,
+      "timesteps": 303104
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.20531307895241,
+      "kl": 0.00539795495569706,
+      "backtracks": 0,
+      "Jc": 2.20531307895241,
+      "timesteps": 311296
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.4793869923062934,
+      "kl": 0.005692422389984131,
+      "backtracks": 0,
+      "Jc": 2.4793869923062934,
+      "timesteps": 319488
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.487440938479267,
+      "kl": 0.0054817767813801765,
+      "backtracks": 0,
+      "Jc": 2.487440938479267,
+      "timesteps": 327680
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.7912953343087186,
+      "kl": 0.005499366670846939,
+      "backtracks": 0,
+      "Jc": 1.7912953343087186,
+      "timesteps": 335872
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.672464863222558,
+      "kl": 0.005753044970333576,
+      "backtracks": 0,
+      "Jc": 2.672464863222558,
+      "timesteps": 344064
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.456274708991259,
+      "kl": 0.005507197231054306,
+      "backtracks": 0,
+      "Jc": 2.456274708991259,
+      "timesteps": 352256
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.9226438928356704,
+      "kl": 0.00554035697132349,
+      "backtracks": 0,
+      "Jc": 1.9226438928356704,
+      "timesteps": 360448
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.059485242702067,
+      "kl": 0.005815287586301565,
+      "backtracks": 0,
+      "Jc": 2.059485242702067,
+      "timesteps": 368640
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.958726096932878,
+      "kl": 0.005754370242357254,
+      "backtracks": 0,
+      "Jc": 2.958726096932878,
+      "timesteps": 376832
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.277720631529519,
+      "kl": 0.005662727169692516,
+      "backtracks": 0,
+      "Jc": 2.277720631529519,
+      "timesteps": 385024
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.982779511604652,
+      "kl": 0.005722145549952984,
+      "backtracks": 0,
+      "Jc": 1.982779511604652,
+      "timesteps": 393216
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.5576837210028316,
+      "kl": 0.005704503506422043,
+      "backtracks": 0,
+      "Jc": 2.5576837210028316,
+      "timesteps": 401408
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.6057550969029157,
+      "kl": 0.005451472941786051,
+      "backtracks": 0,
+      "Jc": 2.6057550969029157,
+      "timesteps": 409600
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.413363511674106,
+      "kl": 0.005665597505867481,
+      "backtracks": 0,
+      "Jc": 2.413363511674106,
+      "timesteps": 417792
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.7735508204787038,
+      "kl": 0.0058211954310536385,
+      "backtracks": 0,
+      "Jc": 1.7735508204787038,
+      "timesteps": 425984
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.4790221351092137,
+      "kl": 0.00555510725826025,
+      "backtracks": 0,
+      "Jc": 2.4790221351092137,
+      "timesteps": 434176
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.390095506442473,
+      "kl": 0.00593585567548871,
+      "backtracks": 0,
+      "Jc": 2.390095506442473,
+      "timesteps": 442368
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.915712830479606,
+      "kl": 0.005555128213018179,
+      "backtracks": 0,
+      "Jc": 1.915712830479606,
+      "timesteps": 450560
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.768656647412475,
+      "kl": 0.005708687007427216,
+      "backtracks": 0,
+      "Jc": 1.768656647412475,
+      "timesteps": 458752
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.5141687124002297,
+      "kl": 0.00611816206946969,
+      "backtracks": 0,
+      "Jc": 2.5141687124002297,
+      "timesteps": 466944
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.1647525977459736,
+      "kl": 0.005873098038136959,
+      "backtracks": 0,
+      "Jc": 2.1647525977459736,
+      "timesteps": 475136
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.132183363311924,
+      "kl": 0.005597710143774748,
+      "backtracks": 0,
+      "Jc": 2.132183363311924,
+      "timesteps": 483328
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.455655588351268,
+      "kl": 0.006072561256587505,
+      "backtracks": 0,
+      "Jc": 2.455655588351268,
+      "timesteps": 491520
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.0417153995658737,
+      "kl": 0.005925934296101332,
+      "backtracks": 0,
+      "Jc": 2.0417153995658737,
+      "timesteps": 499712
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.0586460773289823,
+      "kl": 0.005808588117361069,
+      "backtracks": 0,
+      "Jc": 2.0586460773289823,
+      "timesteps": 507904
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.2059785075446903,
+      "kl": 0.0061616431921720505,
+      "backtracks": 0,
+      "Jc": 2.2059785075446903,
+      "timesteps": 516096
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.0915456306247506,
+      "kl": 0.005990144796669483,
+      "backtracks": 0,
+      "Jc": 2.0915456306247506,
+      "timesteps": 524288
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.2407701464617276,
+      "kl": 0.005851240362972021,
+      "backtracks": 0,
+      "Jc": 2.2407701464617276,
+      "timesteps": 532480
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.6359761800655785,
+      "kl": 0.006135438568890095,
+      "backtracks": 0,
+      "Jc": 1.6359761800655785,
+      "timesteps": 540672
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.984364354168065,
+      "kl": 0.005776030011475086,
+      "backtracks": 0,
+      "Jc": 1.984364354168065,
+      "timesteps": 548864
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.116983646148583,
+      "kl": 0.005950106307864189,
+      "backtracks": 0,
+      "Jc": 2.116983646148583,
+      "timesteps": 557056
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.338235031813383,
+      "kl": 0.0060418592765927315,
+      "backtracks": 0,
+      "Jc": 2.338235031813383,
+      "timesteps": 565248
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.010760396689875,
+      "kl": 0.006010714918375015,
+      "backtracks": 0,
+      "Jc": 2.010760396689875,
+      "timesteps": 573440
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.4008919286813275,
+      "kl": 0.00584056880325079,
+      "backtracks": 0,
+      "Jc": 2.4008919286813275,
+      "timesteps": 581632
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.118568391073495,
+      "kl": 0.0061985161155462265,
+      "backtracks": 0,
+      "Jc": 2.118568391073495,
+      "timesteps": 589824
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.8030229727846745,
+      "kl": 0.006053920369595289,
+      "backtracks": 0,
+      "Jc": 1.8030229727846745,
+      "timesteps": 598016
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.9315013252004671,
+      "kl": 0.006091641262173653,
+      "backtracks": 0,
+      "Jc": 1.9315013252004671,
+      "timesteps": 606208
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.8627555731024283,
+      "kl": 0.0062342481687664986,
+      "backtracks": 0,
+      "Jc": 1.8627555731024283,
+      "timesteps": 614400
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.214829754913808,
+      "kl": 0.006123999133706093,
+      "backtracks": 0,
+      "Jc": 2.214829754913808,
+      "timesteps": 622592
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.8864378129340669,
+      "kl": 0.00619476567953825,
+      "backtracks": 0,
+      "Jc": 1.8864378129340669,
+      "timesteps": 630784
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.8127184933352207,
+      "kl": 0.006262552924454212,
+      "backtracks": 0,
+      "Jc": 1.8127184933352207,
+      "timesteps": 638976
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.10973995886161,
+      "kl": 0.006287416443228722,
+      "backtracks": 0,
+      "Jc": 2.10973995886161,
+      "timesteps": 647168
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.731250952481787,
+      "kl": 0.006091957911849022,
+      "backtracks": 0,
+      "Jc": 1.731250952481787,
+      "timesteps": 655360
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.250294401421949,
+      "kl": 0.006430833600461483,
+      "backtracks": 0,
+      "Jc": 2.250294401421949,
+      "timesteps": 663552
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.879278124368284,
+      "kl": 0.006291543133556843,
+      "backtracks": 0,
+      "Jc": 1.879278124368284,
+      "timesteps": 671744
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.2682195218706815,
+      "kl": 0.00622512074187398,
+      "backtracks": 0,
+      "Jc": 2.2682195218706815,
+      "timesteps": 679936
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.7697088831434182,
+      "kl": 0.006316907703876495,
+      "backtracks": 0,
+      "Jc": 1.7697088831434182,
+      "timesteps": 688128
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.6037158039980568,
+      "kl": 0.0062372093088924885,
+      "backtracks": 0,
+      "Jc": 1.6037158039980568,
+      "timesteps": 696320
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.8411961969638166,
+      "kl": 0.0060900975950062275,
+      "backtracks": 0,
+      "Jc": 1.8411961969638166,
+      "timesteps": 704512
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.9621275575676311,
+      "kl": 0.006326061673462391,
+      "backtracks": 0,
+      "Jc": 1.9621275575676311,
+      "timesteps": 712704
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.440865270626091,
+      "kl": 0.006056380458176136,
+      "backtracks": 0,
+      "Jc": 1.440865270626091,
+      "timesteps": 720896
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.6919094103698928,
+      "kl": 0.006288152188062668,
+      "backtracks": 0,
+      "Jc": 1.6919094103698928,
+      "timesteps": 729088
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.112232783828707,
+      "kl": 0.006628003437072039,
+      "backtracks": 0,
+      "Jc": 2.112232783828707,
+      "timesteps": 737280
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.7860073229894624,
+      "kl": 0.006342815235257149,
+      "backtracks": 0,
+      "Jc": 1.7860073229894624,
+      "timesteps": 745472
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.307167133949406,
+      "kl": 0.0065049901604652405,
+      "backtracks": 0,
+      "Jc": 2.307167133949406,
+      "timesteps": 753664
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.045864753237159,
+      "kl": 0.006543833762407303,
+      "backtracks": 0,
+      "Jc": 2.045864753237159,
+      "timesteps": 761856
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.0794870823447127,
+      "kl": 0.006327240727841854,
+      "backtracks": 0,
+      "Jc": 2.0794870823447127,
+      "timesteps": 770048
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.065383810608182,
+      "kl": 0.006318967789411545,
+      "backtracks": 0,
+      "Jc": 2.065383810608182,
+      "timesteps": 778240
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.8352189497866978,
+      "kl": 0.006558934226632118,
+      "backtracks": 0,
+      "Jc": 1.8352189497866978,
+      "timesteps": 786432
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.7725541588006308,
+      "kl": 0.0062616970390081406,
+      "backtracks": 0,
+      "Jc": 1.7725541588006308,
+      "timesteps": 794624
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.7087891774620705,
+      "kl": 0.006533871404826641,
+      "backtracks": 0,
+      "Jc": 1.7087891774620705,
+      "timesteps": 802816
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.871074691414833,
+      "kl": 0.006568067707121372,
+      "backtracks": 0,
+      "Jc": 1.871074691414833,
+      "timesteps": 811008
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.7576127263891976,
+      "kl": 0.006450754124671221,
+      "backtracks": 0,
+      "Jc": 1.7576127263891976,
+      "timesteps": 819200
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.359077282802294,
+      "kl": 0.00649459520354867,
+      "backtracks": 0,
+      "Jc": 2.359077282802294,
+      "timesteps": 827392
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.1522898475911156,
+      "kl": 0.0066602276638150215,
+      "backtracks": 0,
+      "Jc": 2.1522898475911156,
+      "timesteps": 835584
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.918573472295975,
+      "kl": 0.006284595467150211,
+      "backtracks": 0,
+      "Jc": 1.918573472295975,
+      "timesteps": 843776
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.056187094101915,
+      "kl": 0.006476013921201229,
+      "backtracks": 0,
+      "Jc": 2.056187094101915,
+      "timesteps": 851968
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.9548274681486266,
+      "kl": 0.006659333594143391,
+      "backtracks": 0,
+      "Jc": 1.9548274681486266,
+      "timesteps": 860160
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.8943719930248335,
+      "kl": 0.0065053594298660755,
+      "backtracks": 0,
+      "Jc": 1.8943719930248335,
+      "timesteps": 868352
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.6417274166209002,
+      "kl": 0.006509425118565559,
+      "backtracks": 0,
+      "Jc": 1.6417274166209002,
+      "timesteps": 876544
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.9052903699412127,
+      "kl": 0.006932143121957779,
+      "backtracks": 0,
+      "Jc": 1.9052903699412127,
+      "timesteps": 884736
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 2.10773163032718,
+      "kl": 0.006592216901481152,
+      "backtracks": 0,
+      "Jc": 2.10773163032718,
+      "timesteps": 892928
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.7023409558848168,
+      "kl": 0.006570686120539904,
+      "backtracks": 0,
+      "Jc": 1.7023409558848168,
+      "timesteps": 901120
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.6551603905779,
+      "kl": 0.0068641118705272675,
+      "backtracks": 0,
+      "Jc": 1.6551603905779,
+      "timesteps": 909312
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.7449177270173095,
+      "kl": 0.006757970899343491,
+      "backtracks": 0,
+      "Jc": 1.7449177270173095,
+      "timesteps": 917504
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.9342306978360284,
+      "kl": 0.006822277791798115,
+      "backtracks": 0,
+      "Jc": 1.9342306978360284,
+      "timesteps": 925696
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.7184842763260046,
+      "kl": 0.006823648698627949,
+      "backtracks": 0,
+      "Jc": 1.7184842763260046,
+      "timesteps": 933888
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.9817790596498526,
+      "kl": 0.006765411235392094,
+      "backtracks": 0,
+      "Jc": 1.9817790596498526,
+      "timesteps": 942080
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.5909281457425095,
+      "kl": 0.006767705082893372,
+      "backtracks": 0,
+      "Jc": 1.5909281457425095,
+      "timesteps": 950272
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.6063019275158392,
+      "kl": 0.006773598492145538,
+      "backtracks": 0,
+      "Jc": 1.6063019275158392,
+      "timesteps": 958464
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.4503605592180975,
+      "kl": 0.0067133791744709015,
+      "backtracks": 0,
+      "Jc": 1.4503605592180975,
+      "timesteps": 966656
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.6640050885131739,
+      "kl": 0.006719827186316252,
+      "backtracks": 0,
+      "Jc": 1.6640050885131739,
+      "timesteps": 974848
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.892279985069763,
+      "kl": 0.0069917235523462296,
+      "backtracks": 0,
+      "Jc": 1.892279985069763,
+      "timesteps": 983040
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.480685600952711,
+      "kl": 0.006702002137899399,
+      "backtracks": 0,
+      "Jc": 1.480685600952711,
+      "timesteps": 991232
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.9547006857659046,
+      "kl": 0.006765471771359444,
+      "backtracks": 0,
+      "Jc": 1.9547006857659046,
+      "timesteps": 999424
+    },
+    {
+      "status": "recovery",
+      "accepted": true,
+      "c": 1.8825552888641444,
+      "kl": 0.007018746808171272,
+      "backtracks": 0,
+      "Jc": 1.8825552888641444,
+      "timesteps": 1007616
+    }
+  ],
+  "seed": 46
+}
