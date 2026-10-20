@@ -33,6 +33,7 @@ SEEDS = [int(s) for s in os.environ.get("TCCPL_SEEDS", "42,43,44,45,46").split("
 SCENARIOS = ["cityNL", "PublicPST"]
 FIRST_SEED = 42                     # its artefacts carry no _s<seed> suffix
 BUDGET = int(os.environ.get("TCCPL_TOTAL_TIMESTEPS", 1_000_000))
+PROTOCOL = os.environ.get("TCCPL_PROTOCOL", "2026-10")   # = train_one.PROTOCOL
 
 
 def artefact(algo, seed, scenario):
@@ -62,6 +63,8 @@ def is_complete(algo, seed, scenario):
         return False, f"unreadable sidecar ({e})"
     if info.get("smoke_test"):
         return False, f"smoke run ({info.get('timesteps')} steps)"
+    if info.get("protocol") != PROTOCOL:
+        return False, f"earlier campaign (protocol {info.get('protocol')!r}, current {PROTOCOL!r})"
     if int(info.get("timesteps", -1)) != BUDGET:
         return False, (f"budget mismatch ({info.get('timesteps')} steps on disk, "
                        f"protocol is {BUDGET})")
@@ -96,7 +99,15 @@ def main():
     ap.add_argument("--force", action="store_true",
                     help="retrain even if the artefact already exists")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--check", nargs=3, metavar=("ALGO", "SEED", "SCENARIO"),
+                    help="exit 0 if this one job is finished under the current protocol "
+                         "(used by slurm_sweep.sh / tsubame_sweep.sh), else 1")
     args = ap.parse_args()
+    if args.check:
+        algo, seed, scen = args.check
+        done, why = is_complete(algo, int(seed), scen)
+        print(f"{algo} {scen} seed {seed}: {'finished' if done else 'to run'} ({why})")
+        sys.exit(0 if done else 1)
 
     here = os.path.dirname(os.path.abspath(__file__))
     os.chdir(here)

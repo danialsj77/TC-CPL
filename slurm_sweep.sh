@@ -24,7 +24,10 @@
 #SBATCH --time=96:00:00
 #SBATCH --output=logs/slurm/%x_%A_%a.out
 set -euo pipefail
-cd "$(dirname "$(readlink -f "$0")")"
+# SLURM runs a spooled COPY of this script, so $0 is not in the repository:
+# start from the submission folder (submit from the repository root)
+cd "${SLURM_SUBMIT_DIR:-$PWD}"
+[ -f train_one.py ] || { echo "submit from the repository root (no train_one.py in $PWD)"; exit 1; }
 mkdir -p logs/slurm
 
 # ── environment: activate the venv/conda env that has the training stack ────
@@ -49,28 +52,11 @@ seed="${SEEDS[$(( (i % n_per_scen) / ${#ALGOS[@]} ))]}"
 algo="${ALGOS[$(( i % ${#ALGOS[@]} ))]}"
 if [ -n "${TCCPL_DRY:-}" ]; then echo "task $i: $algo $scen seed $seed"; exit 0; fi
 
-# ── skip a job already finished at THIS budget (same rule as run_sweep.py) ──
-if python - "$algo" "$seed" "$scen" <<'PYEOF'
-import json, os, sys
-algo, seed, scen = sys.argv[1:4]
-name = {"ddpg": "ddpg_pst", "ppo": "ppo_pst", "cpo": "cpo_pst"}.get(algo, algo)
-suf = "" if seed == "42" else f"_s{seed}"
-budget = int(os.environ.get("TCCPL_TOTAL_TIMESTEPS", 1_000_000))
-try:
-    info = json.load(open(os.path.join("models", scen, f"{name}_sac{suf}.runmeta.json")))
-    done = (not info.get("smoke_test")) and int(info.get("timesteps", -1)) == budget
-    if algo in ("tccpl", "fixedpenalty"):
-        done = done and bool(info.get("tr_load_aware", False)) == bool(int(os.environ.get("TCCPL_TR_LOAD_AWARE", "1"))) \
-            and int(info.get("demo_seed_offset", 0)) == int(os.environ.get("TCCPL_DEMO_SEED_OFFSET", 100000)) \
-            and abs(float(info.get("rho", 0.25)) - float(os.environ.get("TCCPL_RHO", 1.0))) < 1e-9
-    if algo == "tccpl":
-        done = done and abs(float(info.get("train_target_overload", 0.0)) - float(os.environ.get("TCCPL_TRAIN_TARGET_OVERLOAD", 0.0))) < 1e-9
-    sys.exit(0 if done else 1)
-except Exception:
-    sys.exit(1)
-PYEOF
-then
-  echo "task $i: $algo $scen seed $seed already trained at $TCCPL_TOTAL_TIMESTEPS steps — skipping"
+# ── skip a job already finished under THIS protocol (run_sweep.is_complete) ──
+# Only a sidecar written by this code version at the full budget counts, so a
+# folder that still holds models of the first submission is retrained, not reused.
+if python run_sweep.py --check "$algo" "$seed" "$scen"; then
+  echo "task $i: $algo $scen seed $seed already finished in this campaign — skipping"
   exit 0
 fi
 

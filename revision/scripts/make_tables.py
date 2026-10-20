@@ -283,15 +283,17 @@ STRESS_ROWS_MAIN = [
     ("no_m2", r"no M2", "PI", "--", "\\checkmark"),
     ("no_gridblock", r"no transformer block $o^{\mathrm{w}}$", "PI", "\\checkmark", "pool"),
     ("flat_encoder", r"flat MLP encoder", "PI", "\\checkmark", "--"),
-    ("inc_cafap", r"CAFAP incumbent, $\rho=0.25$", "PI", "CAFAP", "\\checkmark"),
-    ("inc_cafap_rho1", r"CAFAP incumbent, $\rho=1$", "PI", "CAFAP", "\\checkmark"),
-    ("inc_rr_rho1", r"Round-Robin incumbent, $\rho=1$", "PI", "\\checkmark", "\\checkmark"),
+    ("inc_cafap", r"CAFAP incumbent", "PI", "CAFAP", "\\checkmark"),
+    ("inc_cafap_rho0p25", r"CAFAP incumbent, $\rho=0.25$", "PI", "CAFAP", "\\checkmark"),
+    # the two settings changed in the revision, each switched back to the first submission
+    ("rho_0p25", r"residual radius $\rho=0.25$ (first submission)", "PI", "\\checkmark", "\\checkmark"),
+    ("no_load_aware", r"no load-aware pooling (first submission)", "PI", "\\checkmark", "mean"),
 ]
 STRESS_ROWS_GRID = [
     ("tccpl", r"Self-tuning TC-CPL ($\lambda_{\max}=500$, $K_p=5$, $K_i=2$, $\tau^{\mathrm{ov}}=0$)"),
     ("lmax_100", r"$\lambda_{\max}=100$"), ("lmax_2000", r"$\lambda_{\max}=2000$"),
     ("tau_0p5", r"$\tau^{\mathrm{ov}}=0.5$"), ("tau_2", r"$\tau^{\mathrm{ov}}=2$"),
-    # tau_2_lmax2000 omitted: its runs reproduce tau_2 seeds 42-43 exactly (the cap is never reached)
+    # tau_2_lmax2000 is not part of the campaign (in the first one it reproduced tau_2 exactly)
     ("pi_kp0", r"$K_p=0$ (dual ascent)"), ("pi_al", r"$K_p=K_i=2$ (augmented-Lagrangian-like)"),
     ("pi_ki0p5", r"$K_i=0.5$"), ("pi_ki8", r"$K_i=8$"), ("margin0", r"no margin ($m=0$)"),
     ("fixed_10_5", r"fixed $(10,5)$"), ("fixed_10_50", r"fixed $(10,50)$"), ("fixed_100_5", r"fixed $(100,5)$"),
@@ -303,7 +305,8 @@ STRESS_ROWS_GRID = [
 # seeds each PublicPST-S variant is trained with (scripts/make_jobs.py); a row
 # with fewer finished seeds is interim and printed with \tbd
 STRESS_CORE = {"tccpl", "fixed_100_50", "fixed_500_5", "tau_2", "lmax_2000",
-               "no_demos", "no_residual", "no_gridblock", "flat_encoder", "inc_cafap"}
+               "no_demos", "no_residual", "no_gridblock", "flat_encoder", "inc_cafap",
+               "rho_0p25", "no_load_aware"}
 
 
 def stress_expected(var):

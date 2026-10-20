@@ -11,6 +11,8 @@ REPO = os.path.dirname(REV)
 OUT = os.path.join(REV, "analysis")
 RUNS = os.path.join(REV, "runs")
 RNG = np.random.default_rng(7)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from provenance import output_is_current, stress_run_is_current
 
 
 def load_days(path):
@@ -71,7 +73,9 @@ def citynl():
         for kind, pat in (("base", "{k}_s{s}_n100.json"), ("shield", "{k}_s{s}_shield_n100.json"),
                           ("heldout", "{k}_s{s}_n100_o5000.json")):
             ps = [os.path.join(E, pat.format(k=key, s=s)) for s in seeds]
-            have = [p for p in ps if os.path.exists(p)]
+            # only outputs made from the checkpoints now in models/ (provenance.py)
+            have = [p for p, s in zip(ps, seeds)
+                    if os.path.exists(p) and output_is_current(p, REPO, "cityNL", key, s)]
             if len(have) < len(ps):
                 res["missing"].append(f"{kind}:{key} {len(have)}/{len(ps)}")
             if have:
@@ -86,6 +90,9 @@ def citynl():
         if not m:
             continue
         key, seed, pert = m.group(1), int(m.group(2)), m.group(3)
+        if not output_is_current(f, REPO, "cityNL", key, seed):
+            res["missing"].append(f"perturb:{key} s{seed} {pert} (made from another checkpoint)")
+            continue
         res["perturb"].setdefault(pert, {}).setdefault(key, []).append((seed, f))
     P = {}
     for pert, d in res["perturb"].items():
@@ -96,7 +103,7 @@ def citynl():
             base_days = []
             for s in seeds:
                 b = os.path.join(E, f"{key}_s{s}_n100.json")
-                if os.path.exists(b):
+                if os.path.exists(b) and output_is_current(b, REPO, "cityNL", key, s):
                     base_days += load_days(b)[:50]
             P[pert][key] = dict(seeds=seeds, perturbed=day_metrics(pert_days),
                                 nominal=day_metrics(base_days) if base_days else None)
@@ -111,7 +118,8 @@ def publicpst():
     for lab, key in labels.items():
         seeds = (0,) if key in ("RR", "CAFAP") else (42, 43, 44, 45, 46)
         have = [os.path.join(E, f"{key}_s{s}_n100.json") for s in seeds
-                if os.path.exists(os.path.join(E, f"{key}_s{s}_n100.json"))]
+                if os.path.exists(os.path.join(E, f"{key}_s{s}_n100.json"))
+                and output_is_current(os.path.join(E, f"{key}_s{s}_n100.json"), REPO, "PublicPST", key, s)]
         if have:
             m = day_metrics(pool(have))
             m["seeds"] = len(have)
@@ -161,7 +169,9 @@ def stress():
         m = re.match(r"(.+)_s(\d+)$", name)
         var, seed = m.group(1), int(m.group(2))
         ev = os.path.join(d, "eval.json")
-        if not os.path.exists(ev):
+        # a run counts only if it was produced with the variant as defined NOW
+        # (folders of earlier protocols or retired variants are ignored)
+        if not os.path.exists(ev) or not stress_run_is_current(d):
             continue
         r = res.setdefault(var, {"seeds": [], "per_seed": []})
         dm = day_metrics(load_days(ev))
@@ -216,7 +226,7 @@ def main():
         out["scaling"] = None
     pairs = {}
     for b in ("fixed_100_50", "fixed_500_5", "tau_2", "lmax_2000", "no_demos", "no_residual",
-              "no_gridblock", "flat_encoder", "inc_cafap"):
+              "no_gridblock", "flat_encoder", "inc_cafap", "rho_0p25", "no_load_aware"):
         for mtr in ("etr", "average_user_satisfaction", "total_energy_charged",
                     "total_transformer_overload", "ov_rel5"):
             key = {"etr": "energy_tracking_error"}.get(mtr, mtr)

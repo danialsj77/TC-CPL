@@ -1,4 +1,4 @@
-"""Re-evaluate the SUBMITTED cityNL checkpoints (1M steps x 5 seeds, models/cityNL/)
+"""Re-evaluate the cityNL (or, with EXP_SCEN=PublicPST, the PublicPST) checkpoints in models/
 on the same 100 paired days (env seeds 500..599) with extended per-day records,
 optionally under an evaluation-time observation perturbation.
 
@@ -23,6 +23,8 @@ import torch
 torch.set_num_threads(int(threads))
 import gymnasium as gym
 import exp_lib as X
+sys.path.insert(0, HERE)
+from provenance import checkpoint_stamp as _stamp
 from stable_baselines3 import DDPG, PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from ev2gym.rl_agent.reward import SquaredTrackingErrorReward
@@ -39,6 +41,11 @@ def paths(name, seed):
             os.path.join(X.REPO, "models", SCEN, f"{name}{suf}", "vec_normalize.pkl"))
 
 
+def checkpoint_stamp(label, seed):
+    """Provenance of the checkpoint (see provenance.py); stored in every output."""
+    return _stamp(X.REPO, SCEN, label, seed)
+
+
 def plain_env(state_fn):
     return TCCPLEnv(config_file=os.path.join(X.REPO, X.CONFIGS[SCEN]),
                     reward_function=SquaredTrackingErrorReward, state_function=state_fn,
@@ -53,6 +60,12 @@ def run(label, seed, perturb, n_days, offset=500):
         return X.evaluate_heuristic(spec, label, n_days, seed_offset=offset)
     if label in ("tccpl", "fixedpenalty"):
         zp, _ = paths(label, seed)
+        # act through the residual radius the checkpoint was TRAINED with
+        # (first-submission checkpoints carry no rho in their sidecar: 0.25)
+        stamp = checkpoint_stamp(label, seed) or {}
+        spec = X.spec_of(scenario=SCEN, rho=stamp.get("rho", 0.25),
+                         tr_load_aware=stamp.get("tr_load_aware", False))
+        print(f"  {label} s{seed}: residual radius {spec['rho']:g} from the checkpoint", flush=True)
         return X.evaluate_learned(spec, zp, n_days, seed_offset=offset, perturb=perturb)
 
     zp, vp = paths(label, seed)
@@ -103,12 +116,20 @@ if __name__ == "__main__":
         tag += "_shield"
     os.makedirs(OUT, exist_ok=True)
     out = os.path.join(OUT, f"{label}_s{seed}{tag}_n{n_days}" + ("" if offset == 500 else f"_o{offset}") + ".json")
+    stamp = checkpoint_stamp(label, seed)
     if os.path.exists(out) and not os.environ.get("EXP_FORCE"):
-        print("exists", out); sys.exit(0)
+        try:
+            with open(out) as fh:
+                old_stamp = json.load(fh).get("checkpoint")
+        except (OSError, ValueError):
+            old_stamp = "unreadable"
+        if old_stamp == stamp:
+            print("exists", out); sys.exit(0)
+        print(f"re-evaluating {out}: it was made from another checkpoint", flush=True)
     t0 = time.time()
     days = run(label, seed, perturb, n_days, offset)
     with open(out + ".tmp", "w") as f:
         json.dump({"label": label, "seed": seed, "perturb": tag, "n_days": n_days, "day0_pinned": True,
-                   "minutes": (time.time() - t0) / 60, "days": days}, f)
+                   "checkpoint": stamp, "minutes": (time.time() - t0) / 60, "days": days}, f)
     os.replace(out + ".tmp", out)
     print(f"done {label} s{seed}{tag}: {(time.time() - t0) / 60:.1f} min")

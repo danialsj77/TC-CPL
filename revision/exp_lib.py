@@ -50,7 +50,8 @@ CONFIGS = {
     "PublicPST_stress": "revision/configs/PublicPST_stress.yaml",
 }
 
-# The submitted protocol (tccpl_runtime.CONFIG). A variant overrides keys.
+# The revised protocol (= the defaults of tccpl_runtime.CONFIG: residual radius 1,
+# load-aware M3). A variant overrides keys; rho=0.25 / tr_load_aware=False = first submission.
 DEFAULT_SPEC = dict(
     scenario="PublicPST_stress", seed=42, budget=300_000, device="cpu",
     n_envs=32, buffer_size=200_000, batch_size=256, lr=3e-4, tau=0.005,
@@ -58,9 +59,19 @@ DEFAULT_SPEC = dict(
     adapt=True, lam_ov0=10.0, lam_sat0=5.0, lam_max=500.0, kp=5.0, ki=2.0, kd=0.0,
     tau_ov=0.0, update_freq=10_000, ov_margin=0.05, sat_floor=0.98,
     aux_sat_coef=25.0, aux_anneal_frac=0.8,
-    incumbent="RR", rho=0.25, demos=True, n_demos=100_000, residual=True,
-    grid_block=True, encoder="m3", tr_load_aware=False,
+    incumbent="RR", rho=1.0, demos=True, n_demos=100_000, residual=True,
+    grid_block=True, encoder="m3", tr_load_aware=True,
 )
+
+
+# keys that do not change what a run computes (where it ran)
+SPEC_IGNORE = ("device",)
+
+
+def same_spec(a: Dict, b: Dict) -> bool:
+    """True when two specs describe the same experiment (device ignored)."""
+    keys = (set(a) | set(b)) - set(SPEC_IGNORE)
+    return all(a.get(k) == b.get(k) for k in keys)
 
 
 def spec_of(**over) -> Dict:

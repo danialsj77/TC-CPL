@@ -21,8 +21,14 @@ METRICS = {"etr": "energy_tracking_error", "sat": "average_user_satisfaction",
            "b10": "ov_tol10", "nameplate": "ov_nameplate"}
 
 
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from provenance import stress_run_is_current
+
+
 def load(var):
-    runs = sorted(glob.glob(os.path.join(RUNS, f"{var}_s*", "eval.json")))
+    runs = sorted(p for p in glob.glob(os.path.join(RUNS, f"{var}_s*", "eval.json"))
+                  if stress_run_is_current(os.path.dirname(p)))
     if not runs:
         return None, []
     seeds = [int(p.split("_s")[-1].split("/")[0]) for p in runs]
@@ -52,9 +58,12 @@ def paired(xa, xb, binary=False):
 
 if __name__ == "__main__":
     A, sa = load("tccpl")
+    if A is None:
+        raise SystemExit("no PublicPST-S run of the current tccpl variant yet (revision/stress_sweep.sh)")
     out = {"reference": "tccpl", "seeds": sa, "comparisons": {}}
     names = sorted({os.path.basename(os.path.dirname(p)).rsplit("_s", 1)[0]
-                    for p in glob.glob(os.path.join(RUNS, "*", "eval.json"))} - {"tccpl"})
+                    for p in glob.glob(os.path.join(RUNS, "*", "eval.json"))
+                    if stress_run_is_current(os.path.dirname(p))} - {"tccpl"})
     for var in names:
         Xb, sb = load(var)
         res = {"seeds": sb}

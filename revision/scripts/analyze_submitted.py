@@ -106,9 +106,33 @@ LINE = re.compile(r"\[(M1|M1-frozen) @\s*(\d+)\] overload above tightened limit=
                   r"\(true ([\d.na]+)\)\s+sat=([\d.]+) \| λ_ov=([\d.]+)\s+λ_sat=([\d.]+)")
 
 
+def _history_trace(scen, algo, s):
+    """The same trace from results/<scen>/lambda_history_<algo>[_s<seed>].json, which every
+    TC-CPL run saves at its end (cluster arrays log to logs/qsub or logs/slurm, not logs/sweep)."""
+    f = f"{REPO}/results/{scen}/lambda_history_{algo}{'' if s == 42 else f'_s{s}'}.json"
+    try:
+        h = json.load(open(f))
+    except (OSError, ValueError):
+        return None
+    lam, vio = h.get("lambda_history") or [], h.get("violation_history") or []
+    if not lam or len(vio) != len(lam):
+        return None
+    steps = h.get("update_steps") or [(k + 1) * int(h.get("update_freq", 10_000)) for k in range(len(lam))]
+    tru = h.get("true_overload_history") or [np.nan] * len(lam)
+    return dict(step=[int(x) for x in steps], ov_tight=[float(v[0]) for v in vio],
+                ov_true=[float(x) if x is not None else np.nan for x in tru], sat=[float(v[1]) for v in vio],
+                lam_ov=[float(l[0]) for l in lam], lam_sat=[float(l[1]) for l in lam])
+
+
 def traces(scen, algo):
     T = {}
     for s in SEEDS:
+        # the saved history first: it belongs to the checkpoint now in models/, whereas
+        # logs/sweep/ may still hold the log of an earlier run of the same job
+        h = _history_trace(scen, algo, s)
+        if h:
+            T[s] = h
+            continue
         f = f"{REPO}/logs/sweep/{scen}_{algo}_s{s}.log"
         if not os.path.exists(f):
             continue

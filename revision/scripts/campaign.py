@@ -2,8 +2,9 @@
 
     nohup python scripts/campaign.py JOBFILE MAX_PARALLEL > logs/campaign.log 2>&1 &
 
-JOBFILE is a JSON list of {"name", "cmd", "done_if", "env"(optional)}; a job whose
-done_if file exists is skipped, so the queue can be restarted at any time.
+JOBFILE is a JSON list of {"name", "cmd", "done_if", "env"(optional), "stamp"(optional)};
+a job whose done_if file exists (and, with "stamp", was made from the current checkpoint)
+is skipped, so the queue can be restarted at any time.
 Jobs run in listed order with at most MAX_PARALLEL at once; each job's output
 goes to logs/jobs/<name>.log. A status file logs/campaign_status.json is
 rewritten after every change.
@@ -29,6 +30,20 @@ class _External:
             return self.returncode
 
 
+def is_done(j):
+    """done_if exists -- and, for a job with "stamp": [scenario, label, seed], the
+    output was made from the checkpoint now in models/ (provenance.py), so the
+    outputs of an earlier model are re-made instead of skipped."""
+    path = os.path.join(REV, j["done_if"])
+    if not os.path.exists(path):
+        return False
+    if "stamp" in j:
+        sys.path.insert(0, HERE)
+        from provenance import output_is_current
+        return output_is_current(path, os.path.dirname(REV), *j["stamp"])
+    return True
+
+
 def main(jobfile, max_par):
     os.makedirs(os.path.join(REV, "logs", "jobs"), exist_ok=True)
     status_path = jobfile + ".status.json"
@@ -45,7 +60,7 @@ def main(jobfile, max_par):
             if j["name"] in seen:
                 continue
             seen.add(j["name"])
-            if os.path.exists(os.path.join(REV, j["done_if"])):
+            if is_done(j):
                 done.append(j["name"] + " (skipped: done)")
             else:
                 pending.append(j)

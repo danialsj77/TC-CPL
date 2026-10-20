@@ -1,5 +1,6 @@
 """Named variants of the revision experiments. Each entry overrides
-exp_lib.DEFAULT_SPEC (= the submitted TC-CPL protocol) in the listed keys only."""
+exp_lib.DEFAULT_SPEC (= the revised TC-CPL protocol: residual radius 1, load-aware M3)
+in the listed keys only."""
 
 VARIANTS = {
     # the method and the paper's ablation
@@ -27,15 +28,22 @@ VARIANTS = {
     "no_gridblock":  dict(grid_block=False),
     "flat_encoder":  dict(encoder="flat"),
     "inc_cafap":     dict(incumbent="CAFAP"),
-    "inc_cafap_rho1": dict(incumbent="CAFAP", rho=1.0),
-    "inc_rr_rho1":   dict(rho=1.0),
+    "inc_cafap_rho0p25": dict(incumbent="CAFAP", rho=0.25),
+    # the two settings changed in the revision, each switched back on its own
+    "rho_0p25":      dict(rho=0.25),                  # residual radius of the first submission
+    "no_load_aware": dict(tr_load_aware=False),       # M3 networks of the first submission
     # added after the comment-by-comment review
     "margin0":       dict(ov_margin=0.0),             # no 5% back-off
     "pi_al":         dict(kp=2.0, ki=2.0),            # Kp = Ki, augmented-Lagrangian-like
     "tau_2_lmax2000": dict(tau_ov=2.0, lam_max=2000.0),  # cap irrelevant once tau > 0
-    # PID Lagrangian (derivative on the growing violation, Stooke et al. 2020), 19 Oct 2026
+    # PID Lagrangian (derivative on the growing violation, Stooke et al. 2020), 19 Oct 2026;
+    # exploratory, not part of the campaign (scripts/make_jobs.py)
     "pid_kd5":        dict(kd=5.0),
     "pid_kd20":       dict(kd=20.0),
     "pid_kd5_tau2":   dict(kd=5.0, tau_ov=2.0),
     "pid_kd20_tau2":  dict(kd=20.0, tau_ov=2.0),
 }
+
+# Settings shared by every PublicPST-S run of the campaign (scripts/make_jobs.py passes
+# them on the command line; collect_results.py uses them to recognise current runs)
+CAMPAIGN = dict(budget=200_000, update_freq=3584)   # 200k steps, one dual update per 32 episodes

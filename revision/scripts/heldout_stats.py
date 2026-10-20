@@ -17,8 +17,16 @@ METRICS = {"etr": "energy_tracking_error", "sat": "average_user_satisfaction",
 LABELS = {"tccpl": "TC-CPL", "fixedpenalty": "Fixed-price SAC", "RR": "Round-Robin", "CAFAP": "CAFAP"}
 
 
+import re, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from provenance import output_is_current
+REPO = os.path.dirname(ROOT)
+
+
 def load(label):
-    files = sorted(glob.glob(os.path.join(EV, f"{label}_s*_n100_o5000.json")))
+    files = sorted(f for f in glob.glob(os.path.join(EV, f"{label}_s*_n100_o5000.json"))
+                   if output_is_current(f, REPO, "cityNL", label,
+                                        int(re.search(r"_s(\d+)_n100", f).group(1))))
     days = [json.load(open(f))["days"] for f in files]
     return {m: np.array([[float(d[k]) for d in dd] for dd in days]) for m, k in METRICS.items()}, len(files)
 

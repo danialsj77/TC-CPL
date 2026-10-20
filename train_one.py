@@ -28,6 +28,12 @@ JOB_INFO = {
 }
 
 
+# Campaign identifier written into every sidecar. The sweep scripts count a job as
+# finished only when its sidecar carries THIS value, so models of an earlier
+# campaign (or of the first submission) are always retrained, never reused.
+PROTOCOL = os.environ.get("TCCPL_PROTOCOL", "2026-10")
+
+
 def meta_path(zip_path):
     """Sidecar recording how a saved model was produced."""
     return zip_path[:-4] + ".runmeta.json" if zip_path.endswith(".zip") \
@@ -101,6 +107,12 @@ def main():
     name, budget_key = JOB_INFO[args.algo]
     budget = rt.CONFIG[budget_key]
 
+    # A sidecar left by an earlier run of this job would describe the OLD model
+    # until this run finishes; remove it so a crash can never look like success.
+    _stale = meta_path(rt.run_paths(name)["zip"] + ".zip")
+    if os.path.exists(_stale):
+        os.remove(_stale)
+
     rt.TRAIN_JOBS[args.algo]()
 
     dt = time.perf_counter() - t0
@@ -111,6 +123,7 @@ def main():
     try:
         with open(meta_path(zip_path), "w", encoding="utf-8") as f:
             json.dump({
+                "protocol": PROTOCOL,
                 "algo": args.algo,
                 "scenario": args.scenario,
                 "seed": args.seed,
