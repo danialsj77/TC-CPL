@@ -98,7 +98,10 @@ class EV2Gym(gym.Env):
         np.random.seed(self.seed)
         random.seed(self.seed)
 
-        self.tr_seed = self.config['tr_seed']
+        # tr_seed -1 = draw the transformer-side randomness (household mix, load scale,
+        # demand-response event) from the EPISODE seed, at every reset (see reset)
+        self._tr_seed_cfg = self.config['tr_seed']
+        self.tr_seed = self._tr_seed_cfg
         if self.tr_seed == -1:
             self.tr_seed = self.seed
         self.tr_rng = np.random.default_rng(seed=self.tr_seed)
@@ -259,7 +262,11 @@ class EV2Gym(gym.Env):
         np.random.seed(self.seed)
         random.seed(self.seed)
 
-        if self.tr_seed == -1:
+        # With tr_seed -1 the transformer seed follows the episode seed on EVERY reset.
+        # (It used to be fixed at the first reset - the constructor's random one - so a
+        # day was not determined by its own seed, and each training environment
+        # repeated one demand-response event and household mix in every episode.)
+        if self._tr_seed_cfg == -1:
             self.tr_seed = self.seed
         self.tr_rng = np.random.default_rng(seed=self.tr_seed)
 

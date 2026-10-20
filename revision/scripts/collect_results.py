@@ -111,15 +111,16 @@ def citynl():
     return res
 
 
-def publicpst():
-    res, E = {}, os.path.join(RUNS, "PublicPST_eval")
+def publicpst(scen="PublicPST_S"):
+    """The small scenario's main comparison (five learners x five seeds + heuristics)."""
+    res, E = {}, os.path.join(RUNS, f"{scen}_eval")
     labels = {"TC-CPL": "tccpl", "Fixed-price SAC": "fixedpenalty", "DDPG-PST": "ddpg_pst",
               "PPO-PST": "ppo_pst", "CPO": "cpo_pst", "Round-Robin": "RR", "CAFAP": "CAFAP"}
     for lab, key in labels.items():
         seeds = (0,) if key in ("RR", "CAFAP") else (42, 43, 44, 45, 46)
         have = [os.path.join(E, f"{key}_s{s}_n100.json") for s in seeds
                 if os.path.exists(os.path.join(E, f"{key}_s{s}_n100.json"))
-                and output_is_current(os.path.join(E, f"{key}_s{s}_n100.json"), REPO, "PublicPST", key, s)]
+                and output_is_current(os.path.join(E, f"{key}_s{s}_n100.json"), REPO, scen, key, s)]
         if have:
             m = day_metrics(pool(have))
             m["seeds"] = len(have)
@@ -219,7 +220,7 @@ def paired_stress(res, a="tccpl", b="fixed_100_50", metric="etr"):
 
 
 def main():
-    out = {"cityNL": citynl(), "PublicPST": publicpst(), "offline": offline(), "stress": stress()}
+    out = {"cityNL": citynl(), "PublicPST_S": publicpst("PublicPST_S"), "offline": offline(), "stress": stress()}
     try:
         out["scaling"] = json.load(open(os.path.join(OUT, "scaling_bench.json")))
     except OSError:

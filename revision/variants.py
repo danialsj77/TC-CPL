@@ -46,7 +46,7 @@ VARIANTS = {
 
 # Settings shared by every PublicPST-S run of the campaign (scripts/make_jobs.py passes
 # them on the command line; collect_results.py uses them to recognise current runs)
-CAMPAIGN = dict(budget=200_000, update_freq=3584)   # 200k steps, one dual update per 32 episodes
+CAMPAIGN = dict(budget=200_000, update_freq=3072)   # 200k steps, one dual update per 32 days (32 x 96)
 
 # Smoke tests only: STRESS_SETTINGS (the string revision/stress_sweep.sh passes to
 # train_variant.py) replaces them, so running, checking and packing agree on one definition.

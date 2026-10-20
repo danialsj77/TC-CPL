@@ -4,17 +4,17 @@ This page is the complete procedure for the October 2026 campaign, written for t
 first campaign was run: `run_sweep.py` on several servers, results merged at the end.
 Every command is copied as it is; only the server number `K` changes.
 
-**What runs.** 95 independent jobs, all from scratch (nothing of the first campaign is reused):
+**What runs.** 116 independent jobs, all from scratch (nothing of the first campaign is reused):
 
 | Jobs | What one job does | Needs |
 |---|---|---|
-| 25 on cityNL: 5 algorithms × 5 seeds | trains one controller for 1,000,000 steps | GPU, about 8 GB RAM (DDPG: 18 GB) |
-| 70 on PublicPST-S | trains one TC-CPL variant for 200,000 steps and evaluates it | CPU only, about 3 GB RAM |
+| 50 main jobs: 5 algorithms × 5 seeds on cityNL and on PublicPST-S | trains one controller for 1,000,000 steps | GPU, about 8 GB RAM (DDPG: 18 GB) |
+| 66 PublicPST-S variant jobs | trains one TC-CPL variant for 200,000 steps and evaluates it | CPU only, about 3 GB RAM |
 
 **How long.** About 30 hours with 7 servers running 5 jobs at a time each (the longest single
 job takes about 30 hours, so nothing finishes sooner; even 5 servers would finish in about 30 hours).
 This needs, on every server, about **64 GB of RAM and 20 or more CPU cores** for the 5 jobs; on a
-smaller server use `--jobs 2` (about 34 hours with 7 servers).
+smaller server use `--jobs 2` (about 41 hours with 7 servers).
 
 ---
 
@@ -54,7 +54,7 @@ nohup python run_sweep.py --part 1/7 --jobs 5 > sweep_part1.log 2>&1 &
 On server 2 the same with `--part 2/7` and `sweep_part2.log`, and so on up to `--part 7/7`.
 
 - Every server must use **the same options**; only the number before `/7` changes. Each
-  server then runs a different share and together they run all 95 jobs exactly once.
+  server then runs a different share and together they run all 116 jobs exactly once.
 - `--jobs 5` = five jobs at the same time on that server (not the total number of jobs). It needs
   about 64 GB of RAM and 20 or more cores; each job gets an equal share of the cores. On a smaller
   server use `--jobs 2`: the share is the same, it just takes longer.
@@ -122,8 +122,8 @@ repository folder (edit the `.venv` line in both scripts first):
 
 ```bash
 mkdir -p logs/qsub
-qsub -g <your-group> tsubame_sweep.sh               # the 25 cityNL jobs (GPU, 48 h limit each)
-qsub -g <your-group> revision/stress_sweep.sh       # the 70 PublicPST-S jobs (CPU, 8 h limit each)
+qsub -g <your-group> tsubame_sweep.sh               # the 50 main jobs (GPU, 48 h limit each)
+qsub -g <your-group> revision/stress_sweep.sh       # the 66 PublicPST-S variant jobs (CPU, 8 h limit each)
 ```
 
 Then Step 6 from `python check_cluster_results.py` on, in that same folder.

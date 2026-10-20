@@ -47,7 +47,7 @@ def main():
                     choices=["fixedpenalty", "tccpl", "ddpg", "ppo", "cpo"])
     ap.add_argument("--seed", type=int, required=True)
     ap.add_argument("--scenario", default="cityNL",
-                    choices=["cityNL", "PublicPST"])
+                    choices=["cityNL", "PublicPST_S", "PublicPST"])
     ap.add_argument("--threads", type=int,
                     default=int(os.environ.get("SLURM_CPUS_PER_TASK", 4)),
                     help="BLAS/torch threads for THIS process (default: "

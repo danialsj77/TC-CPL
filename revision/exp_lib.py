@@ -47,7 +47,9 @@ from tccpl_learner import (TCCPLEnv, ResidualPSTWrapper, TCCPLCosts,
 CONFIGS = {
     "PublicPST": "ev2gym/example_config_files/PublicPST.yaml",
     "cityNL": "ev2gym/example_config_files/cityNL.yaml",
-    "PublicPST_stress": "revision/configs/PublicPST_stress.yaml",
+    # PublicPST-S: the same file as the main campaign's scenario PublicPST_S
+    "PublicPST_stress": "ev2gym/example_config_files/PublicPST_S.yaml",
+    "PublicPST_S": "ev2gym/example_config_files/PublicPST_S.yaml",
 }
 
 # The revised protocol (= the defaults of tccpl_runtime.CONFIG: residual radius 1,

@@ -169,7 +169,7 @@ def trace_summary(T, cap=500.0):
 
 def main():
     res = {}
-    for scen in ("cityNL", "PublicPST"):
+    for scen in ("cityNL", "PublicPST_S"):
         if not os.path.exists(f"{REPO}/results/{scen}/eval_cache"):
             res[scen] = {"traces": {a: trace_summary(traces(scen, a)) for a in ("tccpl", "fixedpenalty")},
                          "traces_raw": {a: traces(scen, a) for a in ("tccpl", "fixedpenalty")}}
@@ -196,7 +196,7 @@ def plot_traces(res):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots(2, 3, figsize=(12, 5.6), constrained_layout=True)
-    for r, scen in enumerate(("cityNL", "PublicPST")):
+    for r, scen in enumerate(("cityNL", "PublicPST_S")):
         for algo, col, ls in (("tccpl", "#1f5fbf", "-"), ("fixedpenalty", "#d0711b", "--")):
             for s, t in res[scen]["traces_raw"][algo].items():
                 x = np.array(t["step"]) / 1e6
@@ -207,7 +207,7 @@ def plot_traces(res):
         ax[r, 0].axhline(500, color="k", lw=0.8, ls=":")
         ax[r, 1].axhline(0, color="k", lw=0.8, ls=":")
         ax[r, 2].axhline(0.98, color="k", lw=0.8, ls=":")
-        ax[r, 0].set_ylabel(f"{scen}\n" + r"$\lambda_{ov}$ (kWh-price)")
+        ax[r, 0].set_ylabel(f"{scen.replace('_S', '-S')}\n" + r"$\lambda_{ov}$ (kWh-price)")
         ax[r, 1].set_ylabel("training overload above\n0.95 x limit (kWh/day)")
         ax[r, 2].set_ylabel("training satisfaction")
         for c in range(3):
@@ -217,7 +217,7 @@ def plot_traces(res):
 
 
 def print_report(res):
-    for scen in ("cityNL", "PublicPST"):
+    for scen in ("cityNL", "PublicPST_S"):
         if "summary" not in res[scen]:
             print(f"\n===== {scen}: no per-seed eval cache; dual traces only =====")
             for a, T in res[scen]["traces"].items():

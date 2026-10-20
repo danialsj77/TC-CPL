@@ -194,19 +194,26 @@ print(f"grid_aware_obs ready (fixed per-EV energy scale E_SCALE = {E_SCALE:.0f} 
 # runs — train_one.py, runall.sh, run_sweep.py, papermill — set TCCPL_SCENARIO
 # and are never prompted. Every artefact path (models/, logs/, results/) is
 # namespaced by scenario, so the two studies never collide.
-#   PublicPST : 20 stations × 1 port, one 100-kW transformer, no grid sim
-#   cityNL    : 300 stations × 2 ports, 122 substations, full AC power flow
+#   PublicPST_S : 20 stations × 1 port, one 50-kW transformer with household load,
+#                 PV and demand response (binding); replaces PublicPST in the revision
+#   cityNL      : 300 stations × 2 ports, 122 substations, full AC power flow
+#   PublicPST   : 20 stations × 1 port, one 100-kW transformer (first submission)
 import glob
 import sys
 import yaml
 
 SCENARIO_CATALOGUE = {   # name → (what it is, what it costs)
-    "PublicPST": ("single-transformer public facility of the PST paper [8]",
-                  "fast — minutes per learner at smoke budgets; the small-scale study"),
+    "PublicPST_S": ("PublicPST-S: the PST facility behind a 50-kW transformer with household "
+                    "load, PV and demand response — the transformer binds",
+                    "fast — about 8 h per learner at 1M steps; the small-scale study"),
     "cityNL":    ("city-scale Dutch MV feeder: 122 substations, full AC power flow",
                   "slow — about 28 h per seed for all five learners at 300k steps on an "
                   "M5 Pro, ~3x at the 1M-step protocol; the headline study"),
+    "PublicPST": ("single-transformer public facility of the PST paper [8] (first submission; "
+                  "its transformer never binds)",
+                  "fast — minutes per learner at smoke budgets"),
 }
+SCEN_LABEL = {"PublicPST_S": "PublicPST-S"}     # how a scenario is written in figures
 SCENARIO_DEFAULT = "cityNL"
 
 
@@ -296,7 +303,7 @@ def select_scenario(default: str = SCENARIO_DEFAULT) -> str:
 
 
 SCENARIO_NAME = select_scenario()
-assert SCENARIO_NAME in ("cityNL", "PublicPST"), SCENARIO_NAME
+assert SCENARIO_NAME in SCENARIO_CATALOGUE, SCENARIO_NAME
 os.environ["TCCPL_SCENARIO"] = SCENARIO_NAME    # shell cells / subprocesses agree
 RESULTS_DIR = f"results/{SCENARIO_NAME}"
 os.makedirs(RESULTS_DIR, exist_ok=True)

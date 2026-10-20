@@ -243,7 +243,7 @@ nominal (absolute values) & """ + " & ".join(nom) + r""" \\
 # ── Table: offline hindsight programs (supplement) ──────────────────────────
 def tab_offline():
     rows = []
-    for scen, lab in (("PublicPST", r"\texttt{PublicPST}"), ("PublicPST_stress", r"\texttt{PublicPST-S}"),
+    for scen, lab in (("PublicPST_stress", r"\texttt{PublicPST-S}"),
                       ("cityNL", r"\texttt{cityNL}")):
         o = R["offline"].get(scen)
         if not o:
@@ -310,8 +310,6 @@ STRESS_CORE = {"tccpl", "fixed_100_50", "fixed_500_5", "tau_2", "lmax_2000",
 
 
 def stress_expected(var):
-    if var in ("tccpl", "fixed_100_50"):
-        return 5
     return 1 if var.startswith("heur_") else (3 if var in STRESS_CORE else 2)
 
 
@@ -430,8 +428,11 @@ $N$ / $|\mathcal{W}|$ & 20 / 1 & 600 / 122 & 6{,}000 / 1{,}220 \\
 
 # ── Table: PublicPST five-seed results (supplement) ─────────────────────────
 def tab_publicpst():
-    P = R["PublicPST"]
-    pem = json.load(open(os.path.join(REPO, "results", "PublicPST", "per_episode_metrics.json")))["Optimal"]
+    P = R.get("PublicPST_S", {})
+    try:
+        pem = json.load(open(os.path.join(REPO, "results", "PublicPST_S", "per_episode_metrics.json")))["Optimal"]
+    except (OSError, KeyError, ValueError):
+        pem = {k: [float("nan")] for k in ("energy_tracking_error", "average_user_satisfaction", "total_energy_charged")}
     rows = []
     for lab in ORDER:
         m = P.get(lab)
@@ -444,7 +445,7 @@ def tab_publicpst():
                 f"{f(np.mean(pem['average_user_satisfaction']), 4)} & {f(np.mean(pem['total_energy_charged']), 1)} & 0 \\\\")
     body = r"""\begin{table}[!t]
 \centering
-\caption{\texttt{PublicPST} with the final checkpoints of all five seeds (100 shared days; $|\epsilon_{\mathrm{tr}}|$, $E^{\mathrm{del}}$ and $\epsilon^{\mathrm{ov}}$ in kWh/day).}
+\caption{\texttt{PublicPST-S}: every controller with the final checkpoints of five seeds ($10^6$ steps; 100 shared days; $|\epsilon_{\mathrm{tr}}|$, $E^{\mathrm{del}}$ and $\epsilon^{\mathrm{ov}}$ in kWh/day).}
 \label{tab:s-publicpst}
 \footnotesize
 \begin{tabular}{@{}lrrrrr@{}}

@@ -1,10 +1,12 @@
+# PublicPST-S: the PublicPST facility (20 ports) behind a 50-kW transformer with household
+# load, PV and demand-response events (tr_seed -1: drawn per day from the episode seed).
 # This yml file is used to configure the evsim simulation
 
 ##############################################################################
 # Simulation Parameters
 ##############################################################################
 timescale: 15 # in minutes per step
-simulation_length: 112 # in steps per simulation
+simulation_length: 96 # in steps per simulation: 96 x 15 min = one full day (05:00 to 05:00), as cityNL
 
 ##############################################################################
 # Date and Time

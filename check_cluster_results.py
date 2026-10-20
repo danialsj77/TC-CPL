@@ -1,10 +1,10 @@
 """Check everything the cluster campaign must return before it is packed and sent.
 
-    python check_cluster_results.py                 # the 25 cityNL runs + the 70 PublicPST-S tasks
-    python check_cluster_results.py --main-only     # only the 25 cityNL runs of the five algorithms
+    python check_cluster_results.py                 # the 50 main runs + the 66 PublicPST-S variant tasks
+    python check_cluster_results.py --main-only     # only the 50 main runs of the five algorithms
     python check_cluster_results.py --scenarios cityNL --seeds 42 43
 
-Main runs (train_one.py; five algorithms x five seeds on cityNL): checkpoint, a
+Main runs (train_one.py; five algorithms x five seeds on cityNL and PublicPST_S): checkpoint, a
 run-metadata sidecar of THIS campaign (protocol, full budget, no smoke test), for the two
 TC-CPL learners the revised settings (residual radius 1, load-aware networks, demonstration
 days disjoint from the evaluation days, tolerance 0) and the saved multiplier history; the
@@ -21,7 +21,7 @@ ALGOS = {"tccpl": ("tccpl", "Self-tuning TC-CPL"), "fixedpenalty": ("fixedpenalt
          "ddpg": ("ddpg_pst", "DDPG-PST"), "ppo": ("ppo_pst", "PPO-PST"), "cpo": ("cpo_pst", "CPO")}
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--scenarios", nargs="+", default=["cityNL"])
+ap.add_argument("--scenarios", nargs="+", default=["cityNL", "PublicPST_S"])
 ap.add_argument("--seeds", nargs="+", type=int, default=[42, 43, 44, 45, 46])
 ap.add_argument("--algos", nargs="+", default=list(ALGOS), choices=list(ALGOS))
 ap.add_argument("--budget", type=int, default=1_000_000)

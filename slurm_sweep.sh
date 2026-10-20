@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
 # slurm_sweep.sh — the full TC-CPL protocol as ONE SLURM job array:
-#   cityNL × 5 seeds × 5 algorithms = 25 tasks, each `train_one.py` at
+#   2 scenarios (cityNL, PublicPST_S) × 5 seeds × 5 algorithms = 50 tasks, each `train_one.py` at
 #   1,000,000 environment steps (TCCPL_TOTAL_TIMESTEPS overrides).
 #
 #   sbatch slurm_sweep.sh                 # everything
@@ -14,7 +14,7 @@
 # environment activation for the target system before submitting.
 # ─────────────────────────────────────────────────────────────────────────────
 #SBATCH --job-name=tccpl
-#SBATCH --array=0-24
+#SBATCH --array=0-49
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --gres=gpu:1
@@ -32,9 +32,8 @@ mkdir -p logs/slurm
 # source .venv/bin/activate     # python3.11 -m venv .venv && pip install -r requirements.txt
 # module load cuda               # if the site needs it
 
-# cityNL only: PublicPST-S (revision/stress_sweep.sh) replaces PublicPST.
-# TCCPL_SCENARIOS="cityNL PublicPST" with a 50-task array runs both, as in the first campaign.
-read -r -a SCENARIOS <<< "${TCCPL_SCENARIOS:-cityNL}"
+# cityNL and PublicPST_S (which replaces the first submission's PublicPST)
+read -r -a SCENARIOS <<< "${TCCPL_SCENARIOS:-cityNL PublicPST_S}"
 SEEDS=(${TCCPL_SEEDS_LIST:-42 43 44 45 46})
 # TCCPL_ALGOS restricts the array, e.g. TCCPL_ALGOS=fixedpenalty:tccpl -> --array=0-19
 _algos="${TCCPL_ALGOS:-fixedpenalty tccpl ddpg ppo cpo}"

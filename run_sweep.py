@@ -1,17 +1,17 @@
 """Run the TC-CPL campaign with a bounded number of concurrent processes, on one
 machine or split over several servers that do not share a disk.
 
-    python run_sweep.py --dry-run                     # state of all 95 jobs
+    python run_sweep.py --dry-run                     # state of all 116 jobs
     python run_sweep.py --jobs 4                      # everything on ONE machine, 4 at a time
     python run_sweep.py --plan 7 --jobs 2             # how 7 servers would share the work
     python run_sweep.py --part 3/7 --jobs 2           # on server 3 of 7: run its share
     python run_sweep.py --part 3/7 --pack part3.tgz   # on server 3: pack ONLY what it produced
     python run_sweep.py --algos tccpl fixedpenalty --seeds 42 --what main
 
-The campaign: 25 main jobs on cityNL (5 algorithms x 5 seeds, train_one.py, 1,000,000 steps,
-GPU) and 70 PublicPST-S jobs (revision/stress_tasks.txt via revision/stress_sweep.sh, 200,000
-steps, CPU). PublicPST-S replaces the unstressed PublicPST of the first submission, whose
-transformer never binds; `--scenarios cityNL PublicPST` still runs PublicPST as well. --part K/N gives server K the same balanced share on every server, as
+The campaign: 50 main jobs (5 algorithms x 5 seeds on cityNL and on PublicPST_S, train_one.py,
+1,000,000 steps, GPU) and 66 PublicPST-S variant jobs (revision/stress_tasks.txt via
+revision/stress_sweep.sh, 200,000 steps, CPU). PublicPST-S replaces the unstressed PublicPST of
+the first submission, whose transformer never binds; `--scenarios PublicPST` still runs it. --part K/N gives server K the same balanced share on every server, as
 long as all servers use the same options apart from K (shares are balanced by the job times
 of the first campaign; the longest jobs start first). A job is "finished" only when its
 results come from THIS code version at the full budget (see is_complete), so a folder with
@@ -38,8 +38,8 @@ import time
 
 ALGOS = ["fixedpenalty", "tccpl", "ddpg", "ppo", "cpo"]
 SEEDS = [int(s) for s in os.environ.get("TCCPL_SEEDS", "42,43,44,45,46").split(",")]
-SCENARIOS = ["cityNL"]              # the campaign (PublicPST-S replaces PublicPST, see revision/)
-ALL_SCENARIOS = ["cityNL", "PublicPST"]
+SCENARIOS = ["cityNL", "PublicPST_S"]   # the campaign (PublicPST-S replaces PublicPST)
+ALL_SCENARIOS = ["cityNL", "PublicPST_S", "PublicPST"]
 FIRST_SEED = 42                     # its artefacts carry no _s<seed> suffix
 BUDGET = int(os.environ.get("TCCPL_TOTAL_TIMESTEPS", 1_000_000))
 PROTOCOL = os.environ.get("TCCPL_PROTOCOL", "2026-10")   # = train_one.PROTOCOL
@@ -52,6 +52,8 @@ EST_HOURS = {("cityNL", "fixedpenalty"): 29.5, ("cityNL", "tccpl"): 25.0, ("city
              ("cityNL", "ppo"): 6.0, ("cityNL", "cpo"): 5.7,
              ("PublicPST", "fixedpenalty"): 8.6, ("PublicPST", "tccpl"): 9.0, ("PublicPST", "ddpg"): 1.5,
              ("PublicPST", "ppo"): 0.3, ("PublicPST", "cpo"): 0.3}
+# PublicPST-S has the same 20 ports and network size as PublicPST
+EST_HOURS.update({("PublicPST_S", a): h for (sc, a), h in list(EST_HOURS.items()) if sc == "PublicPST"})
 STRESS_HOURS, HEUR_HOURS = 1.5, 0.1
 
 
@@ -221,11 +223,11 @@ def main():
     ap.add_argument("--jobs", type=int, default=2,
                     help="jobs running at the same time on THIS machine (default 2)")
     ap.add_argument("--what", choices=["all", "main", "stress"], default="all",
-                    help="the main cityNL jobs, the PublicPST-S jobs, or both (default)")
+                    help="the main jobs, the PublicPST-S variant jobs, or both (default)")
     ap.add_argument("--algos", nargs="+", default=ALGOS, choices=ALGOS)
     ap.add_argument("--seeds", nargs="+", type=int, default=SEEDS)
     ap.add_argument("--scenarios", nargs="+", default=SCENARIOS, choices=ALL_SCENARIOS,
-                    help="main-job scenarios (default: cityNL; PublicPST is optional)")
+                    help="main-job scenarios (default: cityNL PublicPST_S; PublicPST is optional)")
     ap.add_argument("--part", metavar="K/N", default=None,
                     help="run only share K of N (servers without a shared disk; same options on every server)")
     ap.add_argument("--plan", type=int, metavar="N", default=None,
