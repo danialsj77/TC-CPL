@@ -37,7 +37,7 @@ This module implements everything TC-CPL-specific that the notebook trains with:
 
 MULTIPLIER UNITS. The paper prices the normalized cost c_ov = kWh/E_ref. To
 keep the PI gains and lambda values in the interpretable "price per kWh of
-episode overload" units the earlier experiments were tuned in (and that the
+episode overload" units used throughout development (and that the
 lambda-evolution figure reports), the controller adapts lambda_ov_kwh and the
 composition converts EXACTLY once:  lambda_ov = lambda_ov_kwh * E_ref / P_ref
 = lambda_ov_kwh * T * dt.  This is the identity  lambda_kwh * eps_ov[kWh]
@@ -277,6 +277,60 @@ class ResidualPSTWrapper(gym.Wrapper):
 
 
 # ═════════════════════════════════════════════════════════════════════════════
+# Optional headroom projection at dispatch (manuscript Sec. IV-C, Eq. (38))
+# ═════════════════════════════════════════════════════════════════════════════
+
+def shield_action(raw, a, margin: float = 0.0) -> np.ndarray:
+    """Scale the commanded fractions behind every transformer so that the largest
+    EV power they can draw (station rating x sum of its commanded port fractions,
+    normalized to <= 1 per station) never exceeds that transformer's headroom
+    (1 - margin) x limit - non-EV load in the interval being dispatched. EV
+    acceptance and efficiency can only lower the realized power, so this removes
+    overload whenever the non-EV load is known; it changes nothing on
+    transformers with enough headroom. Needs no retraining."""
+    T = raw.simulation_length
+    t = min(raw.current_step, T - 1)
+    a = np.asarray(a, dtype=float).reshape(-1).copy()
+    trs = {tr.id: tr for tr in raw.transformers}
+    upper = {w: 0.0 for w in trs}
+    slices = []
+    k = 0
+    for cs in raw.charging_stations:
+        sl = slice(k, k + cs.n_ports)
+        k += cs.n_ports
+        tot = float(a[sl].sum())          # a station shares one connection
+        if tot > 1.0:
+            a[sl] /= tot
+        # every commanded port counts, occupied or not: a vehicle that arrives
+        # within the interval draws the current already commanded for its port
+        upper[cs.connected_transformer] += float(a[sl].sum()) * cs.get_max_power()
+        slices.append((cs.connected_transformer, sl))
+    scale = {}
+    for w, tr in trs.items():
+        head = (1.0 - margin) * float(tr.max_power[t]) - float(tr.inflexible_load[t] + tr.solar_power[t])
+        scale[w] = 1.0 if upper[w] <= max(head, 0.0) + 1e-9 else max(head, 0.0) / upper[w]
+    for w, sl in slices:
+        a[sl] *= scale[w]
+    return a.astype(np.float32)
+
+
+class ShieldedResidualWrapper(ResidualPSTWrapper):
+    """The TC-CPL interface with the headroom projection applied to the executed action."""
+
+    def step(self, delta):
+        delta = np.asarray(delta, dtype=np.float32).reshape(-1)
+        a = np.clip(self._anchor + self.rho * delta * self._ctrl_mask(), 0.0, 1.0)
+        a = shield_action(self.env, a)
+        obs, reward, terminated, truncated, info = self.env.step(a)
+        if terminated or truncated:
+            self._anchor = np.zeros_like(self._anchor)
+        else:
+            self._anchor = np.asarray(
+                self._incumbent.get_action(self.env), dtype=np.float32).copy()
+        return self._augment(obs), reward, terminated, truncated, info
+
+
+# ═════════════════════════════════════════════════════════════════════════════
 # Costs (Sec. III-B): exact normalized objective + dual costs + aux signals
 # ═════════════════════════════════════════════════════════════════════════════
 
@@ -407,7 +461,7 @@ class TCCPLCosts:
 
 class AdaptiveLagrangianCallback(BaseCallback):
     """PI dual control on the measured episode metrics (Stooke et al. 2020;
-    classical dual ascent is K_p = 0). Violations are measured in the same
+    classical dual ascent is K_p = 0; kd > 0 adds their derivative term). Violations are measured in the same
     interpretable units the lambda-evolution figure reports:
 
         v_ov  = mean episode overload [kWh] - 0
@@ -428,6 +482,8 @@ class AdaptiveLagrangianCallback(BaseCallback):
                  sat_floor: float = 0.98,          # TRAINING floor (requirement 0.95)
                  target_overload: float = 0.0,     # kWh above the tightened limit
                  ki: float = 2.0, kp: float = 5.0,
+                 kd: float = 0.0,               # derivative gain; 0 = the PI law of the paper
+                 kd_rising_only: bool = True,   # Stooke et al. 2020: react only to a GROWING violation
                  lambda_max: float = 500.0,
                  update_freq: int = 10_000,       # in TIMESTEPS
                  min_episodes: int = 3,
@@ -452,6 +508,8 @@ class AdaptiveLagrangianCallback(BaseCallback):
                   "infeasible (overload energy >= 0); lambda_ov will ratchet to "
                   "lambda_max. Prefer tightening ov_margin.")
         self.ki, self.kp = ki, kp
+        self.kd, self.kd_rising_only = float(kd), bool(kd_rising_only)
+        self._prev_v: Optional[Tuple[float, float]] = None   # last violations (for K_d)
         self.lambda_max = lambda_max
         self.update_freq = update_freq
         self.min_episodes = min_episodes
@@ -470,6 +528,18 @@ class AdaptiveLagrangianCallback(BaseCallback):
         self.lambda_history: List[Tuple[float, float]] = []
         self.violation_history: List[Tuple[float, float]] = []
         self.true_overload_history: List[float] = []
+        self.update_steps: List[int] = []          # environment steps of each update
+
+    def history_dict(self) -> Dict:
+        """Everything §7.8 needs to plot and judge this run, JSON-ready."""
+        return {"lambda_history": self.lambda_history,
+                "violation_history": self.violation_history,
+                "true_overload_history": self.true_overload_history,
+                "update_steps": self.update_steps,
+                "update_freq": self.update_freq,
+                "adapt": self.adapt, "target_overload": self.target_overload,
+                "sat_floor": self.sat_floor, "lambda_max": self.lambda_max,
+                "kp": self.kp, "ki": self.ki, "kd": self.kd}
 
     @property
     def target_sat(self) -> float:                 # backward-compatible alias
@@ -526,14 +596,23 @@ class AdaptiveLagrangianCallback(BaseCallback):
         self._ep_sats.clear()
         self.violation_history.append((avg_ov, avg_sat))
         self.true_overload_history.append(avg_true)
+        self.update_steps.append(int(self.num_timesteps))
 
         if self.adapt:
             v_ov = avg_ov - self.target_overload
             v_sat = self.sat_floor - avg_sat
+            # optional derivative term (PID Lagrangian): change of the window
+            # violation since the previous update, by default only when it grows
+            d_ov = d_sat = 0.0
+            if self.kd and self._prev_v is not None:
+                d_ov, d_sat = v_ov - self._prev_v[0], v_sat - self._prev_v[1]
+                if self.kd_rising_only:
+                    d_ov, d_sat = max(0.0, d_ov), max(0.0, d_sat)
+            self._prev_v = (v_ov, v_sat)
             self._I_ov = float(np.clip(self._I_ov + self.ki * v_ov, 0.0, self.lambda_max))
             self._I_sat = float(np.clip(self._I_sat + self.ki * v_sat, 0.0, self.lambda_max))
-            self.lambda_ov = float(np.clip(self.kp * v_ov + self._I_ov, 0.0, self.lambda_max))
-            self.lambda_sat = float(np.clip(self.kp * v_sat + self._I_sat, 0.0, self.lambda_max))
+            self.lambda_ov = float(np.clip(self.kp * v_ov + self._I_ov + self.kd * d_ov, 0.0, self.lambda_max))
+            self.lambda_sat = float(np.clip(self.kp * v_sat + self._I_sat + self.kd * d_sat, 0.0, self.lambda_max))
             self._apply()
 
         self.lambda_history.append((self.lambda_ov, self.lambda_sat))
@@ -798,6 +877,7 @@ class _LayoutMixin:
         assign[tr, th.arange(self.N)] = 1.0        # (W, N) port->transformer
         self.register_buffer("tr_idx", tr, persistent=False)
         self.register_buffer("assign", assign, persistent=False)
+        self.register_buffer("ports_per_tr", assign.sum(1).clamp(min=1.0), persistent=False)
 
     def _split(self, obs: th.Tensor):
         B, W, N = obs.shape[0], self.W, self.N
@@ -809,6 +889,13 @@ class _LayoutMixin:
         occ = (d > 0.25).to(obs.dtype)                       # occupied ports
         ctrl = ((d > 0.25) & (d < 0.75)).to(obs.dtype)       # SoC < 1
         return og, ow, oc, a0, occ, ctrl
+
+    def _occ_frac(self, occ: th.Tensor) -> th.Tensor:
+        """Share of each transformer's ports that are occupied, (B, W, 1).
+        The masked mean of _tr_pool discards this count, although a
+        transformer's charging load scales with it (load-aware M3 restores it)."""
+        cnt = th.einsum("wn,bn->bw", self.assign.to(occ.dtype), occ)
+        return (cnt / self.ports_per_tr.to(occ.dtype)).unsqueeze(-1)
 
     def _tr_pool(self, per_port: th.Tensor, occ: th.Tensor) -> th.Tensor:
         """Masked mean of per-port embeddings within each parent transformer."""
@@ -824,12 +911,18 @@ class TCCPLActor(nn.Module, _LayoutMixin):
     Residuals, log-probabilities and entropy exist only on CONTROLLABLE ports;
     full ports stay contextual inputs; empty ports are masked from every pool."""
 
-    def __init__(self, layout: Dict, hidden_dim: int = 128, use_bf16: bool = True):
+    def __init__(self, layout: Dict, hidden_dim: int = 128, use_bf16: bool = True,
+                 tr_load_aware: bool = False):
         super().__init__()
         self._init_layout(layout)
         H = hidden_dim
-        self.chi_c = _mlp(3, H, H)
-        self.chi_w = _mlp(4 + H, H, H)
+        # tr_load_aware: each port embedding also sees the incumbent's command
+        # a0_j and each transformer embedding the share of its ports that are
+        # occupied, so q_w can represent the transformer's commanded EV load
+        # (count x mean) that the plain masked mean cannot. False = as submitted.
+        self.load_aware = bool(tr_load_aware)
+        self.chi_c = _mlp(4 if self.load_aware else 3, H, H)
+        self.chi_w = _mlp(4 + H + (1 if self.load_aware else 0), H, H)
         self.chi_g = _mlp(4, H, H)
         self.head = nn.Sequential(nn.Linear(3 * H + 1, H), nn.SiLU(),
                                   nn.Linear(H, 2))
@@ -848,9 +941,13 @@ class TCCPLActor(nn.Module, _LayoutMixin):
         og, ow, oc, a0, occ, ctrl = self._split(obs)
 
         def compute():
-            e = self.chi_c(oc)                                   # (B, N, H)
+            port_in = th.cat([oc, a0.unsqueeze(-1)], -1) if self.load_aware else oc
+            e = self.chi_c(port_in)                              # (B, N, H)
             ebar = self._tr_pool(e, occ)                         # (B, W, H)
-            q = self.chi_w(th.cat([ow.to(e.dtype), ebar], -1))   # (B, W, H)
+            w_in = [ow.to(e.dtype), ebar]
+            if self.load_aware:
+                w_in.append(self._occ_frac(occ).to(e.dtype))
+            q = self.chi_w(th.cat(w_in, -1))                     # (B, W, H)
             g = self.chi_g(og.to(e.dtype))                       # (B, H)
             qp = q[:, self.tr_idx, :]                            # (B, N, H)
             h = th.cat([e, qp, g.unsqueeze(1).expand(-1, self.N, -1),
@@ -896,12 +993,13 @@ class _QNet(nn.Module, _LayoutMixin):
     [o_c_j, a0_j, delta_j], masked mean within the parent transformer,
     transformer embedding with o_w, unweighted site pool, final head."""
 
-    def __init__(self, layout: Dict, hidden_dim: int = 128):
+    def __init__(self, layout: Dict, hidden_dim: int = 128, tr_load_aware: bool = False):
         super().__init__()
         self._init_layout(layout)
         H = hidden_dim
+        self.load_aware = bool(tr_load_aware)   # see TCCPLActor
         self.chi_c = _mlp(5, H, H)
-        self.chi_w = _mlp(4 + H, H, H)
+        self.chi_w = _mlp(4 + H + (1 if self.load_aware else 0), H, H)
         self.chi_g = _mlp(4, H, H)
         self.head = nn.Sequential(nn.Linear(2 * H, H), nn.SiLU(), nn.Linear(H, 1))
         nn.init.orthogonal_(self.head[0].weight, gain=nn.init.calculate_gain("relu"))
@@ -913,7 +1011,10 @@ class _QNet(nn.Module, _LayoutMixin):
         og, ow, oc, a0, occ, _ = self._split(obs)
         x = th.cat([oc, a0.unsqueeze(-1), delta.to(oc.dtype).unsqueeze(-1)], -1)
         z = self._tr_pool(self.chi_c(x), occ)                    # (B, W, H)
-        b = self.chi_w(th.cat([ow.to(z.dtype), z], -1))          # (B, W, H)
+        w_in = [ow.to(z.dtype), z]
+        if self.load_aware:
+            w_in.append(self._occ_frac(occ).to(z.dtype))
+        b = self.chi_w(th.cat(w_in, -1))                         # (B, W, H)
         site = b.mean(dim=1)                                     # (B, H)
         g = self.chi_g(og)
         return self.head(th.cat([g, site], -1))                  # (B, 1)
@@ -922,10 +1023,11 @@ class _QNet(nn.Module, _LayoutMixin):
 class TCCPLCritic(nn.Module):
     """Twin structured critics with the SB3 ContinuousCritic call convention."""
 
-    def __init__(self, layout: Dict, hidden_dim: int = 128, use_bf16: bool = True):
+    def __init__(self, layout: Dict, hidden_dim: int = 128, use_bf16: bool = True,
+                 tr_load_aware: bool = False):
         super().__init__()
-        self.q1 = _QNet(layout, hidden_dim)
-        self.q2 = _QNet(layout, hidden_dim)
+        self.q1 = _QNet(layout, hidden_dim, tr_load_aware)
+        self.q2 = _QNet(layout, hidden_dim, tr_load_aware)
         self._use_bf16 = bool(use_bf16)
 
     def forward(self, obs: th.Tensor, actions: th.Tensor):
@@ -946,15 +1048,17 @@ class TCCPLPolicy(BasePolicy):
 
     def __init__(self, observation_space, action_space, lr_schedule,
                  layout: Optional[Dict] = None, hidden_dim: int = 128,
-                 use_bf16: bool = True, use_sde: bool = False, **kwargs):
+                 use_bf16: bool = True, use_sde: bool = False,
+                 tr_load_aware: bool = False, **kwargs):
         super().__init__(observation_space, action_space, squash_output=True)
         assert layout is not None, "TCCPLPolicy needs layout=layout_from_env(env)"
         assert not use_sde
         self.layout, self.hidden_dim, self.use_bf16 = layout, hidden_dim, use_bf16
+        self.tr_load_aware = bool(tr_load_aware)
 
-        self.actor = TCCPLActor(layout, hidden_dim, use_bf16)
-        self.critic = TCCPLCritic(layout, hidden_dim, use_bf16)
-        self.critic_target = TCCPLCritic(layout, hidden_dim, use_bf16)
+        self.actor = TCCPLActor(layout, hidden_dim, use_bf16, self.tr_load_aware)
+        self.critic = TCCPLCritic(layout, hidden_dim, use_bf16, self.tr_load_aware)
+        self.critic_target = TCCPLCritic(layout, hidden_dim, use_bf16, self.tr_load_aware)
         self.critic_target.load_state_dict(self.critic.state_dict())
         for p in self.critic_target.parameters():
             p.requires_grad = False
@@ -968,7 +1072,7 @@ class TCCPLPolicy(BasePolicy):
     def _get_constructor_parameters(self) -> Dict:
         data = super()._get_constructor_parameters()
         data.update(layout=self.layout, hidden_dim=self.hidden_dim,
-                    use_bf16=self.use_bf16)
+                    use_bf16=self.use_bf16, tr_load_aware=self.tr_load_aware)
         return data
 
     def _predict(self, observation: th.Tensor, deterministic: bool = False) -> th.Tensor:
@@ -1082,7 +1186,7 @@ class TCCPLSAC(SAC):
 # ═════════════════════════════════════════════════════════════════════════════
 
 def test_shapes(n_tr: int = 3, ports_per_tr: int = 4, batch: int = 6,
-                hidden: int = 32, verbose: bool = True) -> None:
+                hidden: int = 32, verbose: bool = True, tr_load_aware: bool = False) -> None:
     N = n_tr * ports_per_tr
     layout = {"n_ports": N, "n_tr": n_tr,
               "tr_of_port": [j // ports_per_tr for j in range(N)],
@@ -1094,8 +1198,8 @@ def test_shapes(n_tr: int = 3, ports_per_tr: int = 4, batch: int = 6,
     oc_start = 4 + 4 * n_tr
     obs[:, oc_start:oc_start + 3 * N:3] = d
 
-    actor = TCCPLActor(layout, hidden, use_bf16=False)
-    critic = TCCPLCritic(layout, hidden, use_bf16=False)
+    actor = TCCPLActor(layout, hidden, use_bf16=False, tr_load_aware=tr_load_aware)
+    critic = TCCPLCritic(layout, hidden, use_bf16=False, tr_load_aware=tr_load_aware)
 
     delta, logp, n_ctrl = actor.sample(obs)
     assert delta.shape == (batch, N) and logp.shape == (batch, 1)
@@ -1132,7 +1236,7 @@ def test_shapes(n_tr: int = 3, ports_per_tr: int = 4, batch: int = 6,
 
     n_par = sum(p.numel() for p in actor.parameters())
     if verbose:
-        print(f"tccpl_learner self-test OK — actor {n_par:,} parameters "
+        print(f"tccpl_learner self-test OK{' (load-aware M3)' if tr_load_aware else ''} — actor {n_par:,} parameters "
               f"(independent of N={N}), equivariance and masking verified.")
 
 
@@ -1140,3 +1244,4 @@ if __name__ == "__main__":
     th.manual_seed(0)
     np.random.seed(0)
     test_shapes()
+    test_shapes(tr_load_aware=True)

@@ -1,0 +1,53 @@
+[
+ {
+  "day": 0,
+  "seed": 500,
+  "n_vars": 21152,
+  "n_sessions": 995,
+  "P0": {
+   "status": "optimal",
+   "seconds": 0.7696447372436523,
+   "iters": 12,
+   "objective": 253361.8623490482,
+   "mean_sat": 1.0,
+   "frac_ev_below_095": 0.0,
+   "delivered_kWh": 11130.210051762582,
+   "sq_tracking": 253361.8623490482,
+   "abs_tracking_kWh": 1189.2815632097816
+  },
+  "P1": {
+   "status": "optimal",
+   "seconds": 0.7595901489257812,
+   "iters": 13,
+   "objective": 0.999999999886312,
+   "mean_sat": 1.0,
+   "frac_ev_below_095": 0.0,
+   "delivered_kWh": 9302.091845473555,
+   "sq_tracking": 3265376.732868646,
+   "abs_tracking_kWh": 3120.423829855624
+  },
+  "P2_095": {
+   "status": "optimal",
+   "seconds": 1.482828140258789,
+   "iters": 20,
+   "objective": 253361.86234562498,
+   "mean_sat": 1.0,
+   "frac_ev_below_095": 0.0,
+   "delivered_kWh": 11130.210051736436,
+   "sq_tracking": 253361.86234562498,
+   "abs_tracking_kWh": 1189.2815632360885
+  },
+  "P2_098": {
+   "status": "optimal",
+   "seconds": 1.4345448017120361,
+   "iters": 20,
+   "objective": 253361.8623456466,
+   "mean_sat": 1.0,
+   "frac_ev_below_095": 0.0,
+   "delivered_kWh": 11130.210051736398,
+   "sq_tracking": 253361.8623456466,
+   "abs_tracking_kWh": 1189.2815632361267
+  },
+  "seconds_total": 9.779725790023804
+ }
+]

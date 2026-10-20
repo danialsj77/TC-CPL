@@ -1,0 +1,389 @@
+[
+ {
+  "name": "pub_tccpl_s42",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py tccpl 42 --days 100",
+  "done_if": "runs/PublicPST_eval/tccpl_s42_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_tccpl_s43",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py tccpl 43 --days 100",
+  "done_if": "runs/PublicPST_eval/tccpl_s43_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_tccpl_s44",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py tccpl 44 --days 100",
+  "done_if": "runs/PublicPST_eval/tccpl_s44_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_tccpl_s45",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py tccpl 45 --days 100",
+  "done_if": "runs/PublicPST_eval/tccpl_s45_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_tccpl_s46",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py tccpl 46 --days 100",
+  "done_if": "runs/PublicPST_eval/tccpl_s46_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_fixedpenalty_s42",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py fixedpenalty 42 --days 100",
+  "done_if": "runs/PublicPST_eval/fixedpenalty_s42_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_fixedpenalty_s43",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py fixedpenalty 43 --days 100",
+  "done_if": "runs/PublicPST_eval/fixedpenalty_s43_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_fixedpenalty_s44",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py fixedpenalty 44 --days 100",
+  "done_if": "runs/PublicPST_eval/fixedpenalty_s44_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_fixedpenalty_s45",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py fixedpenalty 45 --days 100",
+  "done_if": "runs/PublicPST_eval/fixedpenalty_s45_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_fixedpenalty_s46",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py fixedpenalty 46 --days 100",
+  "done_if": "runs/PublicPST_eval/fixedpenalty_s46_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_ddpg_pst_s42",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py ddpg_pst 42 --days 100",
+  "done_if": "runs/PublicPST_eval/ddpg_pst_s42_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_ddpg_pst_s43",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py ddpg_pst 43 --days 100",
+  "done_if": "runs/PublicPST_eval/ddpg_pst_s43_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_ddpg_pst_s44",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py ddpg_pst 44 --days 100",
+  "done_if": "runs/PublicPST_eval/ddpg_pst_s44_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_ddpg_pst_s45",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py ddpg_pst 45 --days 100",
+  "done_if": "runs/PublicPST_eval/ddpg_pst_s45_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_ddpg_pst_s46",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py ddpg_pst 46 --days 100",
+  "done_if": "runs/PublicPST_eval/ddpg_pst_s46_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_ppo_pst_s42",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py ppo_pst 42 --days 100",
+  "done_if": "runs/PublicPST_eval/ppo_pst_s42_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_ppo_pst_s43",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py ppo_pst 43 --days 100",
+  "done_if": "runs/PublicPST_eval/ppo_pst_s43_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_ppo_pst_s44",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py ppo_pst 44 --days 100",
+  "done_if": "runs/PublicPST_eval/ppo_pst_s44_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_ppo_pst_s45",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py ppo_pst 45 --days 100",
+  "done_if": "runs/PublicPST_eval/ppo_pst_s45_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_ppo_pst_s46",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py ppo_pst 46 --days 100",
+  "done_if": "runs/PublicPST_eval/ppo_pst_s46_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_cpo_pst_s42",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py cpo_pst 42 --days 100",
+  "done_if": "runs/PublicPST_eval/cpo_pst_s42_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_cpo_pst_s43",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py cpo_pst 43 --days 100",
+  "done_if": "runs/PublicPST_eval/cpo_pst_s43_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_cpo_pst_s44",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py cpo_pst 44 --days 100",
+  "done_if": "runs/PublicPST_eval/cpo_pst_s44_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_cpo_pst_s45",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py cpo_pst 45 --days 100",
+  "done_if": "runs/PublicPST_eval/cpo_pst_s45_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_cpo_pst_s46",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py cpo_pst 46 --days 100",
+  "done_if": "runs/PublicPST_eval/cpo_pst_s46_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_RR",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py RR 0 --days 100",
+  "done_if": "runs/PublicPST_eval/RR_s0_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "pub_CAFAP",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py CAFAP 0 --days 100",
+  "done_if": "runs/PublicPST_eval/CAFAP_s0_n100.json",
+  "env": {
+   "EXP_SCEN": "PublicPST",
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "offline_cityNL_0",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/offline_feasibility.py cityNL 0 25",
+  "done_if": "runs/offline/cityNL_0_25.json",
+  "env": {}
+ },
+ {
+  "name": "offline_cityNL_25",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/offline_feasibility.py cityNL 25 25",
+  "done_if": "runs/offline/cityNL_25_25.json",
+  "env": {}
+ },
+ {
+  "name": "offline_cityNL_50",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/offline_feasibility.py cityNL 50 25",
+  "done_if": "runs/offline/cityNL_50_25.json",
+  "env": {}
+ },
+ {
+  "name": "offline_cityNL_75",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/offline_feasibility.py cityNL 75 25",
+  "done_if": "runs/offline/cityNL_75_25.json",
+  "env": {}
+ },
+ {
+  "name": "offline_stress",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/offline_feasibility.py PublicPST_stress 0 100",
+  "done_if": "runs/offline/PublicPST_stress_0_100.json",
+  "env": {}
+ },
+ {
+  "name": "offline_publicpst",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/offline_feasibility.py PublicPST 0 100",
+  "done_if": "runs/offline/PublicPST_0_100.json",
+  "env": {}
+ },
+ {
+  "name": "shield_tccpl_s42",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py tccpl 42 --days 100",
+  "done_if": "runs/cityNL_eval/tccpl_s42_shield_n100.json",
+  "env": {
+   "EXP_SHIELD": 1,
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "shield_tccpl_s43",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py tccpl 43 --days 100",
+  "done_if": "runs/cityNL_eval/tccpl_s43_shield_n100.json",
+  "env": {
+   "EXP_SHIELD": 1,
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "shield_tccpl_s44",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py tccpl 44 --days 100",
+  "done_if": "runs/cityNL_eval/tccpl_s44_shield_n100.json",
+  "env": {
+   "EXP_SHIELD": 1,
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "shield_tccpl_s45",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py tccpl 45 --days 100",
+  "done_if": "runs/cityNL_eval/tccpl_s45_shield_n100.json",
+  "env": {
+   "EXP_SHIELD": 1,
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "shield_tccpl_s46",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py tccpl 46 --days 100",
+  "done_if": "runs/cityNL_eval/tccpl_s46_shield_n100.json",
+  "env": {
+   "EXP_SHIELD": 1,
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "shield_fixedpenalty_s42",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py fixedpenalty 42 --days 100",
+  "done_if": "runs/cityNL_eval/fixedpenalty_s42_shield_n100.json",
+  "env": {
+   "EXP_SHIELD": 1,
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "shield_fixedpenalty_s43",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py fixedpenalty 43 --days 100",
+  "done_if": "runs/cityNL_eval/fixedpenalty_s43_shield_n100.json",
+  "env": {
+   "EXP_SHIELD": 1,
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "shield_fixedpenalty_s44",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py fixedpenalty 44 --days 100",
+  "done_if": "runs/cityNL_eval/fixedpenalty_s44_shield_n100.json",
+  "env": {
+   "EXP_SHIELD": 1,
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "shield_fixedpenalty_s45",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py fixedpenalty 45 --days 100",
+  "done_if": "runs/cityNL_eval/fixedpenalty_s45_shield_n100.json",
+  "env": {
+   "EXP_SHIELD": 1,
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "shield_fixedpenalty_s46",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py fixedpenalty 46 --days 100",
+  "done_if": "runs/cityNL_eval/fixedpenalty_s46_shield_n100.json",
+  "env": {
+   "EXP_SHIELD": 1,
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "shield_RR_s0",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py RR 0 --days 100",
+  "done_if": "runs/cityNL_eval/RR_s0_shield_n100.json",
+  "env": {
+   "EXP_SHIELD": 1,
+   "EXP_THREADS": 1
+  }
+ },
+ {
+  "name": "shield_CAFAP_s0",
+  "cmd": "/Users/dani/.venvs/tccpl311/bin/python scripts/eval_citynl.py CAFAP 0 --days 100",
+  "done_if": "runs/cityNL_eval/CAFAP_s0_shield_n100.json",
+  "env": {
+   "EXP_SHIELD": 1,
+   "EXP_THREADS": 1
+  }
+ }
+]

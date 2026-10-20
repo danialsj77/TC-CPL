@@ -65,6 +65,21 @@ def is_complete(algo, seed, scenario):
     if int(info.get("timesteps", -1)) != BUDGET:
         return False, (f"budget mismatch ({info.get('timesteps')} steps on disk, "
                        f"protocol is {BUDGET})")
+    if algo in ("tccpl", "fixedpenalty"):
+        want_la = bool(int(os.environ.get("TCCPL_TR_LOAD_AWARE", "1")))
+        want_tau = float(os.environ.get("TCCPL_TRAIN_TARGET_OVERLOAD", 0.0))
+        if bool(info.get("tr_load_aware", False)) != want_la:
+            return False, f"architecture mismatch (tr_load_aware={info.get('tr_load_aware', False)} on disk)"
+        want_off = int(os.environ.get("TCCPL_DEMO_SEED_OFFSET", 100_000))
+        want_rho = float(os.environ.get("TCCPL_RHO", 1.0))
+        if abs(float(info.get("rho", 0.25)) - want_rho) > 1e-9:
+            return False, f"residual radius mismatch (rho={info.get('rho', 0.25)} on disk)"
+        if int(info.get("demo_seed_offset", 0)) != want_off:
+            return False, f"demonstration days mismatch (offset {info.get('demo_seed_offset', 0)} on disk)"
+        # the tolerance acts only through the multiplier update, so it matters
+        # for the self-tuning learner, not for the frozen-price ablation
+        if algo == "tccpl" and abs(float(info.get("train_target_overload", 0.0)) - want_tau) > 1e-9:
+            return False, f"tolerance mismatch ({info.get('train_target_overload', 0.0)} on disk)"
     return True, f"{info.get('timesteps')} steps, {info.get('minutes')} min"
 
 

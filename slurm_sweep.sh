@@ -7,6 +7,8 @@
 #   sbatch slurm_sweep.sh                 # everything
 #   sbatch --array=0-24 slurm_sweep.sh    # cityNL only
 #   sbatch --array=25-49 slurm_sweep.sh   # PublicPST only
+#   TCCPL_ALGOS=fixedpenalty:tccpl sbatch --array=0-19 slurm_sweep.sh   # only the two TC-CPL learners
+#   TCCPL_DRY=1 SLURM_ARRAY_TASK_ID=7 bash slurm_sweep.sh             # print what task 7 runs
 #
 # Task index → (scenario, seed, algorithm): index = scen·25 + seed_i·5 + algo_i.
 # Finished jobs (runmeta sidecar at the current budget) exit at once, so a
@@ -31,15 +33,21 @@ mkdir -p logs/slurm
 
 SCENARIOS=(cityNL PublicPST)
 SEEDS=(${TCCPL_SEEDS_LIST:-42 43 44 45 46})
-ALGOS=(fixedpenalty tccpl ddpg ppo cpo)
+# TCCPL_ALGOS restricts the array, e.g. TCCPL_ALGOS=fixedpenalty:tccpl -> --array=0-19
+_algos="${TCCPL_ALGOS:-fixedpenalty tccpl ddpg ppo cpo}"
+read -r -a ALGOS <<< "${_algos//[,:]/ }"
 export TCCPL_TOTAL_TIMESTEPS="${TCCPL_TOTAL_TIMESTEPS:-1000000}"
 export TCCPL_SEEDS="$(IFS=,; echo "${SEEDS[*]}")"
 
 i="${SLURM_ARRAY_TASK_ID:-0}"
 n_per_scen=$(( ${#SEEDS[@]} * ${#ALGOS[@]} ))
+if [ "$i" -ge $(( ${#SCENARIOS[@]} * n_per_scen )) ]; then
+  echo "task $i is beyond the $(( ${#SCENARIOS[@]} * n_per_scen ))-task grid; nothing to do"; exit 0
+fi
 scen="${SCENARIOS[$(( i / n_per_scen ))]}"
 seed="${SEEDS[$(( (i % n_per_scen) / ${#ALGOS[@]} ))]}"
 algo="${ALGOS[$(( i % ${#ALGOS[@]} ))]}"
+if [ -n "${TCCPL_DRY:-}" ]; then echo "task $i: $algo $scen seed $seed"; exit 0; fi
 
 # ── skip a job already finished at THIS budget (same rule as run_sweep.py) ──
 if python - "$algo" "$seed" "$scen" <<'PYEOF'
@@ -51,6 +59,12 @@ budget = int(os.environ.get("TCCPL_TOTAL_TIMESTEPS", 1_000_000))
 try:
     info = json.load(open(os.path.join("models", scen, f"{name}_sac{suf}.runmeta.json")))
     done = (not info.get("smoke_test")) and int(info.get("timesteps", -1)) == budget
+    if algo in ("tccpl", "fixedpenalty"):
+        done = done and bool(info.get("tr_load_aware", False)) == bool(int(os.environ.get("TCCPL_TR_LOAD_AWARE", "1"))) \
+            and int(info.get("demo_seed_offset", 0)) == int(os.environ.get("TCCPL_DEMO_SEED_OFFSET", 100000)) \
+            and abs(float(info.get("rho", 0.25)) - float(os.environ.get("TCCPL_RHO", 1.0))) < 1e-9
+    if algo == "tccpl":
+        done = done and abs(float(info.get("train_target_overload", 0.0)) - float(os.environ.get("TCCPL_TRAIN_TARGET_OVERLOAD", 0.0))) < 1e-9
     sys.exit(0 if done else 1)
 except Exception:
     sys.exit(1)

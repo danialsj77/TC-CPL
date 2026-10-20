@@ -97,13 +97,39 @@ python run_sweep.py --dry-run
 Memory: about 8 GB per job, except DDPG on cityNL, which needs about 18 GB.
 A job cannot be paused and resumed, so give each job a long enough time limit.
 
+### Step 2b — The revision run (October 2026): 20 jobs
+
+For the revision only the two TC-CPL learners are trained again (the DDPG, PPO and
+CPO checkpoints do not change): **Self-tuning TC-CPL** (`tccpl`) and
+**Fixed-price TC-CPL** (`fixedpenalty`), on both scenarios, five seeds each, so
+2 x 5 x 2 = 20 jobs. They are independent, so **submit all 20 at once**. The defaults
+of this version are the settings of the study (residual radius 1, load-aware
+networks, demonstration days disjoint from the evaluation days, overload tolerance 0):
+
+```bash
+TCCPL_ALGOS=fixedpenalty:tccpl sbatch --array=0-19 slurm_sweep.sh                       # SLURM
+qsub -g <your-group> -t 1-20 -v TCCPL_ALGOS=fixedpenalty:tccpl tsubame_sweep.sh         # Grid Engine
+python run_sweep.py --algos fixedpenalty tccpl --jobs 4                                 # one machine
+```
+
+A cityNL job took 21-30 hours on one GPU in the first study (PublicPST 8-21 hours), and a
+job cannot be paused, so `tsubame_sweep.sh` requests 48 hours; lower it only if the site caps
+it and a job fits. To see which task runs what, without running anything:
+`TCCPL_DRY=1 SGE_TASK_ID=7 bash tsubame_sweep.sh` (SLURM: `TCCPL_DRY=1 SLURM_ARRAY_TASK_ID=6 bash slurm_sweep.sh`).
+
+When the jobs are done, check them before sending anything:
+
+```bash
+python check_cluster_results.py        # prints ok / FAIL per run; exit code 0 = all 20 fine
+```
+
 ### Step 3 — Send the results back
 
 ```bash
 tar czf tccpl_results.tgz models logs results
 ```
 
-The archive is about 0.5–1 GB.
+The archive is about 0.5-1 GB (about 0.3 GB after the revision run, which trains only 20 models).
 
 ### Step 4 — Evaluate (Daniyal's side)
 
@@ -127,6 +153,14 @@ All settings are environment variables; the defaults are the paper's protocol.
 | `TCCPL_DEVICE` | `auto` | `cuda`, `mps` or `cpu` |
 | `TCCPL_DDPG_BUFFER` | `min(1e6, budget)` | DDPG replay size; use `300000` on a laptop |
 | `TCCPL_OV_MARGIN`, `TCCPL_TRAIN_SAT_FLOOR` | `0.05`, `0.98` | training-time constraint tightening |
+| `TCCPL_TR_LOAD_AWARE` | `1` | transformer embeddings see how many of their ports are occupied, and port embeddings the incumbent's command (`0` = networks of the first submission) |
+| `TCCPL_TRAIN_TARGET_OVERLOAD` | `0` | overload tolerance of the dual controller, kWh per episode above the tightened limit; runs with different values write to the same model files, so use one copy of the repository per value |
+| `TCCPL_DEMO_SEED_OFFSET` | `100000` | demonstration days start at simulator seed `run seed + offset`, disjoint from the evaluation (500-599) and held-out (5000-5099) days (`0` = first submission) |
+| `TCCPL_RHO` | `1` | residual radius of the anchored projection; `1` lets every port cover its full range, `0.25` = first submission |
+| `TCCPL_EVAL_SEED_OFFSET` | `500` | first evaluation day; `5000` = the 100 held-out days (demonstrations use seeds from 100000) |
+| `TCCPL_EVAL_SHIELD` | `0` | `1` evaluates with the headroom projection at dispatch, no retraining |
+| `TCCPL_KD` | `0` | derivative gain of the dual controller (`0` = the PI law of the paper) |
+| `TCCPL_ALGOS` | all five | cluster arrays only: e.g. `fixedpenalty:tccpl` runs just the two TC-CPL learners (20 tasks) |
 
 Smoke-test only: `TCCPL_OFFLINE_TRANSITIONS`, `TCCPL_EVAL_EPISODES`, `TCCPL_N_OPT`.
 

@@ -44,7 +44,7 @@ from tccpl_learner import (
     TCCPLEnv, ResidualPSTWrapper, TCCPLCosts, AdaptiveLagrangianCallback,
     collect_demonstrations, prefill_buffer, TCCPLReplayBuffer,
     TCCPLPolicy, TCCPLSAC, grid_aware_obs, layout_from_env, E_SCALE,
-    resolve_device,
+    resolve_device, shield_action, ShieldedResidualWrapper,
 )
 
 # ── Global seed ──────────────────────────────────────────────────────────────
@@ -102,8 +102,8 @@ ALGO_STYLE = [
     ("DDPG",          "DDPG-PST",              "DDPG-PST",            "#56B4E9", "^", "-"),
     ("PPO",           "PPO-PST",               "PPO-PST",             "#CC79A7", "P", "-"),
     ("CPO",           "CPO",                   "CPO",                 "#0072B2", "o", "--"),
-    ("Fixed",         "SAC (fixed $\\lambda$)",  "SAC (fixed lambda)",  "#D55E00", "d", "--"),
-    ("TC-CPL",       "TC-CPL (M1+M2+M3)",    "TC-CPL (M1+M2+M3)",  "#009E73", "D", "-"),
+    ("Fixed",         "Fixed-price TC-CPL",     "Fixed-price TC-CPL",  "#D55E00", "d", "--"),
+    ("TC-CPL",       "Self-tuning TC-CPL",   "Self-tuning TC-CPL", "#009E73", "D", "-"),
     ("Optimal",       "Optimal (offline)",     "Optimal (offline)",   "#000000", "*", "-."),
 ]
 
@@ -357,7 +357,11 @@ CONFIG = {
     "hidden_dim":     128,     # width of every χ network (M3)
     "use_bf16":       True,    # bf16 autocast inside the M3 encoders — CUDA
     #                           Ampere+ only; mps and cpu run fp32
-    "rho":            0.25,    # residual radius, paper Eq. (projection)
+    # Residual radius of the anchored projection (paper Eq. (projection)). 1 lets every
+    # port cover its full range, so the policy can reach zero overload; 0.25 (the first
+    # submission) cannot push overload below ~3.5-4 kWh/day on cityNL and the dual
+    # controller then rails at lambda_max. Saved with every checkpoint (runmeta).
+    "rho":            float(os.environ.get("TCCPL_RHO", 1.0)),
 
     # ── Problem 1 REQUIREMENTS (what is evaluated and reported) ─────────────
     "target_sat":         0.95,   # ε_usr_min — the service requirement
@@ -374,16 +378,27 @@ CONFIG = {
     #    Override for sweeps with TCCPL_OV_MARGIN / TCCPL_TRAIN_SAT_FLOOR.
     "ov_margin":          float(os.environ.get("TCCPL_OV_MARGIN", 0.05)),
     "train_sat_floor":    float(os.environ.get("TCCPL_TRAIN_SAT_FLOOR", 0.98)),
-    "train_target_overload": 0.0, # kWh above the TIGHTENED limit (<0 = infeasible
+    "train_target_overload": float(os.environ.get("TCCPL_TRAIN_TARGET_OVERLOAD", 0.0)),
+    #                             kWh/episode above the TIGHTENED limit (<0 = infeasible
     #                               "pressure" mode; prefer a larger ov_margin)
 
     # ── M1 PI dual controller — gains and λ in kWh-PRICE units. The exact
     #    conversion to the paper's normalized-cost units (× E_ref/P_ref = T·Δt)
     #    happens inside TCCPLCosts; see the tccpl_learner.py module docstring.
+    # ── M3 load-aware pooling (fix of 19 Oct 2026). The masked mean over the
+    #    ports of a transformer discards how many of them are occupied, so the
+    #    networks could not see a transformer's charging load (2 or 20 charging
+    #    ports gave identical outputs) and could not target overloaded
+    #    transformers. True: port embeddings also see a0_j, transformer
+    #    embeddings the occupied share. False reproduces the submitted networks;
+    #    saved checkpoints keep their own setting when loaded.
+    "tr_load_aware":      bool(int(os.environ.get("TCCPL_TR_LOAD_AWARE", "1"))),
+
     "lambda_init_ov":     10.0,
     "lambda_init_sat":     5.0,
     "lambda_ki":           2.0,   # integral gain K_i (classic dual-ascent step)
     "lambda_kp":           5.0,   # proportional gain K_p (Stooke et al. 2020)
+    "lambda_kd":           float(os.environ.get("TCCPL_KD", 0.0)),   # derivative gain (0 = PI, the paper)
     "lambda_max":        500.0,
     "lambda_update_freq": 10_000, # in TIMESTEPS
 
@@ -406,6 +421,12 @@ CONFIG = {
 
     # ── M2: incumbent warm start (zero-residual demonstrations) ──────────────
     "offline_transitions": int(os.environ.get("TCCPL_OFFLINE_TRANSITIONS", 100_000)),
+    # Demonstration days start at simulator seed run_seed + demo_seed_offset.
+    # With 0 (first submission) they were seeds 42..~1,087, which CONTAIN the
+    # evaluation days 500-599; 100,000 keeps them disjoint from the evaluation
+    # (500-599) and held-out (5,000-5,099) days. TC-CPL and its fixed-price
+    # ablation still share one demonstration set per seed.
+    "demo_seed_offset":   int(os.environ.get("TCCPL_DEMO_SEED_OFFSET", 100_000)),
     #                      (env override exists for smoke tests only)
 
     # ── DDPG-PST literature baseline (Yılmaz, Orfanoudakis & Vergara, 2024) ──
@@ -473,6 +494,8 @@ print(f"Device:   {CONFIG['device']}")
 print(f"Requirements: overload = 0 kWh, ε_usr ≥ {CONFIG['target_sat']}   |   "
       f"training thresholds: limit × {1 - CONFIG['ov_margin']:.2f}, "
       f"ε_usr ≥ {CONFIG['train_sat_floor']}")
+print(f"M1 overload tolerance: {CONFIG['train_target_overload']} kWh/episode above the tightened limit   |   "
+      f"M3 load-aware pooling: {'on' if CONFIG['tr_load_aware'] else 'off (networks of the first submission)'}")
 print(f"Run seed: {SEED}  (protocol seeds: {CONFIG['seeds']})   "
       f"artefact suffix: '{SUF or '(none)'}'   results → {RESULTS_DIR}/")
 print(f"Budget: {_BUDGET:,} environment steps per learner   "
@@ -484,7 +507,8 @@ print(f"Budget: {_BUDGET:,} environment steps per learner   "
 # notebook cell 14
 # ====================================================================
 def build_env(seed: Optional[int] = None, state_fn=None, reward_fn=None,
-              wrap_residual: bool = False):
+              wrap_residual: bool = False, rho: Optional[float] = None,
+              shield: bool = False):
     """One environment of the active scenario.
 
     wrap_residual=True gives the TC-CPL interface: grid-aware observation with
@@ -501,10 +525,30 @@ def build_env(seed: Optional[int] = None, state_fn=None, reward_fn=None,
         verbose         = False,
     )
     if wrap_residual:
-        env = ResidualPSTWrapper(env, rho=CONFIG["rho"])
+        # rho: the radius the checkpoint was trained with (evaluation passes it);
+        # shield: headroom projection at dispatch (Sec. IV-C), evaluation only
+        wrapper = ShieldedResidualWrapper if shield else ResidualPSTWrapper
+        env = wrapper(env, rho=CONFIG["rho"] if rho is None else rho)
     if seed is not None:
         env.reset(seed=seed)
     return env
+
+
+def write_run_meta(zip_path: str, algo: str, budget: int) -> None:
+    """Sidecar next to a TC-CPL checkpoint: the settings that change the policy
+    (residual radius, networks, tolerance, demonstration days). Evaluation reads
+    the radius back from it. train_one.py overwrites it with the full record."""
+    try:
+        meta = (zip_path[:-4] if zip_path.endswith(".zip") else zip_path) + ".runmeta.json"
+        with open(meta, "w", encoding="utf-8") as f:
+            json.dump({"algo": algo, "scenario": CONFIG["scenario"], "seed": SEED, "timesteps": int(budget),
+                       "smoke_test": False, "from_notebook": True, "rho": CONFIG["rho"],
+                       "tr_load_aware": CONFIG["tr_load_aware"],
+                       "train_target_overload": CONFIG["train_target_overload"],
+                       "demo_seed_offset": CONFIG["demo_seed_offset"], "ov_margin": CONFIG["ov_margin"],
+                       "train_sat_floor": CONFIG["train_sat_floor"]}, f, indent=2)
+    except OSError as e:
+        print(f"  ! could not write run metadata: {e}")
 
 
 def build_tccpl_vec_env(reward_fn, n_envs: int = None) -> DummyVecEnv:
@@ -628,6 +672,7 @@ def make_dual_callback(reward_ref: TCCPLCosts,
         target_overload    = CONFIG["train_target_overload"],  # above tightened limit
         ki                 = CONFIG["lambda_ki"],
         kp                 = CONFIG["lambda_kp"],
+        kd                 = CONFIG["lambda_kd"],
         lambda_max         = CONFIG["lambda_max"],
         update_freq        = CONFIG["lambda_update_freq"],
         aux_anneal_frac    = CONFIG["aux_anneal_frac"],
@@ -650,9 +695,10 @@ def collect_m2_demos(reward_fn: TCCPLCosts, verbose: bool = True):
         make_env=lambda: build_env(state_fn=CONFIG["state_function_safe"],
                                    reward_fn=reward_fn, wrap_residual=True),
         n_transitions=CONFIG["offline_transitions"],
-        seed=SEED,
+        seed=SEED + CONFIG["demo_seed_offset"],
         cache_key=(f"{CONFIG['scenario']}|rho{CONFIG['rho']}|"
-                   f"sat{CONFIG['train_sat_floor']}|m{CONFIG['ov_margin']}"),
+                   f"sat{CONFIG['train_sat_floor']}|m{CONFIG['ov_margin']}"
+                   + (f"|d{CONFIG['demo_seed_offset']}" if CONFIG["demo_seed_offset"] else "")),
         verbose=verbose,
     )
 
@@ -688,6 +734,7 @@ print(f"Replay: PER ω={CONFIG['per_alpha']}, β {CONFIG['per_beta0']}→1, "
 from tccpl_learner import test_shapes, TCCPLActor as _A
 
 test_shapes()
+test_shapes(tr_load_aware=True)
 
 _toy_s = {"n_ports": 8, "n_tr": 2, "tr_of_port": [0] * 4 + [1] * 4,
           "base_obs_dim": 4 + 8 + 24, "obs_dim": 4 + 8 + 24 + 8}
@@ -732,7 +779,8 @@ print(f"Fixed scales: P_ref={P_REF:,.0f} kW  E_ref={E_REF:,.0f} kWh  "
 _probe_env.close()
 
 tccpl_policy_kwargs = dict(layout=LAYOUT, hidden_dim=CONFIG["hidden_dim"],
-                           use_bf16=CONFIG["use_bf16"])
+                           use_bf16=CONFIG["use_bf16"],
+                           tr_load_aware=CONFIG["tr_load_aware"])
 
 # ── PublicPST-state geometry (DDPG-PST / PPO-PST) ────────────────────────────
 _probe_paper = build_env(state_fn=CONFIG["state_function"], seed=0)
@@ -767,7 +815,7 @@ def train_fixedpenalty():
     P = run_paths("fixedpenalty")
     os.makedirs(P["dir"], exist_ok=True)
     print("=" * 60)
-    print(f"TRAINING: SAC (fixed λ) — Algorithm 1 with line 15 FROZEN at "
+    print(f"TRAINING: Fixed-price TC-CPL — Algorithm 1 with line 15 FROZEN at "
           f"λ_ov={CONFIG['lambda_ov_fixed']}, λ_sat={CONFIG['lambda_sat_fixed']} "
           f"— seed {SEED}")
     print("=" * 60)
@@ -813,11 +861,11 @@ def train_fixedpenalty():
     fixed_model.learn(total_timesteps=CONFIG["total_timesteps_fixed"],
                       callback=[frozen_cb, eval_cb_fixed], progress_bar=False)
     fixed_model.save(P["zip"])
+    write_run_meta(P["zip"] + ".zip", "fixedpenalty", CONFIG["total_timesteps_fixed"])
     with open(lambda_history_path("fixedpenalty"), "w") as f:
-        json.dump({"lambda_history": frozen_cb.lambda_history,
-                   "violation_history": frozen_cb.violation_history,
-                   "update_freq": frozen_cb.update_freq, "seed": SEED}, f)
-    print("SAC (fixed λ) training complete.")
+        json.dump({**frozen_cb.history_dict(), "seed": SEED,
+                   "tr_load_aware": CONFIG["tr_load_aware"]}, f)
+    print("Fixed-price TC-CPL training complete.")
 
 
 # ====================================================================
@@ -828,7 +876,7 @@ def train_tccpl():
     P = run_paths("tccpl")
     os.makedirs(P["dir"], exist_ok=True)
     print("=" * 60)
-    print(f"TRAINING: TC-CPL (M1+M2+M3) — seed {SEED}")
+    print(f"TRAINING: Self-tuning TC-CPL (M1+M2+M3) — seed {SEED}")
     print("=" * 60)
 
     tccpl_reward = make_costs(CONFIG["lambda_init_ov"], CONFIG["lambda_init_sat"])
@@ -883,18 +931,15 @@ def train_tccpl():
     tccpl_model.learn(total_timesteps=CONFIG["total_timesteps_tccpl"],
                       callback=[lagrangian_cb, eval_cb_tccpl], progress_bar=False)
     tccpl_model.save(P["zip"])
+    write_run_meta(P["zip"] + ".zip", "tccpl", CONFIG["total_timesteps_tccpl"])
     print(f"TC-CPL training complete: λ updated {len(lagrangian_cb.lambda_history)} "
           f"times → λ_ov={lagrangian_cb.lambda_ov:.1f}, "
           f"λ_sat={lagrangian_cb.lambda_sat:.1f} (kWh-price units)")
 
     # --- notebook cell 38 ---
     with open(lambda_history_path("tccpl"), "w") as f:
-        json.dump({
-            "lambda_history":    lagrangian_cb.lambda_history,
-            "violation_history": lagrangian_cb.violation_history,
-            "update_freq":       lagrangian_cb.update_freq,
-            "seed":              SEED,
-        }, f)
+        json.dump({**lagrangian_cb.history_dict(), "seed": SEED,
+                   "tr_load_aware": CONFIG["tr_load_aware"]}, f)
     print(f"Lambda history saved → {lambda_history_path('tccpl')}")
 
 

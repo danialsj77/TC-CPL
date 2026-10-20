@@ -1,0 +1,39 @@
+{
+ "scenario": "PublicPST_stress",
+ "policy": "minus1",
+ "n_days": 3,
+ "day0_pinned": true,
+ "summary": {
+  "ov_tight_kWh": 3.9005395022567177,
+  "ov_raw_kWh": 3.2059356481249615,
+  "sat": 0.9297860083025219,
+  "energy_kWh": 125.80942401109337,
+  "peak_tr_kW": 34.728173720478715,
+  "peak_tr_kW_max": 46.04045658398025,
+  "ov_tight_days_positive": 1
+ },
+ "days": [
+  {
+   "ov_tight_kWh": 0.0,
+   "ov_raw_kWh": 0.0,
+   "sat": 0.8914719515242379,
+   "energy_kWh": 67.15581793580611,
+   "peak_tr_kW": 23.544894290352943
+  },
+  {
+   "ov_tight_kWh": 0.0,
+   "ov_raw_kWh": 0.0,
+   "sat": 0.9513217058064508,
+   "energy_kWh": 130.32915163162963,
+   "peak_tr_kW": 34.59917028710296
+  },
+  {
+   "ov_tight_kWh": 11.701618506770153,
+   "ov_raw_kWh": 9.617806944374884,
+   "sat": 0.9465643675768771,
+   "energy_kWh": 179.94330246584437,
+   "peak_tr_kW": 46.04045658398025
+  }
+ ],
+ "minutes": 0.013110152880350749
+}
