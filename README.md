@@ -83,14 +83,14 @@ old folder anyway, because only runs of this code version count as finished).
 computes the same split, so use the same options everywhere and change only K:
 
 ```bash
-python run_sweep.py --plan 7 --jobs 2         # how 7 servers would share the work, and the hours
-python run_sweep.py --part 1/7 --jobs 2       # on server 1 (server 2: --part 2/7, ...)
+python run_sweep.py --plan 7 --jobs 5         # how 7 servers would share the work, and the hours
+python run_sweep.py --part 1/7 --jobs 5       # on server 1 (server 2: --part 2/7, ...)
 ```
 
-`--jobs` is how many jobs run **at the same time on that server** (not the total): choose
-it by the server's RAM and GPUs (about 8 GB per job). On a server with several GPUs add
+`--jobs` is how many jobs run **at the same time on that server** (not the total): `--jobs 5`
+needs about 64 GB of RAM and 20 or more cores per server; use `--jobs 2` on smaller servers. On a server with several GPUs add
 `--gpus 0,1,2,3` so the jobs are spread over them (otherwise all use the first GPU).
-With 7 servers the estimate is about 34 h at `--jobs 2` and about 30 h at `--jobs 3` or more
+With 7 servers the estimate is about 30 h at `--jobs 5` and about 34 h at `--jobs 2`
 (no share can finish before its longest job, about 30 h). When a server is done:
 
 ```bash

@@ -11,8 +11,10 @@ Every command is copied as it is; only the server number `K` changes.
 | 25 on cityNL: 5 algorithms × 5 seeds | trains one controller for 1,000,000 steps | GPU, about 8 GB RAM (DDPG: 18 GB) |
 | 70 on PublicPST-S | trains one TC-CPL variant for 200,000 steps and evaluates it | CPU only, about 3 GB RAM |
 
-**How long.** With 7 servers and 2 jobs at a time on each: about 34 hours. With 3 or more jobs
-at a time: about 30 hours (the longest single job takes about 30 hours, so nothing finishes sooner).
+**How long.** About 30 hours with 7 servers running 5 jobs at a time each (the longest single
+job takes about 30 hours, so nothing finishes sooner; even 5 servers would finish in about 30 hours).
+This needs, on every server, about **64 GB of RAM and 20 or more CPU cores** for the 5 jobs; on a
+smaller server use `--jobs 2` (about 34 hours with 7 servers).
 
 ---
 
@@ -34,7 +36,7 @@ The last command must print `self-test OK` twice. Python must be 3.10 or 3.11.
 ## Step 2 — Look at the split (on any one server, optional)
 
 ```bash
-python run_sweep.py --plan 7 --jobs 2
+python run_sweep.py --plan 7 --jobs 5
 ```
 
 It prints which share each of the 7 servers gets and the estimated hours. If you use a
@@ -46,15 +48,16 @@ On server 1:
 
 ```bash
 cd TC-CPL-rev && source .venv/bin/activate
-nohup python run_sweep.py --part 1/7 --jobs 2 > sweep_part1.log 2>&1 &
+nohup python run_sweep.py --part 1/7 --jobs 5 > sweep_part1.log 2>&1 &
 ```
 
 On server 2 the same with `--part 2/7` and `sweep_part2.log`, and so on up to `--part 7/7`.
 
 - Every server must use **the same options**; only the number before `/7` changes. Each
   server then runs a different share and together they run all 95 jobs exactly once.
-- `--jobs 2` = two jobs at the same time on that server (about 36 GB of RAM in the worst case).
-  A server with more RAM can use `--jobs 3` or `--jobs 4`.
+- `--jobs 5` = five jobs at the same time on that server (not the total number of jobs). It needs
+  about 64 GB of RAM and 20 or more cores; each job gets an equal share of the cores. On a smaller
+  server use `--jobs 2`: the share is the same, it just takes longer.
 - A server with several GPUs: add `--gpus 0,1,2,3` (its GPU numbers) so the jobs are spread
   over them; without it all jobs use the first GPU.
 - `nohup ... &` keeps the jobs running after you log out.
