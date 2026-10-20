@@ -547,7 +547,7 @@ def train(spec: Dict, out_dir: str) -> Dict:
                 lambda_history=dual.lambda_history,
                 violation_history=dual.violation_history,
                 true_overload_history=dual.true_overload_history,
-                update_freq=dual.update_freq,
+                update_freq=dual.update_freq, update_steps=list(dual.update_steps),
                 finished=time.strftime("%Y-%m-%d %H:%M:%S"))
     with open(os.path.join(out_dir, "train_meta.json"), "w") as f:
         json.dump(meta, f, indent=1)

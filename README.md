@@ -29,6 +29,9 @@ University of Science and Technology; Mazaher Karimi, University of Vaasa.
 
 ## How to run it
 
+> **Running the revision campaign on the supercomputer / several servers:** follow
+> [`RUN_ON_SUPERCOMPUTER.md`](RUN_ON_SUPERCOMPUTER.md), a step-by-step page with every command.
+
 You need **Python 3.10 or 3.11** (3.12 and newer do not work with the pinned
 libraries), about 10 GB of disk, and optionally a GPU. Every command below is
 run from the repository folder.
@@ -61,21 +64,49 @@ place, run `python tccpl_learner.py`; it must print `self-test OK`.
 
 ### Step 2 — Run the whole campaign (all jobs at once)
 
-The study is two array jobs, submitted together, from the repository folder:
+The campaign is **95 independent jobs**:
 
-| Array | Jobs | What one job does | Resources | Time per job |
-|---|---|---|---|---|
-| `tsubame_sweep.sh` / `slurm_sweep.sh` | 50 = 5 algorithms × 5 seeds × 2 scenarios | trains one controller for 1,000,000 steps | 1 GPU, 8 cores, 32 GB | up to 30 h (cityNL TC-CPL), most far less |
-| `revision/stress_sweep.sh` | 66 PublicPST-S experiments | trains one variant for 200,000 steps and evaluates it | 8 cores, no GPU, 16 GB | 1–2 h |
+| Jobs | What one job does | Needs | Time per job (first campaign) |
+|---|---|---|---|
+| 25 main jobs on cityNL: 5 algorithms × 5 seeds | trains one controller for 1,000,000 steps | 1 GPU, about 8 GB RAM (DDPG 18 GB) | TC-CPL 21–30 h, DDPG 8 h, PPO and CPO 6 h |
+| 70 PublicPST-S jobs (`revision/stress_tasks.txt`) | trains one variant for 200,000 steps and evaluates it | CPU only, about 3 GB RAM | 1–2 h |
 
-The jobs are independent, so **submit both arrays at the same time**. Use a fresh clone in a
-new folder for this campaign. The scripts would retrain an old folder anyway (only runs of
-this code version count as finished), but a fresh folder keeps the archive clean.
+PublicPST-S (a 50-kW transformer with household load, PV and demand response) replaces the
+unstressed PublicPST of the first submission, whose transformer never binds;
+`python run_sweep.py --scenarios cityNL PublicPST` still trains PublicPST as well.
+
+Use a **fresh clone in a new folder** on every machine (the scripts would retrain an
+old folder anyway, because only runs of this code version count as finished).
+
+**A. Several servers without a shared disk** (how the first campaign was run).
+`run_sweep.py --part K/N` gives server K a balanced share of all 95 jobs; every server
+computes the same split, so use the same options everywhere and change only K:
+
+```bash
+python run_sweep.py --plan 7 --jobs 2         # how 7 servers would share the work, and the hours
+python run_sweep.py --part 1/7 --jobs 2       # on server 1 (server 2: --part 2/7, ...)
+```
+
+`--jobs` is how many jobs run **at the same time on that server** (not the total): choose
+it by the server's RAM and GPUs (about 8 GB per job). On a server with several GPUs add
+`--gpus 0,1,2,3` so the jobs are spread over them (otherwise all use the first GPU).
+With 7 servers the estimate is about 34 h at `--jobs 2` and about 30 h at `--jobs 3` or more
+(no share can finish before its longest job, about 30 h). When a server is done:
+
+```bash
+python run_sweep.py --part 1/7 --pack part1.tgz     # ONLY the files this server produced
+```
+
+Do not tar whole folders on the servers: a fresh clone also contains the earlier copies
+of some results, and unpacking those last would overwrite another server's new results.
+To merge, unpack every `partK.tgz` into one fresh clone and go to Step 3.
+
+**B. A cluster with a scheduler and a shared disk** (one task per job, all at once):
 
 ```bash
 mkdir -p logs/qsub                                     # Grid Engine (TSUBAME): the log folder must exist first
-qsub -g <your-group> tsubame_sweep.sh                  # main study, 50 tasks (GPU)
-qsub -g <your-group> revision/stress_sweep.sh          # PublicPST-S, 66 tasks (CPU)
+qsub -g <your-group> tsubame_sweep.sh                  # the 25 cityNL jobs (GPU)
+qsub -g <your-group> revision/stress_sweep.sh          # the 70 PublicPST-S jobs (CPU)
 ```
 
 ```bash
@@ -84,57 +115,37 @@ sbatch slurm_sweep.sh
 sbatch revision/stress_sweep.sh
 ```
 
-```bash
-python run_sweep.py --jobs 4                           # ONE machine instead of the cluster: all 50 jobs, 4 running at a time
-```
+`-g <your-group>` names the TSUBAME group whose budget pays (`t4-user-info group list`);
+without it the job runs in trial mode, limited to 10 minutes. Before submitting, check the
+resource type (`gpu_1`, `cpu_8`), the time limit (48 h and 8 h are requested; a job cannot
+be paused, so do not go lower) and the line that activates `.venv`. To see what a task
+runs: `TCCPL_DRY=1 SGE_TASK_ID=7 bash tsubame_sweep.sh`.
 
-What the cluster lines mean:
+**C. One machine:** `python run_sweep.py --jobs 4` runs all 95 jobs, 4 at a time.
 
-- `sbatch` (SLURM) and `qsub` (Grid Engine) hand the script to the cluster's
-  scheduler, which runs it on compute nodes when resources are free, instead
-  of on the login machine you are typing on.
-- `-g <your-group>` is required on TSUBAME: it names the group (lab or project
-  account, e.g. `tga-xxxx`) whose computing budget pays for the jobs. Replace
-  the placeholder with your own group name; `t4-user-info group list` shows
-  it. Without `-g` the job runs in trial mode, which is limited to 10 minutes.
-- Each script is an *array job*: it asks the scheduler for many tasks and each
-  task runs one job.
-
-Before submitting, open both scripts once and check the lines at the top: the
-resource type (`gpu_1` = one GPU for the main study, `cpu_8` = 8 cores for
-PublicPST-S; use the names of your site), the run-time limit (`h_rt` on TSUBAME,
-`--time` on SLURM; 48 h and 8 h are requested) and the line that activates `.venv`.
-A job cannot be paused and resumed, so do not lower the limits below the times above.
-To see what a task runs, without running anything:
-
-```bash
-TCCPL_DRY=1 SGE_TASK_ID=7 bash tsubame_sweep.sh             # or SLURM_ARRAY_TASK_ID=6 bash slurm_sweep.sh
-TCCPL_DRY=1 SGE_TASK_ID=3 bash revision/stress_sweep.sh
-```
-
-If some jobs fail or run out of time, **submit the same array again**: finished
-jobs exit at once and only the missing ones run (`python run_sweep.py --dry-run`
-lists the state of the main study).
-
-Memory: about 8 GB per main job, except DDPG on cityNL, which needs about 18 GB.
+In every case, if some jobs fail or run out of time, **run the same command again**:
+finished jobs are skipped and only the missing ones run. `python run_sweep.py --dry-run`
+(with the same `--part`) lists what is finished.
 
 ### Step 3 — Check and send the results back
 
+In the folder that holds all results (the merged clone, or the cluster folder):
+
 ```bash
-python check_cluster_results.py        # ok / FAIL for each of the 50 + 66 jobs; exit code 0 = complete
-tar czf tccpl_results.tgz models logs results revision/runs/PublicPST_stress
+python check_cluster_results.py        # ok / FAIL for each of the 95 jobs; exit code 0 = complete
+python run_sweep.py --pack tccpl_results.tgz
 ```
 
-Send the archive (about 1 GB) only when the check passes; if it lists failures,
-submit the arrays again first.
+Send the archive (about 1 GB) only when the check passes; if it lists failures, run the
+missing jobs first. (Sending the seven `partK.tgz` files instead is fine too.)
 
 ### Step 4 — Evaluate and build the figures and tables (Daniyal's side)
 
-1. Move the previous results aside, then unpack: `tar xzf tccpl_results.tgz`, and
+1. Move the previous results aside, then unpack: `tar xzf tccpl_results.tgz` (or every `partK.tgz`), and
    run `python check_cluster_results.py` once more.
-2. Open `TC-CPL.ipynb`, run it for `cityNL` and then for `PublicPST`, **Section 7
-   only** (Section 6 trains again). It evaluates every seed on the same 100 days and
-   writes the figures and per-day results to `results/<scenario>/`.
+2. Open `TC-CPL.ipynb`, run it for `cityNL`, **Section 7 only** (Section 6 trains again).
+   It evaluates every seed on the same 100 days and writes the figures and per-day
+   results to `results/cityNL/`.
 3. The re-evaluations with per-interval records, the headroom projection, the
    observation errors and the held-out days (150 jobs, a few hours):
    `cd revision && python scripts/campaign.py jobs.json 4`
@@ -184,8 +195,10 @@ Smoke-test only: `TCCPL_OFFLINE_TRANSITIONS`, `TCCPL_EVAL_EPISODES`, `TCCPL_N_OP
 | `cpo_pst.py` | The CPO baseline. |
 | `train_one.py` | Trains one algorithm × one seed × one scenario. |
 | `runall.sh` | Trains all five algorithms of one scenario at once. `SMOKE=1` for a quick test. |
-| `run_sweep.py`, `slurm_sweep.sh`, `tsubame_sweep.sh` | The 50-job study on one machine, on SLURM, or on Grid Engine. |
-| `revision/stress_sweep.sh` | The 66 PublicPST-S experiments as one array (Grid Engine or SLURM); tasks in `revision/stress_tasks.txt`. |
+| `RUN_ON_SUPERCOMPUTER.md` | Step-by-step procedure for the campaign on several servers or TSUBAME. |
+| `run_sweep.py` | Runs the 95 jobs on one machine or split over several servers (`--part`, `--pack`). |
+| `slurm_sweep.sh`, `tsubame_sweep.sh` | The 25 cityNL jobs as one SLURM / Grid Engine array. |
+| `revision/stress_sweep.sh` | The 70 PublicPST-S experiments as one array (Grid Engine or SLURM); tasks in `revision/stress_tasks.txt`. |
 | `check_cluster_results.py` | Checks that every job of the campaign finished with the current settings. |
 | `export_training_module.py` | Rebuilds `tccpl_runtime.py` (auto-generated, do not edit) from the notebook. Run it after editing notebook cells 4–47. |
 | `ev2gym/` | The simulator and its data. |
@@ -194,7 +207,9 @@ Smoke-test only: `TCCPL_OFFLINE_TRANSITIONS`, `TCCPL_EVAL_EPISODES`, `TCCPL_N_OP
 ## The two scenarios
 
 - **PublicPST** — 20 charge points behind one 100-kW transformer, no grid
-  simulation. Fast.
+  simulation. Fast. Its transformer never binds, so the revision replaces it with
+- **PublicPST-S** — the same 20 charge points behind a 50-kW transformer with
+  cityNL's household load, PV and demand-response events (`revision/configs/`).
 - **cityNL** — a Dutch city feeder: 122 substations, 300 stations (600 ports),
   full AC power flow. About ten times slower. The main result of the paper.
 
@@ -232,8 +247,10 @@ comes from running jobs side by side.
 
 ### Verified (2026-10-20, campaign version)
 
-On a copy of the repository as a fresh clone has it (including the earlier
-PublicPST-S records in git), with small budgets: `slurm_sweep.sh` for all five
+Several servers: two simulated servers ran their `--part 1/2` and `--part 2/2` shares,
+packed them (disjoint archives) and were merged into a fresh clone, where
+`check_cluster_results.py` reported every job complete. On a copy of the repository
+as a fresh clone has it (including the earlier PublicPST-S records in git), with small budgets: `slurm_sweep.sh` for all five
 algorithms on PublicPST and `tsubame_sweep.sh` for both TC-CPL learners on cityNL
 (sidecars carry the campaign stamp, radius 1 and load-aware networks; a resubmitted
 finished task is skipped, a first-submission model is retrained);

@@ -310,6 +310,8 @@ STRESS_CORE = {"tccpl", "fixed_100_50", "fixed_500_5", "tau_2", "lmax_2000",
 
 
 def stress_expected(var):
+    if var in ("tccpl", "fixed_100_50"):
+        return 5
     return 1 if var.startswith("heur_") else (3 if var in STRESS_CORE else 2)
 
 

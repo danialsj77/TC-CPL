@@ -1,10 +1,10 @@
 """Check everything the cluster campaign must return before it is packed and sent.
 
-    python check_cluster_results.py                 # the main 50 runs + the 66 PublicPST-S tasks
-    python check_cluster_results.py --main-only     # only the 50 runs of the five algorithms
+    python check_cluster_results.py                 # the 25 cityNL runs + the 70 PublicPST-S tasks
+    python check_cluster_results.py --main-only     # only the 25 cityNL runs of the five algorithms
     python check_cluster_results.py --scenarios cityNL --seeds 42 43
 
-Main runs (train_one.py; five algorithms x two scenarios x five seeds): checkpoint, a
+Main runs (train_one.py; five algorithms x five seeds on cityNL): checkpoint, a
 run-metadata sidecar of THIS campaign (protocol, full budget, no smoke test), for the two
 TC-CPL learners the revised settings (residual radius 1, load-aware networks, demonstration
 days disjoint from the evaluation days, tolerance 0) and the saved multiplier history; the
@@ -21,7 +21,7 @@ ALGOS = {"tccpl": ("tccpl", "Self-tuning TC-CPL"), "fixedpenalty": ("fixedpenalt
          "ddpg": ("ddpg_pst", "DDPG-PST"), "ppo": ("ppo_pst", "PPO-PST"), "cpo": ("cpo_pst", "CPO")}
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--scenarios", nargs="+", default=["cityNL", "PublicPST"])
+ap.add_argument("--scenarios", nargs="+", default=["cityNL"])
 ap.add_argument("--seeds", nargs="+", type=int, default=[42, 43, 44, 45, 46])
 ap.add_argument("--algos", nargs="+", default=list(ALGOS), choices=list(ALGOS))
 ap.add_argument("--budget", type=int, default=1_000_000)
@@ -86,7 +86,7 @@ for scen in args.scenarios:
 if not args.main_only:
     print("\n== PublicPST-S tasks (revision/stress_sweep.sh) ==")
     sys.path.insert(0, os.path.join(HERE, "revision", "scripts"))
-    from provenance import stress_run_is_current
+    from provenance import stress_run_is_current, stress_shield_is_current
     lines = [l.split() for l in open("revision/stress_tasks.txt") if l.strip() and not l.startswith("#")]
     for parts in lines:
         var, seed, shield = parts[0], int(parts[1]), len(parts) > 2
@@ -97,6 +97,8 @@ if not args.main_only:
         problems += [f"no {f}" for f in need if not os.path.exists(os.path.join(d, f))]
         if not problems and not stress_run_is_current(d):
             problems.append("results do not match the current definition of the variant")
+        elif not problems and shield and not stress_shield_is_current(d):
+            problems.append("headroom-projection evaluation is from an earlier run")
         report(f"{var:18s} seed {seed}", problems)
 
 print(f"\n{bad} item(s) with problems")

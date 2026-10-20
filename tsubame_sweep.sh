@@ -1,17 +1,15 @@
 #!/bin/bash
 # ─────────────────────────────────────────────────────────────────────────────
 # tsubame_sweep.sh — the full TC-CPL protocol as ONE Grid-Engine array job
-# (Altair/Sun Grid Engine `qsub`, e.g. TSUBAME): 50 tasks = 2 scenarios ×
+# (Altair/Sun Grid Engine `qsub`, e.g. TSUBAME): 25 tasks = cityNL ×
 # 5 seeds × 5 algorithms, each `train_one.py` at 1,000,000 steps.
 #
-#   qsub -g <group> tsubame_sweep.sh            # all 50 tasks
-#   qsub -g <group> -t 1-25 tsubame_sweep.sh    # cityNL only
-#   qsub -g <group> -t 26-50 tsubame_sweep.sh   # PublicPST only
+#   qsub -g <group> tsubame_sweep.sh            # all 25 tasks
 #   qsub -g <group> -t 1-20 -v TCCPL_ALGOS=fixedpenalty:tccpl tsubame_sweep.sh
 #                                               # only the two TC-CPL learners
 #   TCCPL_DRY=1 SGE_TASK_ID=7 bash tsubame_sweep.sh   # print what task 7 runs
 #
-# Task t (1-based) → i = t-1 → scenario i/25, seed 42 + (i%25)/5, algorithm i%5
+# Task t (1-based) → i = t-1 → seed 42 + i/5, algorithm i%5
 # (fixedpenalty, tccpl, ddpg, ppo, cpo). Finished tasks exit at once, so a
 # partly failed array is simply resubmitted. There is NO mid-run checkpoint:
 # h_rt must exceed one full job: cityNL took 21-30 h per job on one GPU in the first
@@ -23,7 +21,7 @@
 #$ -N tccpl
 #$ -l gpu_1=1
 #$ -l h_rt=48:00:00
-#$ -t 1-50
+#$ -t 1-25
 #$ -j y
 #$ -o logs/qsub/
 set -eu
@@ -37,7 +35,9 @@ THREADS="${THREADS:-8}"               # CPU cores of the requested resource type
 export TCCPL_TOTAL_TIMESTEPS="${TCCPL_TOTAL_TIMESTEPS:-1000000}"
 export TCCPL_SEEDS="42,43,44,45,46"
 
-SCENARIOS=(cityNL PublicPST)
+# cityNL only: PublicPST-S (revision/stress_sweep.sh) replaces PublicPST.
+# TCCPL_SCENARIOS="cityNL PublicPST" with a 50-task array runs both, as in the first campaign.
+read -r -a SCENARIOS <<< "${TCCPL_SCENARIOS:-cityNL}"
 SEEDS=(42 43 44 45 46)
 # TCCPL_ALGOS restricts the array, e.g. TCCPL_ALGOS=fixedpenalty:tccpl -> 20 tasks
 # (2 scenarios x 5 seeds x 2 algorithms); ':' ',' or ' ' separate the names.

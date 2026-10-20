@@ -40,31 +40,58 @@ def output_is_current(path, repo, scen, label, seed):
     return rec == now
 
 
-def stress_run_is_current(run_dir):
-    """True if a PublicPST-S run folder <variant>_s<seed> holds results of the variant
-    as defined NOW in variants.py with the campaign settings (heuristics always count).
-    Folders of earlier protocols or retired variants are ignored by every consumer."""
+def _expected_stress_spec(run_dir):
+    """(spec the run must have been made with, is_heuristic) or (None, None) for a folder that
+    is not a run of the current campaign. Imports the learner stack (torch) only here."""
     import re, sys
     name = os.path.basename(os.path.normpath(run_dir))
     m = re.match(r"(.+)_s(\d+)$", name)
     if not m:
-        return False
+        return None, None
     var, seed = m.group(1), int(m.group(2))
-    if var.startswith("heur_"):
-        return os.path.exists(os.path.join(run_dir, "eval.json"))
     rev = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     if rev not in sys.path:
         sys.path.insert(0, rev)
-    import exp_lib as X                      # heavy (torch, simulator): imported only here
+    import exp_lib as X
     from variants import VARIANTS, CAMPAIGN
+    if var.startswith("heur_"):
+        return X.spec_of(seed=seed, **CAMPAIGN), True
     if var not in VARIANTS:
-        return False
-    want = X.spec_of(**VARIANTS[var], seed=seed, **CAMPAIGN)
+        return None, None
+    return X.spec_of(**VARIANTS[var], seed=seed, **CAMPAIGN), False
+
+
+def _spec_in(path):
     try:
-        with open(os.path.join(run_dir, "train_meta.json")) as fh:
-            got_train = json.load(fh)["spec"]
-        with open(os.path.join(run_dir, "eval.json")) as fh:
-            got_eval = json.load(fh).get("spec", {})
-    except (OSError, ValueError, KeyError):
+        with open(path) as fh:
+            d = json.load(fh)
+    except (OSError, ValueError):
+        return None
+    return d.get("spec")
+
+
+def stress_run_is_current(run_dir):
+    """True if a PublicPST-S run folder <variant>_s<seed> holds results of the variant as
+    defined NOW in variants.py with the campaign settings: training record and evaluation
+    for a learned variant, evaluation for a heuristic. Folders of earlier protocols or of
+    retired variants are ignored by every consumer."""
+    want, heur = _expected_stress_spec(run_dir)
+    if want is None:
         return False
-    return X.same_spec(got_train, want) and X.same_spec(got_eval, want)
+    from exp_lib import same_spec
+    files = ["eval.json"] if heur else ["train_meta.json", "eval.json"]
+    for f in files:
+        got = _spec_in(os.path.join(run_dir, f))
+        if got is None or not same_spec(got, want):
+            return False
+    return True
+
+
+def stress_shield_is_current(run_dir):
+    """True if the headroom-projection evaluation of the folder belongs to the current run."""
+    want, _ = _expected_stress_spec(run_dir)
+    if want is None:
+        return False
+    from exp_lib import same_spec
+    got = _spec_in(os.path.join(run_dir, "eval_shield.json"))
+    return got is not None and same_spec(got, want) and stress_run_is_current(run_dir)

@@ -1,0 +1,126 @@
+# Running the revision campaign on several servers
+
+This page is the complete procedure for the October 2026 campaign, written for the way the
+first campaign was run: `run_sweep.py` on several servers, results merged at the end.
+Every command is copied as it is; only the server number `K` changes.
+
+**What runs.** 95 independent jobs, all from scratch (nothing of the first campaign is reused):
+
+| Jobs | What one job does | Needs |
+|---|---|---|
+| 25 on cityNL: 5 algorithms × 5 seeds | trains one controller for 1,000,000 steps | GPU, about 8 GB RAM (DDPG: 18 GB) |
+| 70 on PublicPST-S | trains one TC-CPL variant for 200,000 steps and evaluates it | CPU only, about 3 GB RAM |
+
+**How long.** With 7 servers and 2 jobs at a time on each: about 34 hours. With 3 or more jobs
+at a time: about 30 hours (the longest single job takes about 30 hours, so nothing finishes sooner).
+
+---
+
+## Step 1 — Install, on every server (10 minutes)
+
+Use a **new folder**. Do not reuse the folder of the first campaign.
+
+```bash
+git clone https://github.com/danialsj77/TC-CPL.git TC-CPL-rev
+cd TC-CPL-rev
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python tccpl_learner.py
+```
+
+The last command must print `self-test OK` twice. Python must be 3.10 or 3.11.
+
+## Step 2 — Look at the split (on any one server, optional)
+
+```bash
+python run_sweep.py --plan 7 --jobs 2
+```
+
+It prints which share each of the 7 servers gets and the estimated hours. If you use a
+different number of servers, replace `7` by that number **everywhere below**.
+
+## Step 3 — Start the jobs, on every server
+
+On server 1:
+
+```bash
+cd TC-CPL-rev && source .venv/bin/activate
+nohup python run_sweep.py --part 1/7 --jobs 2 > sweep_part1.log 2>&1 &
+```
+
+On server 2 the same with `--part 2/7` and `sweep_part2.log`, and so on up to `--part 7/7`.
+
+- Every server must use **the same options**; only the number before `/7` changes. Each
+  server then runs a different share and together they run all 95 jobs exactly once.
+- `--jobs 2` = two jobs at the same time on that server (about 36 GB of RAM in the worst case).
+  A server with more RAM can use `--jobs 3` or `--jobs 4`.
+- A server with several GPUs: add `--gpus 0,1,2,3` (its GPU numbers) so the jobs are spread
+  over them; without it all jobs use the first GPU.
+- `nohup ... &` keeps the jobs running after you log out.
+
+## Step 4 — Follow the progress
+
+```bash
+tail -n 20 sweep_part1.log                            # START / DONE / FAIL lines
+python run_sweep.py --part 1/7 --dry-run              # what is finished and what is left
+```
+
+If a job fails, or a server restarts: **run the Step 3 command again**. Finished jobs are
+skipped and only the missing ones run. The log of each job is in `logs/sweep/`.
+
+## Step 5 — Pack the results, on every server, when its share is finished
+
+```bash
+python run_sweep.py --part 1/7 --pack part1.tgz       # server 2: --part 2/7 --pack part2.tgz ...
+```
+
+It prints `packed N finished job(s)`. If it also lists `NOT packed` lines, those jobs are not
+finished: go back to Step 3 on that server.
+
+Please use this command and **not** `tar` of the whole folder: the folder also contains old
+copies of some results that come with `git clone`, and unpacking those last would overwrite
+the new results of another server.
+
+## Step 6 — Merge and check, on one server
+
+```bash
+git clone https://github.com/danialsj77/TC-CPL.git TC-CPL-merge
+cd TC-CPL-merge
+python3.11 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+tar xzf /path/to/part1.tgz            # repeat for part2.tgz ... part7.tgz (any order)
+python check_cluster_results.py
+```
+
+The check must end with `0 item(s) with problems`. Then pack everything into one file:
+
+```bash
+python run_sweep.py --pack tccpl_results.tgz
+```
+
+and send `tccpl_results.tgz` (about 1 GB) to Daniyal. Sending the seven `partK.tgz` files
+instead is also fine.
+
+## If the check reports a problem
+
+| Message | Meaning | What to do |
+|---|---|---|
+| `no checkpoint`, `no run` | the job did not run or did not finish | run Step 3 again on the server of that share, then Step 5 and Step 6 |
+| `not from this campaign` | a model of the first campaign | the folder was reused: use a fresh clone (Step 1) |
+| `multiplier history from an earlier run` | the part archive of that job is missing | unpack all `partK.tgz` files (Step 6) |
+| `budget 12000`, `smoke run` | a short test run | run the job again with Step 3 |
+
+---
+
+### Alternative: TSUBAME batch jobs (shared disk)
+
+If all jobs should run as TSUBAME batch jobs instead of on separate servers, from the
+repository folder (edit the `.venv` line in both scripts first):
+
+```bash
+mkdir -p logs/qsub
+qsub -g <your-group> tsubame_sweep.sh               # the 25 cityNL jobs (GPU, 48 h limit each)
+qsub -g <your-group> revision/stress_sweep.sh       # the 70 PublicPST-S jobs (CPU, 8 h limit each)
+```
+
+Then Step 6 from `python check_cluster_results.py` on, in that same folder.

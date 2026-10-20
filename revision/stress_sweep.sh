@@ -2,9 +2,9 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # revision/stress_sweep.sh — the PublicPST-S experiments (paper table "stress") as ONE
 # array job, for Grid Engine (qsub, e.g. TSUBAME) or SLURM (sbatch). CPU only.
-# Submit FROM THE REPOSITORY ROOT, at the same time as the main 50-task array:
+# Submit FROM THE REPOSITORY ROOT, at the same time as the main 25-task array (tsubame_sweep.sh / slurm_sweep.sh):
 #
-#   mkdir -p logs/qsub  && qsub -g <group> revision/stress_sweep.sh     # Grid Engine: 66 tasks
+#   mkdir -p logs/qsub  && qsub -g <group> revision/stress_sweep.sh     # Grid Engine: 70 tasks
 #   mkdir -p logs/slurm && sbatch revision/stress_sweep.sh              # SLURM
 #   TCCPL_DRY=1 SGE_TASK_ID=3 bash revision/stress_sweep.sh             # print what task 3 runs
 #
@@ -20,11 +20,11 @@
 #$ -N tccpl_stress
 #$ -l cpu_8=1
 #$ -l h_rt=8:00:00
-#$ -t 1-66
+#$ -t 1-70
 #$ -j y
 #$ -o logs/qsub/
 #SBATCH --job-name=tccpl_stress
-#SBATCH --array=0-65
+#SBATCH --array=0-69
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=16G
 #SBATCH --time=08:00:00

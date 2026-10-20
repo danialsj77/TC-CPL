@@ -47,3 +47,16 @@ VARIANTS = {
 # Settings shared by every PublicPST-S run of the campaign (scripts/make_jobs.py passes
 # them on the command line; collect_results.py uses them to recognise current runs)
 CAMPAIGN = dict(budget=200_000, update_freq=3584)   # 200k steps, one dual update per 32 episodes
+
+# Smoke tests only: STRESS_SETTINGS (the string revision/stress_sweep.sh passes to
+# train_variant.py) replaces them, so running, checking and packing agree on one definition.
+for _kv in __import__("os").environ.get("STRESS_SETTINGS", "").split():
+    _k, _v = _kv.split("=", 1)
+    if _k != "device":                               # where a run happens does not define it
+        for _f in (int, float):
+            try:
+                _v = _f(_v)
+                break
+            except ValueError:
+                pass
+        CAMPAIGN[_k] = _v
