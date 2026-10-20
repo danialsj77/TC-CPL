@@ -1,4 +1,4 @@
-# Running the revision campaign on several servers
+# Running the revision campaign
 
 This page is the complete procedure for the October 2026 campaign. There are two ways to run
 it; **use only one of them**:
