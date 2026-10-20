@@ -85,7 +85,7 @@ sbatch revision/stress_sweep.sh
 ```
 
 ```bash
-python run_sweep.py --jobs 4                           # one machine instead (main study only)
+python run_sweep.py --jobs 4                           # ONE machine instead of the cluster: all 50 jobs, 4 running at a time
 ```
 
 What the cluster lines mean:
