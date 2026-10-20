@@ -62,7 +62,7 @@ If `python3.11` / `py -3.11` is not found, install Python 3.11 from
 python.org (Mac: `brew install python@3.11`). To check that everything is in
 place, run `python tccpl_learner.py`; it must print `self-test OK`.
 
-### Step 2 — Run the whole campaign (all jobs at once)
+### Step 2 — Run the 116 jobs
 
 The campaign is **116 independent jobs**:
 
@@ -75,33 +75,44 @@ PublicPST-S (`PublicPST_S`: 20 ports, a 42-kW transformer with household load, P
 response, 96 intervals) replaces the unstressed PublicPST of the first submission, whose
 transformer never binds; `python run_sweep.py --scenarios PublicPST` still trains PublicPST.
 
-Use a **fresh clone in a new folder** on every machine (the scripts would retrain an
-old folder anyway, because only runs of this code version count as finished).
+**Choose ONE way to run the jobs.** A, B and C below are three alternative ways to run
+the *same* 116 jobs with the same settings and produce the same result files; they differ
+only in the computers used. Pick the one that matches your computers, follow only that part, and skip the other two:
 
-**A. Several servers without a shared disk** (how the first campaign was run).
-`run_sweep.py --part K/N` gives server K a balanced share of all 116 jobs; every server
-computes the same split, so use the same options everywhere and change only K:
+| Your computers | Use |
+|---|---|
+| several separate servers, each with its own disk (how the first campaign was run) | **A** (about 30 h with 7 servers) |
+| a cluster where jobs are submitted to a scheduler (`qsub` or `sbatch`) and every node sees the same folder, e.g. TSUBAME | **B** (about 30 h if all jobs start at once) |
+| one machine | **C** (about 6 days at 4 jobs at a time) |
 
-```bash
-python run_sweep.py --plan 7 --jobs 5         # how 7 servers would share the work, and the hours
-python run_sweep.py --part 1/7 --jobs 5       # on server 1 (server 2: --part 2/7, ...)
-```
+Do not combine them: running B as well as A would train every job twice. Whichever you
+choose, use a **fresh clone in a new folder** (Step 1), and if a job fails or a machine
+restarts, **run the same command again**: finished jobs are skipped and only the missing
+ones run.
 
-`--jobs` is how many jobs run **at the same time on that server** (not the total): `--jobs 5`
-needs about 64 GB of RAM and 20 or more cores per server; use `--jobs 2` on smaller servers. On a server with several GPUs add
-`--gpus 0,1,2,3` so the jobs are spread over them (otherwise all use the first GPU).
-With 7 servers the estimate is about 30 h at `--jobs 5` and about 41 h at `--jobs 2`
-(no share can finish before its longest job, about 30 h). When a server is done:
+#### A — Several servers without a shared disk
 
-```bash
-python run_sweep.py --part 1/7 --pack part1.tgz     # ONLY the files this server produced
-```
+The step-by-step page [`RUN_ON_SUPERCOMPUTER.md`](RUN_ON_SUPERCOMPUTER.md) gives every command.
+In short, with 7 servers:
 
-Do not tar whole folders on the servers: a fresh clone also contains the earlier copies
-of some results, and unpacking those last would overwrite another server's new results.
-To merge, unpack every `partK.tgz` into one fresh clone and go to Step 3.
+1. On every server: Step 1 (fresh clone and install).
+2. On server K (K = 1 … 7), the same command with only K changed:
+   `nohup python run_sweep.py --part K/7 --jobs 5 > sweep_partK.log 2>&1 &`.
+   The 7 servers then run different shares that together cover all 116 jobs exactly once.
+3. When a server has finished: `python run_sweep.py --part K/7 --pack partK.tgz`. This packs
+   only the files that server produced. (Do not tar whole folders: a fresh clone also holds
+   earlier copies of some results, which would overwrite another server's new results.)
+4. Unpack all `partK.tgz` into one fresh clone and go to Step 3.
 
-**B. A cluster with a scheduler and a shared disk** (one task per job, all at once):
+`--jobs 5` = five jobs at the same time on each server (not the total number of jobs); it
+needs about 64 GB of RAM and 20 or more cores per server. On smaller servers use `--jobs 2`
+(about 41 h with 7 servers). A server with several GPUs: add `--gpus 0,1,2,3`.
+`python run_sweep.py --plan 7 --jobs 5` prints each server's share and the hours.
+
+#### B — A cluster with a scheduler and a shared disk
+
+Two array jobs, submitted once, from the repository folder; the scheduler starts every job
+as soon as a node is free, each with its own GPU or CPU cores:
 
 ```bash
 mkdir -p logs/qsub                                     # Grid Engine (TSUBAME): the log folder must exist first
@@ -109,27 +120,28 @@ qsub -g <your-group> tsubame_sweep.sh                  # the 50 main jobs (GPU)
 qsub -g <your-group> revision/stress_sweep.sh          # the 66 PublicPST-S variant jobs (CPU)
 ```
 
-```bash
-mkdir -p logs/slurm                                    # SLURM
-sbatch slurm_sweep.sh
-sbatch revision/stress_sweep.sh
-```
+On a SLURM cluster instead: `mkdir -p logs/slurm`, then `sbatch slurm_sweep.sh` and
+`sbatch revision/stress_sweep.sh`.
 
 `-g <your-group>` names the TSUBAME group whose budget pays (`t4-user-info group list`);
-without it the job runs in trial mode, limited to 10 minutes. Before submitting, check the
-resource type (`gpu_1`, `cpu_8`), the time limit (48 h and 8 h are requested; a job cannot
-be paused, so do not go lower) and the line that activates `.venv`. To see what a task
-runs: `TCCPL_DRY=1 SGE_TASK_ID=7 bash tsubame_sweep.sh`.
+without it a job runs in trial mode, limited to 10 minutes. Before submitting, open both
+scripts once and check the resource type (`gpu_1`, `cpu_8`), the time limit (48 h and 8 h;
+a job cannot be paused, so do not go lower) and the line that activates `.venv`. To see what
+a task runs without running it: `TCCPL_DRY=1 SGE_TASK_ID=7 bash tsubame_sweep.sh`.
+When all tasks have finished, go to Step 3 in the same folder.
 
-**C. One machine:** `python run_sweep.py --jobs 4` runs all 116 jobs, 4 at a time.
+#### C — One machine
 
-In every case, if some jobs fail or run out of time, **run the same command again**:
-finished jobs are skipped and only the missing ones run. `python run_sweep.py --dry-run`
-(with the same `--part`) lists what is finished.
+```bash
+nohup python run_sweep.py --jobs 4 > sweep.log 2>&1 &
+```
+
+runs all 116 jobs, 4 at a time (about 6 days; `--jobs 8` about 3 days if the machine has
+about 100 GB of RAM). `python run_sweep.py --dry-run` shows what is finished. Then Step 3.
 
 ### Step 3 — Check and send the results back
 
-In the folder that holds all results (the merged clone, or the cluster folder):
+In the folder that holds all results (A: the merged clone; B: the cluster folder; C: the machine's folder):
 
 ```bash
 python check_cluster_results.py        # ok / FAIL for each of the 116 jobs; exit code 0 = complete

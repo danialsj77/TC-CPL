@@ -1,8 +1,15 @@
 # Running the revision campaign on several servers
 
-This page is the complete procedure for the October 2026 campaign, written for the way the
-first campaign was run: `run_sweep.py` on several servers, results merged at the end.
-Every command is copied as it is; only the server number `K` changes.
+This page is the complete procedure for the October 2026 campaign. There are two ways to run
+it; **use only one of them**:
+
+- **Several separate servers, each with its own disk** (how the first campaign was run):
+  follow Steps 1–6 below.
+- **TSUBAME batch jobs** (`qsub`, all nodes see the same folder): follow only the last
+  section, *Alternative: TSUBAME batch jobs*.
+
+Doing both would train every job twice. In Steps 1–6 every command is copied as it is; only
+the server number `K` changes.
 
 **What runs.** 116 independent jobs, all from scratch (nothing of the first campaign is reused):
 
@@ -117,8 +124,9 @@ instead is also fine.
 
 ### Alternative: TSUBAME batch jobs (shared disk)
 
-If all jobs should run as TSUBAME batch jobs instead of on separate servers, from the
-repository folder (edit the `.venv` line in both scripts first):
+Use this **instead of** Steps 2–5 if all jobs should run as TSUBAME batch jobs. After Step 1
+(one fresh clone on the shared disk), from the repository folder (edit the `.venv` line in
+both scripts first):
 
 ```bash
 mkdir -p logs/qsub
