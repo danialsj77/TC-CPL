@@ -6,7 +6,7 @@ Everything added for the major revision lives here. Nothing in `models/`, `resul
 |---|---|
 | `exp_lib.py` | Switches around the unchanged learner (`../tccpl_learner.py`): fixed vs adaptive prices, cap, gains, tolerance τ, margin, incumbent, ρ, demonstrations, residual, transformer block, flat encoder; extended evaluation records; observation perturbations; headroom shield |
 | `variants.py` | Named variants (each overrides only the listed keys of the submitted protocol) |
-| `../ev2gym/example_config_files/PublicPST_S.yaml` | PublicPST-S: PublicPST with a 50-kW transformer and cityNL's household load, PV and demand response |
+| `../ev2gym/example_config_files/PublicPST_S.yaml` | PublicPST-S: PublicPST with a 42-kW transformer and cityNL's household load, PV and demand response |
 | `scripts/train_variant.py` | Train one variant/seed on PublicPST-S, then evaluate it on the 100 paired days |
 | `scripts/eval_citynl.py` | Re-evaluate the submitted checkpoints (`EXP_SCEN=PublicPST` for PublicPST; `EXP_SHIELD=1` for the shield; `kind:p` for a perturbation; `--offset 5000` for held-out days) |
 | `scripts/offline_feasibility.py` | Hindsight QPs per evaluation day (tracking optimum, best satisfaction under zero overload, optimum with a satisfaction floor) |

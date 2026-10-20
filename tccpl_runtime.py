@@ -194,7 +194,7 @@ print(f"grid_aware_obs ready (fixed per-EV energy scale E_SCALE = {E_SCALE:.0f} 
 # runs — train_one.py, runall.sh, run_sweep.py, papermill — set TCCPL_SCENARIO
 # and are never prompted. Every artefact path (models/, logs/, results/) is
 # namespaced by scenario, so the two studies never collide.
-#   PublicPST_S : 20 stations × 1 port, one 50-kW transformer with household load,
+#   PublicPST_S : 20 stations × 1 port, one 42-kW transformer with household load,
 #                 PV and demand response (binding); replaces PublicPST in the revision
 #   cityNL      : 300 stations × 2 ports, 122 substations, full AC power flow
 #   PublicPST   : 20 stations × 1 port, one 100-kW transformer (first submission)
@@ -203,7 +203,7 @@ import sys
 import yaml
 
 SCENARIO_CATALOGUE = {   # name → (what it is, what it costs)
-    "PublicPST_S": ("PublicPST-S: the PST facility behind a 50-kW transformer with household "
+    "PublicPST_S": ("PublicPST-S: the PST facility behind a 42-kW transformer with household "
                     "load, PV and demand response — the transformer binds",
                     "fast — about 8 h per learner at 1M steps; the small-scale study"),
     "cityNL":    ("city-scale Dutch MV feeder: 122 substations, full AC power flow",

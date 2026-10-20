@@ -9,10 +9,24 @@ import json, os
 NAMES = {"ddpg": "ddpg_pst", "ppo": "ppo_pst", "cpo": "cpo_pst"}
 
 
-def checkpoint_stamp(repo, scen, label, seed):
-    """None for the rule-based controllers, else the identity of the checkpoint."""
-    if label in ("RR", "CAFAP"):
+def config_fingerprint(repo, scen):
+    """Short hash of the scenario's config file: an output made under another
+    configuration (e.g. another transformer rating) is not reused."""
+    import hashlib
+    path = os.path.join(repo, "ev2gym", "example_config_files", f"{scen}.yaml")
+    try:
+        with open(path, "rb") as fh:
+            return hashlib.sha1(fh.read()).hexdigest()[:12]
+    except OSError:
         return None
+
+
+def checkpoint_stamp(repo, scen, label, seed):
+    """Identity of what an evaluation output depends on: the scenario configuration
+    and, for a learned controller, its checkpoint."""
+    cfg = config_fingerprint(repo, scen)
+    if label in ("RR", "CAFAP"):
+        return {"config": cfg}
     name = NAMES.get(label, label)
     suf = "" if int(seed) == 42 else f"_s{seed}"
     zp = os.path.join(repo, "models", scen, f"{name}_sac{suf}.zip")
@@ -20,23 +34,26 @@ def checkpoint_stamp(repo, scen, label, seed):
         with open(zp[:-4] + ".runmeta.json") as fh:
             m = json.load(fh)
     except (OSError, ValueError):
-        return {"runmeta": None, "zip_mtime": os.path.getmtime(zp) if os.path.exists(zp) else None}
+        return {"runmeta": None, "zip_mtime": os.path.getmtime(zp) if os.path.exists(zp) else None,
+                "config": cfg}
     return {"protocol": m.get("protocol"), "finished": m.get("finished"),
-            "rho": float(m.get("rho", 0.25)), "tr_load_aware": bool(m.get("tr_load_aware", False))}
+            "rho": float(m.get("rho", 0.25)), "tr_load_aware": bool(m.get("tr_load_aware", False)),
+            "config": cfg}
 
 
 def output_is_current(path, repo, scen, label, seed):
-    """True if the evaluation output at `path` was made from the checkpoint now in models/.
-    Outputs written before stamps existed count as current only while the checkpoint is
-    still one of the first submission (its sidecar has no protocol)."""
+    """True if the evaluation output at `path` was made from the checkpoint now in models/
+    under the scenario configuration now on disk. Outputs written before stamps existed
+    count as current only for heuristics and while the checkpoint is still one of the first
+    submission (its sidecar has no protocol)."""
     try:
         with open(path) as fh:
             rec = json.load(fh).get("checkpoint", "missing")
     except (OSError, ValueError):
         return False
     now = checkpoint_stamp(repo, scen, label, seed)
-    if rec == "missing":
-        return now is None or now.get("protocol") is None
+    if rec == "missing":                       # written before stamps existed
+        return now.get("protocol") is None     # heuristics, or first-submission checkpoints
     return rec == now
 
 

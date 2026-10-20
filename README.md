@@ -71,7 +71,7 @@ The campaign is **116 independent jobs**:
 | 50 main jobs: 5 algorithms × 5 seeds on cityNL and on PublicPST-S | trains one controller for 1,000,000 steps | 1 GPU, about 8 GB RAM (DDPG 18 GB) | cityNL TC-CPL 21–30 h, other cityNL 6–9 h, PublicPST-S TC-CPL about 9 h, rest under 2 h |
 | 66 PublicPST-S variant jobs (`revision/stress_tasks.txt`) | trains one variant for 200,000 steps and evaluates it | CPU only, about 3 GB RAM | 1–2 h |
 
-PublicPST-S (`PublicPST_S`: 20 ports, a 50-kW transformer with household load, PV and demand
+PublicPST-S (`PublicPST_S`: 20 ports, a 42-kW transformer with household load, PV and demand
 response, 96 intervals) replaces the unstressed PublicPST of the first submission, whose
 transformer never binds; `python run_sweep.py --scenarios PublicPST` still trains PublicPST.
 
@@ -208,7 +208,7 @@ Smoke-test only: `TCCPL_OFFLINE_TRANSITIONS`, `TCCPL_EVAL_EPISODES`, `TCCPL_N_OP
 
 - **PublicPST** — 20 charge points behind one 100-kW transformer, no grid
   simulation. Fast. Its transformer never binds, so the revision replaces it with
-- **PublicPST-S** (`PublicPST_S`) — the same 20 charge points behind a 50-kW transformer
+- **PublicPST-S** (`PublicPST_S`) — the same 20 charge points behind a 42-kW transformer
   with household load, PV and demand-response events drawn per day, 96 intervals
   (`ev2gym/example_config_files/PublicPST_S.yaml`).
 - **cityNL** — a Dutch city feeder: 122 substations, 300 stations (600 ports),

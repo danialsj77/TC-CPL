@@ -1,4 +1,4 @@
-# PublicPST-S: the PublicPST facility (20 ports) behind a 50-kW transformer with household
+# PublicPST-S: the PublicPST facility (20 ports) behind a 42-kW transformer with household
 # load, PV and demand-response events (tr_seed -1: drawn per day from the episode seed).
 # This yml file is used to configure the evsim simulation
 
@@ -120,7 +120,7 @@ ev_specs_file: ./ev2gym/data/ev_specs_ev_plus_phev.json # path to the file with 
 
 # Default Transformer model
 transformer:
-  max_power: 50 # in kW
+  max_power: 42 # in kW: round-robin overloads on about half of the 100 evaluation days, CAFAP on about two thirds (96 intervals)
 
 # Default Charging Station model
 charging_station:  
