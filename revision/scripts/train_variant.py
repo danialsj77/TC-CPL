@@ -70,7 +70,8 @@ if __name__ == "__main__":
         print("no trained model of this spec yet for the shield evaluation:", out)
         sys.exit(3)
     retrained = False
-    if not _same(meta_p) or os.environ.get("EXP_FORCE"):
+    # a record without its model (e.g. the records that come with a git clone) is retrained
+    if not (_same(meta_p) and os.path.exists(os.path.join(out, "model.zip"))) or os.environ.get("EXP_FORCE"):
         for stale in ("eval.json", "eval_shield.json"):          # results of the old model
             if os.path.exists(os.path.join(out, stale)):
                 os.remove(os.path.join(out, stale))

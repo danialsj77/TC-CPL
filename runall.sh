@@ -3,10 +3,10 @@
 # runall.sh — train ALL FIVE algorithms of one scenario AT THE SAME TIME.
 #
 #   ./runall.sh                     # cityNL,    seed 42  (the defaults)
-#   ./runall.sh PublicPST           # PublicPST, seed 42
+#   ./runall.sh PublicPST_S         # PublicPST-S, seed 42
 #   ./runall.sh cityNL 43           # cityNL,    seed 43
 #
-#   SMOKE=1  ./runall.sh PublicPST  # ~2-min tiny-budget rehearsal of the
+#   SMOKE=1  ./runall.sh PublicPST_S  # ~2-min tiny-budget rehearsal of the
 #                                   # whole thing (300 steps per algorithm)
 #   FORCE=1  ./runall.sh            # retrain even if a finished run exists
 #   THREADS=4 PYTHON=.venv/bin/python ./runall.sh    # knobs
@@ -25,7 +25,7 @@
 # Full protocol = 5 seeds x 1,000,000 steps per scenario (run_sweep.py or
 # slurm_sweep.sh on a cluster; here one seed at a time):
 #   for s in 42 43 44 45 46; do ./runall.sh cityNL $s; done
-# then the same for PublicPST, then run notebook §7 once per scenario.
+# then the same for PublicPST_S, then run notebook §7 once per scenario.
 # TCCPL_TOTAL_TIMESTEPS=300000 ./runall.sh ...   # smaller local budget
 # ─────────────────────────────────────────────────────────────────────────────
 set -u
@@ -38,8 +38,8 @@ PYTHON="${PYTHON:-python3}"
 THREADS="${THREADS:-3}"          # per process: 5 jobs x 3 threads = 15 cores
 
 case "$SCENARIO" in
-  cityNL|PublicPST) ;;
-  *) echo "usage: ./runall.sh [cityNL|PublicPST] [seed]"; exit 2 ;;
+  cityNL|PublicPST_S|PublicPST) ;;
+  *) echo "usage: ./runall.sh [cityNL|PublicPST_S|PublicPST] [seed]"; exit 2 ;;
 esac
 
 # ── Fail fast if this interpreter lacks the training stack ───────────────────

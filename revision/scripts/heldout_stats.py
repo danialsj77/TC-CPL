@@ -59,6 +59,7 @@ if __name__ == "__main__":
             r["p_b10"] = paired(A["b10"], X["b10"], binary=True)
             r["p_ov"] = paired(A["ov"], X["ov"], binary=True)
             out["paired"][LABELS[lab]] = r
+    os.makedirs(os.path.join(ROOT, "analysis"), exist_ok=True)
     json.dump(out, open(os.path.join(ROOT, "analysis", "heldout_stats.json"), "w"), indent=1)
     for k, v in out["summary"].items():
         print(f"{k:16s} n={v['seeds']} " + " ".join(f"{m} {v[m]:.4g}" for m in ("etr", "sat", "edel", "ov", "b10", "p_ov", "p_b10")))

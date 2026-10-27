@@ -1,9 +1,10 @@
-# Running the revision campaign
+# Running the 116-job campaign on several servers or a cluster
 
-This page is the complete procedure for the October 2026 campaign. There are two ways to run
-it; **use only one of them**:
+This page gives, command by command, ways A and B of the README's section *Reproducing the
+paper*; way C (one machine) is a single command there. There are two ways on this page;
+**use only one of them**:
 
-- **Several separate servers, each with its own disk** (how the first campaign was run):
+- **Several separate servers, each with its own disk** (how the paper's campaign was run):
   follow Steps 1–6 below.
 - **TSUBAME batch jobs** (`qsub`, all nodes see the same folder): follow only the last
   section, *Alternative: TSUBAME batch jobs*.
@@ -11,23 +12,25 @@ it; **use only one of them**:
 Doing both would train every job twice. In Steps 1–6 every command is copied as it is; only
 the server number `K` changes.
 
-**What runs.** 116 independent jobs, all from scratch (nothing of the first campaign is reused):
+**What runs.** 116 independent jobs, all from scratch (nothing trained earlier is reused; the
+variant records that come with the clone carry no model and are trained again):
 
 | Jobs | What one job does | Needs |
 |---|---|---|
 | 50 main jobs: 5 algorithms × 5 seeds on cityNL and on PublicPST-S | trains one controller for 1,000,000 steps | GPU, about 8 GB RAM (DDPG: 18 GB) |
 | 66 PublicPST-S variant jobs | trains one TC-CPL variant for 200,000 steps and evaluates it | CPU only, about 3 GB RAM |
 
-**How long.** About 30 hours with 7 servers running 5 jobs at a time each (the longest single
-job takes about 30 hours, so nothing finishes sooner; even 5 servers would finish in about 30 hours).
-This needs, on every server, about **64 GB of RAM and 20 or more CPU cores** for the 5 jobs; on a
-smaller server use `--jobs 2` (about 41 hours with 7 servers).
+**How long.** About 1.5 days with 7 servers running 5 jobs at a time each: the 116 jobs sum to
+about 1,100 job-hours, and the longest single job takes about 30 hours, so nothing finishes
+sooner. With 5 servers about 2 days. This needs, on every server, about **64 GB of RAM and 20
+or more CPU cores** for the 5 jobs; on a smaller server use `--jobs 2` (about 3.5 days with 7
+servers).
 
 ---
 
 ## Step 1 — Install, on every server (10 minutes)
 
-Use a **new folder**. Do not reuse the folder of the first campaign.
+Use a **new folder**: a fresh clone, not a folder in which the code has run before.
 
 ```bash
 git clone https://github.com/danialsj77/TC-CPL.git TC-CPL-rev
@@ -72,7 +75,7 @@ On server 2 the same with `--part 2/7` and `sweep_part2.log`, and so on up to `-
 ## Step 4 — Follow the progress
 
 ```bash
-tail -n 20 sweep_part1.log                            # START / DONE / FAIL lines
+tail -n 20 sweep_part1.log                            # start / DONE / FAIL lines
 python run_sweep.py --part 1/7 --dry-run              # what is finished and what is left
 ```
 
@@ -108,15 +111,16 @@ The check must end with `0 item(s) with problems`. Then pack everything into one
 python run_sweep.py --pack tccpl_results.tgz
 ```
 
-and send `tccpl_results.tgz` (about 1 GB) to Daniyal. Sending the seven `partK.tgz` files
-instead is also fine.
+and keep `tccpl_results.tgz` (about 1 GB): Step 4 of the README's *Reproducing the paper*
+(evaluate and build the figures and tables) starts from it. Keeping the seven `partK.tgz` files
+instead is also fine. Collaborators of the authors send the archive to the corresponding author.
 
 ## If the check reports a problem
 
 | Message | Meaning | What to do |
 |---|---|---|
-| `no checkpoint`, `no run` | the job did not run or did not finish | run Step 3 again on the server of that share, then Step 5 and Step 6 |
-| `not from this campaign` | a model of the first campaign | the folder was reused: use a fresh clone (Step 1) |
+| `no checkpoint`, `no runmeta`, `no model.zip`, `no eval.json` | the job did not run or did not finish | run Step 3 again on the server of that share, then Step 5 and Step 6 |
+| `not from this campaign` | a model trained with an earlier version of the code | the folder was reused: use a fresh clone (Step 1) |
 | `multiplier history from an earlier run` | the part archive of that job is missing | unpack all `partK.tgz` files (Step 6) |
 | `budget 12000`, `smoke run` | a short test run | run the job again with Step 3 |
 
@@ -125,13 +129,13 @@ instead is also fine.
 ### Alternative: TSUBAME batch jobs (shared disk)
 
 Use this **instead of** Steps 2–5 if all jobs should run as TSUBAME batch jobs. After Step 1
-(one fresh clone on the shared disk), from the repository folder (edit the `.venv` line in
-both scripts first):
+(one fresh clone on the shared disk), from the repository folder (uncomment the
+`. .venv/bin/activate` line in both scripts first):
 
 ```bash
 mkdir -p logs/qsub
 qsub -g <your-group> tsubame_sweep.sh               # the 50 main jobs (GPU, 48 h limit each)
-qsub -g <your-group> revision/stress_sweep.sh       # the 66 PublicPST-S variant jobs (CPU, 8 h limit each)
+qsub -g <your-group> revision/stress_sweep.sh       # the 66 PublicPST-S variant jobs (CPU, 16 h limit each)
 ```
 
 Then Step 6 from `python check_cluster_results.py` on, in that same folder.

@@ -13,13 +13,14 @@
 # variant for 200k steps, evaluates it on the 100 shared days and, if marked, again
 # with the headroom projection. Results: revision/runs/PublicPST_stress/<VARIANT>_s<SEED>/.
 # A task whose results already match its current definition exits at once, so a
-# partly failed array is simply resubmitted. One task takes about 1-2 h on 8 cores.
+# partly failed array is simply resubmitted. In the campaign a task took 1.5-12 h on two
+# shared CPU threads; 8 dedicated cores are faster, and the 16 h limit leaves a margin.
 # ─────────────────────────────────────────────────────────────────────────────
 #$ -cwd
 #$ -S /bin/bash
 #$ -N tccpl_stress
 #$ -l cpu_8=1
-#$ -l h_rt=8:00:00
+#$ -l h_rt=16:00:00
 #$ -t 1-66
 #$ -j y
 #$ -o logs/qsub/
@@ -27,7 +28,7 @@
 #SBATCH --array=0-65
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=16G
-#SBATCH --time=08:00:00
+#SBATCH --time=16:00:00
 #SBATCH --output=logs/slurm/%x_%A_%a.out
 set -eu
 # Grid Engine starts in the submission folder (-cwd); SLURM gives it in SLURM_SUBMIT_DIR

@@ -235,6 +235,7 @@ def main():
             if p:
                 pairs.setdefault(b, {})[mtr] = p
     out["stress_paired_vs_tccpl"] = pairs
+    os.makedirs(OUT, exist_ok=True)
     json.dump(out, open(os.path.join(OUT, "results.json"), "w"), indent=1, default=float)
     print("missing cityNL:", out["cityNL"]["missing"])
     print("stress variants done:", {k: v["seeds"] for k, v in out["stress"].items()})

@@ -102,6 +102,7 @@ if __name__ == "__main__":
         res["p_ov_shield"] = float((stack(shield, "total_transformer_overload") > 1e-9).mean())
         out["shield"][var] = res
     path = os.path.join(ROOT, "analysis", "stress_stats.json")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     json.dump(out, open(path, "w"), indent=1)
     for var, res in out["comparisons"].items():
         line = [f"{var:16s} n={len(res['seeds'])}"]
