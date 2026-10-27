@@ -1,0 +1,248 @@
+{
+  "reference": "TC-CPL (M1+M2+M3)",
+  "scenario_id": "PublicPST_S \u00b7 1 substations \u00b7 20 stations (20 ports) \u00b7 identical for all controllers",
+  "n_episodes": 100,
+  "zero_tolerance": 1e-09,
+  "tests": {
+    "Fixed-Penalty SAC": {
+      "overload_occurrence": {
+        "violating_days_a": 3,
+        "violating_days_b": 1,
+        "discordant_a_only": 3,
+        "discordant_b_only": 1,
+        "n_discordant": 4,
+        "p_mcnemar_exact": 0.625,
+        "p_holm": 0.625
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 4,
+        "W": 2.0,
+        "p_wilcoxon": 0.375,
+        "rank_biserial": 0.6,
+        "hodges_lehmann": 0.026672573094302397,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 4,
+        "W": 2.0,
+        "p_wilcoxon": 0.375,
+        "rank_biserial": 0.6,
+        "hodges_lehmann": 0.3056801658413472,
+        "median_diff": 0.0,
+        "p_holm": 0.5
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 3.0,
+        "p_wilcoxon": 4.266322730718234e-18,
+        "rank_biserial": -0.9988118811881188,
+        "hodges_lehmann": -0.981709967574996,
+        "median_diff": -0.9341062831497212,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "CPO": {
+      "overload_occurrence": {
+        "violating_days_a": 3,
+        "violating_days_b": 0,
+        "discordant_a_only": 3,
+        "discordant_b_only": 0,
+        "n_discordant": 3,
+        "p_mcnemar_exact": 0.25,
+        "p_holm": 0.5
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 3,
+        "W": 0.0,
+        "p_wilcoxon": 0.25,
+        "rank_biserial": 1.0,
+        "hodges_lehmann": 0.04575831640709138,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 3,
+        "W": 0.0,
+        "p_wilcoxon": 0.25,
+        "rank_biserial": 1.0,
+        "hodges_lehmann": 0.46121515355386344,
+        "median_diff": 0.0,
+        "p_holm": 0.5
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 0.0,
+        "p_wilcoxon": 3.89655984509591e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -29.45332467750249,
+        "median_diff": -29.090312811311065,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "DDPG-PST": {
+      "overload_occurrence": {
+        "violating_days_a": 3,
+        "violating_days_b": 82,
+        "discordant_a_only": 0,
+        "discordant_b_only": 79,
+        "n_discordant": 79,
+        "p_mcnemar_exact": 3.308722450212111e-24,
+        "p_holm": 1.9852334701272664e-23
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 82,
+        "W": 0.0,
+        "p_wilcoxon": 3.66389094267832e-15,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -4.938441860935339,
+        "median_diff": -2.3303243147982817
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 82,
+        "W": 0.0,
+        "p_wilcoxon": 3.66389094267832e-15,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -36.119374947603376,
+        "median_diff": -17.14085278729899,
+        "p_holm": 2.1316282072803006e-14
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 1089.0,
+        "p_wilcoxon": 7.915698945664686e-07,
+        "rank_biserial": 0.5687128712871287,
+        "hodges_lehmann": 0.6224288600933142,
+        "median_diff": 0.35658909364004643,
+        "p_holm": 1.5831397891329371e-06
+      }
+    },
+    "PPO-PST": {
+      "overload_occurrence": {
+        "violating_days_a": 3,
+        "violating_days_b": 38,
+        "discordant_a_only": 0,
+        "discordant_b_only": 35,
+        "n_discordant": 35,
+        "p_mcnemar_exact": 5.820766091346741e-11,
+        "p_holm": 1.7462298274040222e-10
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 38,
+        "W": 0.0,
+        "p_wilcoxon": 7.275957614183426e-12,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -0.4440552573057329,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 38,
+        "W": 0.0,
+        "p_wilcoxon": 7.275957614183426e-12,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -4.989537075737277,
+        "median_diff": 0.0,
+        "p_holm": 2.1827872842550278e-11
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 0.0,
+        "p_wilcoxon": 3.89655984509591e-18,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -11.14221535876721,
+        "median_diff": -10.936307862050736,
+        "p_holm": 2.337935907057546e-17
+      }
+    },
+    "Round-Robin": {
+      "overload_occurrence": {
+        "violating_days_a": 3,
+        "violating_days_b": 49,
+        "discordant_a_only": 0,
+        "discordant_b_only": 46,
+        "n_discordant": 46,
+        "p_mcnemar_exact": 2.842170943040401e-14,
+        "p_holm": 1.1368683772161603e-13
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 49,
+        "W": 0.0,
+        "p_wilcoxon": 3.552713678800501e-15,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -2.7537187161225503,
+        "median_diff": 0.0
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 49,
+        "W": 0.0,
+        "p_wilcoxon": 3.552713678800501e-15,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -19.956288914750587,
+        "median_diff": 0.0,
+        "p_holm": 2.1316282072803006e-14
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 100,
+        "W": 1179.0,
+        "p_wilcoxon": 3.6924032656146396e-06,
+        "rank_biserial": -0.5330693069306931,
+        "hodges_lehmann": -1.0705987554983811,
+        "median_diff": -0.8376430238354985,
+        "p_holm": 3.6924032656146396e-06
+      }
+    },
+    "CAFAP": {
+      "overload_occurrence": {
+        "violating_days_a": 3,
+        "violating_days_b": 63,
+        "discordant_a_only": 0,
+        "discordant_b_only": 60,
+        "n_discordant": 60,
+        "p_mcnemar_exact": 1.734723475976807e-18,
+        "p_holm": 8.673617379884035e-18
+      },
+      "overload_magnitude": {
+        "n_pairs": 100,
+        "n_nonzero": 63,
+        "W": 0.0,
+        "p_wilcoxon": 5.168394813632259e-12,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -6.9758355385928335,
+        "median_diff": -1.1724471136203947
+      },
+      "overload_intensity": {
+        "n_pairs": 100,
+        "n_nonzero": 63,
+        "W": 0.0,
+        "p_wilcoxon": 5.168394813632259e-12,
+        "rank_biserial": -1.0,
+        "hodges_lehmann": -46.725285641276585,
+        "median_diff": -9.381377030028457,
+        "p_holm": 2.0673579254529035e-11
+      },
+      "unmet_demand": {
+        "n_pairs": 100,
+        "n_nonzero": 98,
+        "W": 0.0,
+        "p_wilcoxon": 8.329908150267351e-18,
+        "rank_biserial": 1.0,
+        "hodges_lehmann": 0.9550634341919946,
+        "median_diff": 0.4810419790104973,
+        "p_holm": 2.4989724450802052e-17
+      }
+    }
+  }
+}

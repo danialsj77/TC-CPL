@@ -1,0 +1,509 @@
+{
+  "scenario_id": "PublicPST_S \u00b7 1 substations \u00b7 20 stations (20 ports) \u00b7 identical for all controllers",
+  "metrics": {
+    "\u03f5tr  (kW\u00b2)": {
+      "CAFAP": {
+        "mean": 8247.658435881302,
+        "std": 4234.830337636706,
+        "direction": "lower"
+      },
+      "Round-Robin": {
+        "mean": 4840.023851286195,
+        "std": 2295.623424212486,
+        "direction": "lower"
+      },
+      "DDPG-PST": {
+        "mean": 7048.994506716405,
+        "std": 3658.5413588019223,
+        "direction": "lower"
+      },
+      "PPO-PST": {
+        "mean": 9470.374648476129,
+        "std": 4826.902166732552,
+        "direction": "lower"
+      },
+      "CPO": {
+        "mean": 17821.476727954334,
+        "std": 9864.506499145979,
+        "direction": "lower"
+      },
+      "Fixed-Penalty SAC": {
+        "mean": 6698.121124807113,
+        "std": 4190.330273041152,
+        "direction": "lower"
+      },
+      "TC-CPL (M1+M2+M3)": {
+        "mean": 6474.266995750315,
+        "std": 3926.624191850242,
+        "direction": "lower"
+      },
+      "Optimal": {
+        "mean": 2971.35915596679,
+        "std": 1767.8082274643089,
+        "direction": "lower"
+      }
+    },
+    "|\u03f5tr|  (kWh)": {
+      "CAFAP": {
+        "mean": 143.04778805999138,
+        "std": 39.589831884074975,
+        "direction": "lower"
+      },
+      "Round-Robin": {
+        "mean": 99.9777685786757,
+        "std": 28.195711776428112,
+        "direction": "lower"
+      },
+      "DDPG-PST": {
+        "mean": 129.59594388561467,
+        "std": 35.51357479231068,
+        "direction": "lower"
+      },
+      "PPO-PST": {
+        "mean": 151.0425663933599,
+        "std": 41.12913764247357,
+        "direction": "lower"
+      },
+      "CPO": {
+        "mean": 210.84159793765815,
+        "std": 62.36478298697359,
+        "direction": "lower"
+      },
+      "Fixed-Penalty SAC": {
+        "mean": 123.5052650975117,
+        "std": 36.4681302081231,
+        "direction": "lower"
+      },
+      "TC-CPL (M1+M2+M3)": {
+        "mean": 122.19702504783184,
+        "std": 34.80157404086348,
+        "direction": "lower"
+      },
+      "Optimal": {
+        "mean": 94.16244321649867,
+        "std": 27.409883775836313,
+        "direction": "lower"
+      }
+    },
+    "\u03f5sur  (kW)": {
+      "CAFAP": {
+        "mean": 102.2452844683122,
+        "std": 40.490595391891546,
+        "direction": "lower"
+      },
+      "Round-Robin": {
+        "mean": 5.40405382825071e-07,
+        "std": 5.3769656685573925e-06,
+        "direction": "lower"
+      },
+      "DDPG-PST": {
+        "mean": 73.49294196986935,
+        "std": 29.70564308527206,
+        "direction": "lower"
+      },
+      "PPO-PST": {
+        "mean": 9.600420867687543,
+        "std": 5.280089502631971,
+        "direction": "lower"
+      },
+      "CPO": {
+        "mean": 1.2226874186660626,
+        "std": 0.7486200414827541,
+        "direction": "lower"
+      },
+      "Fixed-Penalty SAC": {
+        "mean": 35.45394684684292,
+        "std": 14.896385706739522,
+        "direction": "lower"
+      },
+      "TC-CPL (M1+M2+M3)": {
+        "mean": 43.84245596201172,
+        "std": 16.42513903869003,
+        "direction": "lower"
+      },
+      "Optimal": {
+        "mean": 1.4753150656687807e-08,
+        "std": 1.467919956114565e-07,
+        "direction": "lower"
+      }
+    },
+    "\u03f5usr": {
+      "CAFAP": {
+        "mean": 0.9980589551848656,
+        "std": 0.004900277902685194,
+        "direction": "higher"
+      },
+      "Round-Robin": {
+        "mean": 0.9740102822807494,
+        "std": 0.024776934452621715,
+        "direction": "higher"
+      },
+      "DDPG-PST": {
+        "mean": 0.994744466633184,
+        "std": 0.006989272870808769,
+        "direction": "higher"
+      },
+      "PPO-PST": {
+        "mean": 0.872922683508239,
+        "std": 0.031860897649834415,
+        "direction": "higher"
+      },
+      "CPO": {
+        "mean": 0.6909164268381379,
+        "std": 0.05920280665785221,
+        "direction": "higher"
+      },
+      "Fixed-Penalty SAC": {
+        "mean": 0.974631156523047,
+        "std": 0.021949782757626487,
+        "direction": "higher"
+      },
+      "TC-CPL (M1+M2+M3)": {
+        "mean": 0.985339319303936,
+        "std": 0.018509291280857532,
+        "direction": "higher"
+      },
+      "Optimal": {
+        "mean": 0.994416109485349,
+        "std": 0.006070002178943325,
+        "direction": "higher"
+      }
+    },
+    "Transformer overload (kWh)": {
+      "CAFAP": {
+        "mean": 5.23316229090957,
+        "std": 7.82285777280215,
+        "direction": "lower"
+      },
+      "Round-Robin": {
+        "mean": 1.8577026248625612,
+        "std": 3.843639894298282,
+        "direction": "lower"
+      },
+      "DDPG-PST": {
+        "mean": 5.581006036785856,
+        "std": 7.843100910939644,
+        "direction": "lower"
+      },
+      "PPO-PST": {
+        "mean": 0.31158721795143607,
+        "std": 0.7970214493323551,
+        "direction": "lower"
+      },
+      "CPO": {
+        "mean": 0.0,
+        "std": 0.0,
+        "direction": "lower"
+      },
+      "Fixed-Penalty SAC": {
+        "mean": 0.0003647094438325347,
+        "std": 0.0036288131480751444,
+        "direction": "lower"
+      },
+      "TC-CPL (M1+M2+M3)": {
+        "mean": 0.0014316123676046304,
+        "std": 0.009197208092322605,
+        "direction": "lower"
+      },
+      "Optimal": {
+        "mean": 1.0426676528076939e-05,
+        "std": 2.277336792461672e-05,
+        "direction": "lower"
+      }
+    },
+    "Overload per MWh delivered": {
+      "CAFAP": {
+        "mean": 34.61641538871206,
+        "std": 50.468471725414645,
+        "direction": "lower"
+      },
+      "Round-Robin": {
+        "mean": 12.283583823898264,
+        "std": 22.896148866467836,
+        "direction": "lower"
+      },
+      "DDPG-PST": {
+        "mean": 36.468883257274335,
+        "std": 47.49321204829127,
+        "direction": "lower"
+      },
+      "PPO-PST": {
+        "mean": 3.3165293399391205,
+        "std": 8.147006292484733,
+        "direction": "lower"
+      },
+      "CPO": {
+        "mean": 0.0,
+        "std": 0.0,
+        "direction": "lower"
+      },
+      "Fixed-Penalty SAC": {
+        "mean": 0.0026625699817702736,
+        "std": 0.026492236822786244,
+        "direction": "lower"
+      },
+      "TC-CPL (M1+M2+M3)": {
+        "mean": 0.014890441502120171,
+        "std": 0.10416048906876534,
+        "direction": "lower"
+      },
+      "Optimal": {
+        "mean": 6.568257215801664e-05,
+        "std": 0.0001324404123526489,
+        "direction": "lower"
+      }
+    },
+    "Energy delivered (kWh)": {
+      "CAFAP": {
+        "mean": 130.85295516650058,
+        "std": 37.18634292424809,
+        "direction": "higher"
+      },
+      "Round-Robin": {
+        "mean": 122.65900256351365,
+        "std": 35.96941240778793,
+        "direction": "higher"
+      },
+      "DDPG-PST": {
+        "mean": 129.89877807617313,
+        "std": 37.42409547708665,
+        "direction": "higher"
+      },
+      "PPO-PST": {
+        "mean": 76.4353585475333,
+        "std": 24.307378638021213,
+        "direction": "higher"
+      },
+      "CPO": {
+        "mean": 12.411081459658641,
+        "std": 5.435970382340011,
+        "direction": "higher"
+      },
+      "Fixed-Penalty SAC": {
+        "mean": 116.85847919789641,
+        "std": 29.95918593093627,
+        "direction": "higher"
+      },
+      "TC-CPL (M1+M2+M3)": {
+        "mean": 122.36097380516068,
+        "std": 31.660735782988848,
+        "direction": "higher"
+      },
+      "Optimal": {
+        "mean": 128.4753099268696,
+        "std": 36.56910759006711,
+        "direction": "higher"
+      }
+    },
+    "Unmet demand (%)": {
+      "CAFAP": {
+        "mean": 0.002984005108501151,
+        "std": 0.030115019447792414,
+        "direction": "lower"
+      },
+      "Round-Robin": {
+        "mean": 2.461333052219361,
+        "std": 2.341910552817046,
+        "direction": "lower"
+      },
+      "DDPG-PST": {
+        "mean": 0.34223480706175763,
+        "std": 0.4696906297759363,
+        "direction": "lower"
+      },
+      "PPO-PST": {
+        "mean": 12.581189673717795,
+        "std": 3.0787630866189377,
+        "direction": "lower"
+      },
+      "CPO": {
+        "mean": 30.815085987381412,
+        "std": 5.869387723688554,
+        "direction": "lower"
+      },
+      "Fixed-Penalty SAC": {
+        "mean": 2.3744464464997814,
+        "std": 2.0743153733185347,
+        "direction": "lower"
+      },
+      "TC-CPL (M1+M2+M3)": {
+        "mean": 1.296015341558163,
+        "std": 1.7441456491151657,
+        "direction": "lower"
+      },
+      "Optimal": {
+        "mean": 0.3802898251349184,
+        "std": 0.1930430145063361,
+        "direction": "lower"
+      }
+    },
+    "Voltage violation (p.u.)": {
+      "CAFAP": {
+        "mean": 0.0,
+        "std": 0.0,
+        "direction": "higher"
+      },
+      "Round-Robin": {
+        "mean": 0.0,
+        "std": 0.0,
+        "direction": "higher"
+      },
+      "DDPG-PST": {
+        "mean": 0.0,
+        "std": 0.0,
+        "direction": "higher"
+      },
+      "PPO-PST": {
+        "mean": 0.0,
+        "std": 0.0,
+        "direction": "higher"
+      },
+      "CPO": {
+        "mean": 0.0,
+        "std": 0.0,
+        "direction": "higher"
+      },
+      "Fixed-Penalty SAC": {
+        "mean": 0.0,
+        "std": 0.0,
+        "direction": "higher"
+      },
+      "TC-CPL (M1+M2+M3)": {
+        "mean": 0.0,
+        "std": 0.0,
+        "direction": "higher"
+      },
+      "Optimal": {
+        "mean": 0.0,
+        "std": 0.0,
+        "direction": "higher"
+      }
+    },
+    "Profit (\u20ac)": {
+      "CAFAP": {
+        "mean": -25.85260590680437,
+        "std": 17.457959692498502,
+        "direction": "higher"
+      },
+      "Round-Robin": {
+        "mean": -23.88867985589167,
+        "std": 16.326414281033156,
+        "direction": "higher"
+      },
+      "DDPG-PST": {
+        "mean": -25.244588545143014,
+        "std": 17.365109207605943,
+        "direction": "higher"
+      },
+      "PPO-PST": {
+        "mean": -14.914509652849981,
+        "std": 10.767070978628988,
+        "direction": "higher"
+      },
+      "CPO": {
+        "mean": -2.0438008959302736,
+        "std": 1.290748774528374,
+        "direction": "higher"
+      },
+      "Fixed-Penalty SAC": {
+        "mean": -22.17183154264249,
+        "std": 13.820651192304156,
+        "direction": "higher"
+      },
+      "TC-CPL (M1+M2+M3)": {
+        "mean": -23.291964034913477,
+        "std": 14.51241358928745,
+        "direction": "higher"
+      },
+      "Optimal": {
+        "mean": -24.680113633503517,
+        "std": 16.869964663128325,
+        "direction": "higher"
+      }
+    },
+    "Battery degradation": {
+      "CAFAP": {
+        "mean": 0.0003498262345663894,
+        "std": 8.814398936800165e-05,
+        "direction": "lower"
+      },
+      "Round-Robin": {
+        "mean": 0.00032024781270911307,
+        "std": 7.972541326128844e-05,
+        "direction": "lower"
+      },
+      "DDPG-PST": {
+        "mean": 0.0003443776959348256,
+        "std": 8.804254968903613e-05,
+        "direction": "lower"
+      },
+      "PPO-PST": {
+        "mean": 0.00024734765271760303,
+        "std": 6.526821083977873e-05,
+        "direction": "lower"
+      },
+      "CPO": {
+        "mean": 0.0001504583083720266,
+        "std": 3.6918272785500434e-05,
+        "direction": "lower"
+      },
+      "Fixed-Penalty SAC": {
+        "mean": 0.0003141208753071249,
+        "std": 7.322560242419942e-05,
+        "direction": "lower"
+      },
+      "TC-CPL (M1+M2+M3)": {
+        "mean": 0.0003265997788361705,
+        "std": 7.575527988363417e-05,
+        "direction": "lower"
+      },
+      "Optimal": {
+        "mean": 0.00032453588382252654,
+        "std": 8.234322086153423e-05,
+        "direction": "lower"
+      }
+    },
+    "Episode return": {
+      "CAFAP": {
+        "mean": -3812.3841818592673,
+        "std": 1905.539956527242,
+        "direction": "higher"
+      },
+      "Round-Robin": {
+        "mean": -4394.828744150679,
+        "std": 2177.6849200580555,
+        "direction": "higher"
+      },
+      "DDPG-PST": {
+        "mean": -3677.1925794690815,
+        "std": 1744.1856148851746,
+        "direction": "higher"
+      },
+      "PPO-PST": {
+        "mean": -9237.02565416834,
+        "std": 4709.076375314449,
+        "direction": "higher"
+      },
+      "CPO": {
+        "mean": -17784.93049950529,
+        "std": 9825.698460772566,
+        "direction": "higher"
+      },
+      "Fixed-Penalty SAC": {
+        "mean": -5809.413304775694,
+        "std": 4201.826412512352,
+        "direction": "higher"
+      },
+      "TC-CPL (M1+M2+M3)": {
+        "mean": -5068.20226016477,
+        "std": 3901.704360847477,
+        "direction": "higher"
+      },
+      "Optimal": {
+        "mean": -2943.7941460272623,
+        "std": 1757.3069776944694,
+        "direction": "higher"
+      }
+    }
+  }
+}
